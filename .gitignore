@@ -1,0 +1,9 @@
+node_modules
+
+.idea
+/.cache
+/build
+/public/build
+.env
+/app/styles/tailwind.css
+

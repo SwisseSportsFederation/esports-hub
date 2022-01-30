@@ -1,0 +1,10 @@
+import { PropsWithChildren } from "react";
+import { PropsWithClassName } from "~/utils/PropsWithClassName";
+
+const H1 = ({ children, className = '' }: PropsWithChildren<PropsWithClassName<Record<never, never>>>) => {
+  return <h1 className={`font-bold text-xl mb-5 ${className}`}>
+    {children}
+  </h1>;
+};
+
+export default H1;
