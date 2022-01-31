@@ -15,7 +15,7 @@ const Menu = () => {
   return <>
     <MenuEntry path='/search' title='Search'/>
     <MenuEntry path='/wiki/about-us' title='About us'/>
-    <MenuEntry path='/wiki/contact' title='Contact'/>
+    <MenuEntry path='/contact' title='Contact'/>
   </>;
 };
 
