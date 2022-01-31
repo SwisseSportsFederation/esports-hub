@@ -32,43 +32,92 @@
     @apply transition-all ease-linear duration-500;
     @apply transform max-h-0;
   }
+
+  .hamburger {
+    width: 40px;
+    height: 4px;
+    position: relative;
+    background: white;
+    border-radius: 25px;
+
+    .dark &,
+    .dark &:before,
+    .dark &:after {
+      background: white;
+    }
+
+    &:before,
+    &:after {
+      background: white;
+      position: absolute;
+      width: 40px;
+      height: 4px;
+      content: '';
+      border-radius: 25px;
+    }
+
+    &:before {
+      top: 14px;
+    }
+
+    &:after {
+      top: -14px;
+    }
+
+    &.active {
+      visibility: hidden;
+
+      &:before {
+        top: 0;
+        transform: rotate(-45deg);
+        visibility: visible;
+      }
+
+      &:after {
+        top: 0;
+        transform: rotate(45deg);
+        visibility: visible;
+      }
+    }
+  }
+
+  textarea:placeholder-shown + label,
+  textarea:placeholder-shown + span,
+  input:placeholder-shown + label,
+  input:placeholder-shown + span {
+    @apply text-gray-4;
+  }
+
+  input:not(:placeholder-shown) + label,
+  input:not(:placeholder-shown) + span {
+    transform: translate3d(0, -2em, 0) scale(0.7);
+    transform-origin: left;
+    opacity: 1;
+    @apply text-white;
+  }
+
+  textarea:not(:placeholder-shown) + label,
+  textarea:not(:placeholder-shown) + span {
+    transform: translate3d(0, -2.4em, 0) scale(0.7);
+    transform-origin: left;
+    opacity: 1;
+  }
+
+  textarea[required]::placeholder,
+  input[required]::placeholder,
+  textarea[required] + label:after,
+  input[required] + label:after,
+  textarea[required] + span:after,
+  input[required] + span:after {
+    content: " *";
+    color: currentColor;
+  }
+
+  input[type="date"]::-webkit-inner-spin-button,
+  input[type="date"]::-webkit-clear-button,
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
 }
 
-textarea:placeholder-shown + label,
-textarea:placeholder-shown + span,
-input:placeholder-shown + label,
-input:placeholder-shown + span {
-  @apply text-gray-4;
-}
-
-input:not(:placeholder-shown) + label,
-input:not(:placeholder-shown) + span {
-  transform: translate3d(0, -2em, 0) scale(0.7);
-  transform-origin: left;
-  opacity: 1;
-  @apply text-white;
-}
-
-textarea:not(:placeholder-shown) + label,
-textarea:not(:placeholder-shown) + span {
-  transform: translate3d(0, -2.4em, 0) scale(0.7);
-  transform-origin: left;
-  opacity: 1;
-}
-
-textarea[required]::placeholder,
-input[required]::placeholder,
-textarea[required] + label:after,
-input[required] + label:after,
-textarea[required] + span:after,
-input[required] + span:after {
-  content: " *";
-  color: currentColor;
-}
-
-input[type="date"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-clear-button,
-input[type="date"]::-webkit-calendar-picker-indicator {
-  display: none;
-  -webkit-appearance: none;
-}

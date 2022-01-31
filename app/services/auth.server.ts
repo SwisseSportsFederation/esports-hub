@@ -4,8 +4,8 @@ import { sessionStorage } from "~/services/session.server";
 import { db } from "~/services/db.server";
 import type { users } from '@prisma/client';
 
-type AuthUser = {
-  db: users | null;
+export type AuthUser = {
+  db: users;
   profile: Auth0Profile;
 };
 export const authenticator = new Authenticator<AuthUser>(sessionStorage);
@@ -47,6 +47,7 @@ authenticator.use(
           });
         } catch(error) {
           console.log(error);
+          throw error;
         }
       }
       return {

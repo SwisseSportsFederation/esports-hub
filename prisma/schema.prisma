@@ -124,10 +124,10 @@ model organisations {
   verification_level     BigInt?
   is_active              Boolean?
   cantons                cantons?                 @relation(fields: [canton_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisations_canton")
-  organisation_languages organisation_languages[]
-  organisation_members   organisation_members[]
-  organisation_socials   organisation_socials[]
-  organisation_teams     organisation_teams[]
+  languages organisation_languages[]
+  members   organisation_members[]
+  socials   organisation_socials[]
+  teams     organisation_teams[]
 
   @@index([deleted_at], map: "idx_organisations_deleted_at")
 }
@@ -197,9 +197,9 @@ model teams {
   cantons            cantons?             @relation(fields: [canton_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_canton")
   games              games?               @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_game")
   organisation_teams organisation_teams[]
-  team_languages     team_languages[]
-  team_members       team_members[]
-  team_socials       team_socials[]
+  languages     team_languages[]
+  members       team_members[]
+  socials       team_socials[]
 
   @@index([deleted_at], map: "idx_teams_deleted_at")
 }

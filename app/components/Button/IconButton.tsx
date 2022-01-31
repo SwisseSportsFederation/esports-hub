@@ -2,6 +2,7 @@ import Icon from "../Icon";
 import classNames from "classnames";
 // import { useRouter } from "next/router";
 import { PropsWithClassName } from "../../utils/PropsWithClassName";
+import { useNavigate } from "react-router";
 
 export type IIconButtonProps = {
   icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove",
@@ -14,22 +15,19 @@ export type IIconButtonProps = {
   path: string
 }
   | {
-    action?: never,
-    path?: never
-  });
+  action?: never,
+  path?: never
+});
 
 
 const IconButton = ({ icon, action, path, size = "medium", className }: PropsWithClassName<IIconButtonProps>) => {
-  // const router = useRouter();
-
+  const navigate = useNavigate();
   const useHandleClick = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
     event.stopPropagation();
     action && action();
     if(path) {
-      // await router.push({
-      //   pathname: path,
-      // });
+      navigate(path, { replace: true });
     }
   };
 

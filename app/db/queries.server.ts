@@ -6,7 +6,7 @@ const query = (search?: string): Prisma.StringNullableFilter => ({
   mode: 'insensitive'
 });
 
-type StringOrNull = string | null;
+export type StringOrNull = string | null;
 
 type TeamsQuery = {
   image: StringOrNull,
@@ -43,7 +43,7 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
     AND: [
       { cantons: { name: { equals: canton } } },
       { games: { name: { equals: game } } },
-      { team_languages: { some: { languages: { name: language } } } },
+      { languages: { some: { languages: { name: language } } } },
       {
         OR: [
           { name: query(search) },
@@ -69,7 +69,7 @@ const orgsQuery = (search?: string, canton?: string, language?: string) => db.or
   where: {
     AND: [
       { cantons: { name: { equals: canton } } },
-      { organisation_languages: { some: { languages: { name: language } } } },
+      { languages: { some: { languages: { name: language } } } },
       {
         OR: [
           { name: query(search) },
@@ -102,7 +102,6 @@ const usersQuery = (search?: string, canton?: string, language?: string, game?: 
     team_members: { select: { teams: { select: { name: true } } } }
   }
 });
-
 
 export {
   searchQueries

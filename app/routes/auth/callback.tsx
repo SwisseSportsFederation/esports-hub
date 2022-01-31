@@ -2,7 +2,7 @@ import type { LoaderFunction } from "remix";
 import { redirect } from "remix";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
-import logout from "~/utils/logout";
+import logout from "~/utils/auth.server";
 
 export let loader: LoaderFunction = async ({ request }) => {
   let user;
