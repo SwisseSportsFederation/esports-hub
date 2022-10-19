@@ -1,4 +1,4 @@
-import { Form } from "remix";
+import { Form } from "@remix-run/react";
 
 interface ILinkButton {
   path: string,

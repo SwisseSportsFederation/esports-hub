@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useLocation } from "remix";
+import { Link, useLoaderData, useLocation } from "@remix-run/react";
 import Icon from "../Icon";
 import { useEffect, useRef, useState } from "react";
 import MobileMenu from "./MobileMenu";

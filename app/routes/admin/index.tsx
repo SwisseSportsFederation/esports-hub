@@ -1,4 +1,5 @@
-import { json, LoaderFunction, useLoaderData } from "remix";
+import { json } from "@remix-run/node";
+import { LoaderFunction, useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";

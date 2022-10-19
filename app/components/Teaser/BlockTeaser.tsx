@@ -1,5 +1,5 @@
 import Icon from "../Icon";
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 
 export interface IBlockTeaserProps {
   path: string,

@@ -1,5 +1,5 @@
-import type { LoaderFunction } from "remix";
-import { redirect } from "remix";
+import type { LoaderFunction } from "@remix-run/react";
+import { redirect } from "@remix-run/react";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
 import logout from "~/utils/auth.server";

@@ -1,6 +1,6 @@
 import Menu from "./Menu";
 import PostFormButton from "~/components/Button/FormButton";
-import { useLoaderData } from "remix";
+import { useLoaderData } from "@remix-run/react";
 
 interface IMobileMenu {
   menuActive: boolean;

@@ -1,4 +1,4 @@
-import { Form } from "remix";
+import { Form } from "@remix-run/react";
 import Icon from "~/components/Icon";
 
 const Login = () => <Form action={"/auth/login"} method="post">

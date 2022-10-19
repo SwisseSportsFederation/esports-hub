@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { PropsWithClassName } from "~/utils/PropsWithClassName";
 import Icon from "../Icon";
 import H1 from "./H1";
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 
 interface IH1NavProps {
   path: string,

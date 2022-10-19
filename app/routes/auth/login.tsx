@@ -1,5 +1,5 @@
-import type { ActionFunction, LoaderFunction } from "remix";
-import { redirect } from "remix";
+import type { ActionFunction, LoaderFunction } from "@remix-run/react";
+import { redirect } from "@remix-run/react";
 import { authenticator } from "~/services/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/");

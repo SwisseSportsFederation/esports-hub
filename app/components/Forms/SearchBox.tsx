@@ -1,5 +1,5 @@
 import Icon from "~/components/Icon";
-import { Form, useSearchParams } from "remix";
+import { Form, useSearchParams } from "@remix-run/react";
 import ActionButton from "~/components/Button/ActionButton";
 import TextInput from "~/components/Forms/TextInput";
 import DropDownInput from "~/components/Forms/DropdownInput";

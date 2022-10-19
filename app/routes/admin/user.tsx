@@ -1,4 +1,5 @@
-import { json, LoaderFunction } from "remix";
+import { json } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/react";
 import { checkUserAuth } from "~/utils/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {

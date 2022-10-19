@@ -1,4 +1,5 @@
-import { json, LoaderFunction, useLoaderData } from "remix";
+import { json } from "@remix-run/node";
+import { LoaderFunction, useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
 import SearchBox from "~/components/Forms/SearchBox";
 import getCache from "~/services/cache.server";

@@ -1,5 +1,6 @@
-import type { LoaderFunction, MetaFunction } from "remix";
-import { json, Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "remix";
+import type { LoaderFunction, MetaFunction } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
 import styles from "./styles/tailwind.css";
 import contentPageStyles from "~/styles/contentpage.css";
 import Footer from "~/components/Footer";
