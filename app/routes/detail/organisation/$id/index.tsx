@@ -46,7 +46,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       organisations: {
         some: {
           organisation: {
-            auth_id: organisation.id
+            auth_id: id
           }
         }
       }
@@ -64,13 +64,16 @@ export const loader: LoaderFunction = async ({ request }) => {
   };
 
   const orgQuery = db.organisations.findFirst(query);
-  const organisation: ([IOrganisation] | null) = await Promise.all([orgQuery]);
+  const organisations: ([IOrganisation]) = await Promise.all([orgQuery]);
+  const organisation = organisations[0];
 
   const teamTeasers = getTeamTeasers(getAcceptedOrganisationTeams(organisation.teams));
   const isMember = isOrganisationMember(organisation.members, user.profile.id ?? "");
   const memberTeasers = getOrganisationMemberTeasers(organisation.members);
 
   const result = {
+    user,
+    organisation,
     teamTeasers,
     isMember,
     memberTeasers
@@ -106,19 +109,19 @@ export default function() {
   return <div className="mx-3">
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
-        <DetailHeader name={organisation.name}
-                      imagePath={organisation.image}
-                      entitySocials={organisation.socials}
-                      games={getOrganisationGames(organisation)}
-                      isMember={isMember}
+        <DetailHeader name={data.organisation.name}
+                      imagePath={data.organisation.image}
+                      entitySocials={data.organisation.socials}
+                      games={getOrganisationGames(data.organisation)}
+                      isMember={data.isMember}
                       onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">
-          <DetailContentBlock {...organisation} />
+          <DetailContentBlock {...data.organisation} />
           <div className="-mx-4">
-            <TeaserList title="Teams" teasers={teamTeasers} />
-            <TeaserList title="Members" teasers={memberTeasers} />
+            <TeaserList title="Teams" teasers={data.teamTeasers} />
+            <TeaserList title="Members" teasers={data.memberTeasers} />
           </div>
-          { user && !isMember &&
+          { data.user && !data.isMember &&
               <div className="flex items-center justify-center my-7">
                 <ActionButton content="Apply" action={handleActionClick} />
               </div>

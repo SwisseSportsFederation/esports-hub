@@ -3,8 +3,9 @@ import IGame from "../../models/IGame";
 import IEntitySocial from "../../models/IEntitySocial";
 import IconButton from "../Button/IconButton";
 import SocialIconButton from "../Button/SocialIconButton";
-import { useSESFUser } from "../../providers/SESFUserProvider";
+import { checkUserAuth } from "~/utils/auth.server";
 import classNames from "classnames";
+import { Link } from "@remix-run/react";
 
 type IDetailHeaderProps = {
   imagePath?: string,
@@ -23,7 +24,7 @@ type IDetailHeaderProps = {
 
 const DetailHeader = (props: IDetailHeaderProps) => {
   const { imagePath, name, parentLink, parentName, entitySocials, games, isMember, onApply } = props;
-  const { data: user } = useSESFUser();
+  const user = await checkUserAuth(request);
 
   const avatarPath = imagePath ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${imagePath}` : "/assets/user-solid.svg";
 
@@ -54,7 +55,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         </div>
         {parentLink && parentName &&
           <div className="flex justify-center items-center mb-3 text-red-1 text-xl">
-            <Link href={`${parentLink}`}>
+            <Link to={`${parentLink}`}>
               <a>{parentName}</a>
             </Link>
           </div>
