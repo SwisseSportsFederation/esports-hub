@@ -1,12 +1,14 @@
 import { ReactNode } from "react";
 import { PropsWithClassName } from "~/utils/PropsWithClassName";
 import classNames from "classnames";
-import { games } from '@prisma/client';
+import EntityType from "~/models/enums/EntityTypeEnum";
 
 export interface ITeaserCoreProps {
+  id: string,
+  type: EntityType,
   avatarPath: string | null,
   name: string,
-  team: string | null,
+  team?: string | null,
   games: string[],
   icons?: ReactNode
 }
