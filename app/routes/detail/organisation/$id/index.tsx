@@ -10,35 +10,12 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import {getAcceptedOrganisationTeams, isOrganisationMember} from "~/utils/entityFilters";
-const { addNotification } = useNotification();
+import {getAcceptedOrganisationTeams, isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
+const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await checkUserAuth(request);
   const id = request.query.organisationId as string;
-
-  /* TODO later apply button
-  const handleActionClick = async () => {
-    const [, error] = await authenticatedFetch(`/users/${user.profile.id}/organisation/apply`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        userId: user.profile.id,
-        organisationId: organisation.id,
-        isMainTeam: false,
-        joinedAt: new Date().toISOString(),
-        role: ""
-      })
-    }, token);
-
-    if (error) {
-      addNotification("Error", 3000);
-      console.error(error);
-      return;
-    }
-
-    addNotification("Success", 3000);
-    await mutate();
-  };*/
 
   /* TODO check query */
   const query = {
@@ -95,6 +72,30 @@ export default function() {
         {icons}
       </>
     }));
+  };
+
+  const handleActionClick = async () => {
+    addNotification("Error", 3000);
+    /* TODO later apply button
+    const [, error] = await authenticatedFetch(`/users/${user.profile.id}/organisation/apply`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        userId: user.profile.id,
+        organisationId: organisation.id,
+        isMainTeam: false,
+        joinedAt: new Date().toISOString(),
+        role: ""
+      })
+    }, token);
+  
+    if (error) {
+      addNotification("Error", 3000);
+      console.error(error);
+      return;
+    }
+  
+    addNotification("Success", 3000);
+    await mutate();*/
   };
 
   const editIcon = <IconButton icon='edit' path='/admin/teams' />;
