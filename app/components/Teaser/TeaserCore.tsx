@@ -1,13 +1,13 @@
-import { ReactNode } from "react";
-import { PropsWithClassName } from "~/utils/PropsWithClassName";
+import type { ReactNode } from "react";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import classNames from "classnames";
-import { games } from '@prisma/client';
+import type { Game } from "@prisma/client";
 
 export interface ITeaserCoreProps {
-  avatarPath: string | null,
+  avatarPath?: string,
   name: string,
-  team: string | null,
-  games: string[],
+  team?: string,
+  games: Game[],
   icons?: ReactNode
 }
 
@@ -32,9 +32,9 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
           <span className="text-sm"> ({team})</span>
         }
       </div>
-      {games && games.map((game: string) =>
-        <span key={game} className="rounded-full whitespace-nowrap text-sm px-3 mx-1 bg-gray-6 dark:bg-gray-3">
-                {game}
+      {games && games.map((game: Game) =>
+        <span key={game.name} className="rounded-full whitespace-nowrap text-sm px-3 mx-1 bg-gray-6 dark:bg-gray-3">
+                {game.name}
               </span>)
       }
     </div>

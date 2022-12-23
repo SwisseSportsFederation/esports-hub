@@ -1,10 +1,12 @@
+import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { LoaderFunction, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
 import SearchBox from "~/components/Forms/SearchBox";
 import getCache from "~/services/cache.server";
 import Teaser from "~/components/Teaser/Teaser";
 import { searchQueries } from "~/db/queries.server";
+import type { Game } from "@prisma/client";
 
 type SearchResult = {
   users: UserSearchResult[],
@@ -13,10 +15,10 @@ type SearchResult = {
 }
 
 type UserSearchResult = {
-  image: string | null,
+  image?: string,
   name: string,
-  team: string | null,
-  games: string[]
+  team?: string,
+  games: Game[]
 };
 
 type SearchParams = {
@@ -46,15 +48,15 @@ const searchForUsers = async (searchParams: URLSearchParams) => {
   const users = usersResult.map(user => ({
     name: user.nickname,
     image: user.image,
-    team: user.team_members.map(mem => mem.teams.name)?.[0],
-    games: user.user_games.map(games => games.games.name)
+    team: user.teams.map(mem => mem.team.name)?.[0],
+    games: user.games
   }));
 
   const teams = teamsResult.map(team => ({
     image: team.image,
     name: team.name,
     team: team.short_name,
-    games: [team.games?.name] ?? []
+    games: [team.game] ?? []
   }));
 
   const orgs = orgsResult.map(org => ({
@@ -72,9 +74,9 @@ async function getSearchParams(): Promise<SearchParams> {
   if(!searchParams) {
     const name = { select: { name: true } };
     const [cantons, games, languages] = await Promise.all([
-      db.cantons.findMany(name),
-      db.games.findMany(name),
-      db.languages.findMany(name)
+      db.canton.findMany(name),
+      db.game.findMany(name),
+      db.language.findMany(name)
     ]);
 
     const mapper = (arr: { name: string | null }[]) => {
@@ -108,6 +110,7 @@ export default function() {
   let resultsNode = null;
   if(searchResults) {
     const results = new Array<UserSearchResult>().concat(searchResults.teams, searchResults.orgs, searchResults.users);
+    console.log(results);
     resultsNode = results.map((teaser: UserSearchResult, index: number) =>
       <Teaser key={index} name={teaser.name} team={teaser.team} games={teaser.games} avatarPath={teaser.image}/>
     );

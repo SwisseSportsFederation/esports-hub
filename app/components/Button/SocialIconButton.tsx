@@ -1,14 +1,14 @@
 import Icon from "../Icon";
 import React from "react";
-import useNotification from "../../hooks/useNotification";
-import IEntitySocial from "../../models/IEntitySocial";
+import type { Social } from "@prisma/client";
+// import useNotification from "../../hooks/useNotification";
 
 interface ISocialIconButtonProps {
-  entitySocial: IEntitySocial
+  entitySocial: Social
 }
 
 const SocialIconButton = ({ entitySocial }: ISocialIconButtonProps) => {
-  const { addNotification } = useNotification();
+  // const { addNotification } = useNotification();
 
   const onClick = () => {
     if(entitySocial.name.includes("http://") || entitySocial.name.includes("https://")) {
@@ -16,17 +16,17 @@ const SocialIconButton = ({ entitySocial }: ISocialIconButtonProps) => {
     } else {
       navigator.clipboard.writeText(entitySocial.name)
         .then(() => {
-          addNotification(`${entitySocial.social.name} value copied`, 3000);
+          // addNotification(`${entitySocial.social.name} value copied`, 3000);
         })
         .catch(() => {
-          addNotification("Error copying the value", 3000);
+          // addNotification("Error copying the value", 3000);
         });
     }
   };
 
   return <>
     <button onClick={onClick} className="mx-3 mb-2">
-      <Icon className="w-9 h-9" path={`/assets/${entitySocial.social.name.toLowerCase()}.svg`}/>
+      <Icon className="w-9 h-9" path={`/assets/${entitySocial.platform.toLowerCase()}.svg`}/>
     </button>
   </>;
 };

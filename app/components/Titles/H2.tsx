@@ -1,5 +1,5 @@
-import { PropsWithChildren } from "react";
-import { PropsWithClassName } from "../../utils/PropsWithClassName";
+import type { PropsWithChildren } from "react";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 
 
 const H2 = ({ children, className }: PropsWithChildren<PropsWithClassName<Record<never, never>>>) => {
