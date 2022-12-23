@@ -22,6 +22,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({ user });
 }
 
+// @ts-ignore
+BigInt.prototype.toJSON = function() {
+  return this.toString()
+}
 
 export default function App() {
   return (

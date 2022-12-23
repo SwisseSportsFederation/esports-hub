@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { AccessRight, PrismaClient, RequestStatus, Role, SocialPlatform, VerificationLevel } from "@prisma/client";
 import { faker } from '@faker-js/faker';
+import { func } from "prop-types";
 
 const prisma = new PrismaClient();
 
@@ -64,6 +65,14 @@ async function seed() {
   await Promise.all(createOrgs().map(data => prisma.organisation.create({ data })));
   await Promise.all(createTeams().map(data => prisma.team.create({ data })));
   await Promise.all(createUsers().map(data => prisma.user.create({ data })));
+  const user = createUsers()[0];
+  await prisma.user.create({
+    data: {
+      ...user,
+      auth_id: 'auth0|63a5b893a7323af401038dff',
+      email: 'test@test.com'
+    }
+  });
 }
 
 seed();
