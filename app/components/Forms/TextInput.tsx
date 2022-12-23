@@ -1,6 +1,6 @@
 import Icon from "../Icon";
 import classNames from "classnames";
-import { PropsWithClassName } from "~/utils/PropsWithClassName";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 
 interface ITextInputProps {
   id: string,

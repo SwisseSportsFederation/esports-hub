@@ -1,11 +1,12 @@
 import { Authenticator } from "remix-auth";
-import { Auth0Profile, Auth0Strategy } from 'remix-auth-auth0';
+import type { Auth0Profile } from 'remix-auth-auth0';
+import { Auth0Strategy } from 'remix-auth-auth0';
 import { sessionStorage } from "~/services/session.server";
 import { db } from "~/services/db.server";
-import type { users } from '@prisma/client';
+import type { User } from '@prisma/client';
 
 export type AuthUser = {
-  db: users;
+  db: User;
   profile: Auth0Profile;
 };
 export const authenticator = new Authenticator<AuthUser>(sessionStorage);
@@ -32,17 +33,20 @@ authenticator.use(
       domain: process.env.AUTH0_DOMAIN,
     },
     async ({ profile }) => {
-      let user = await db.users.findUnique({
+      let user = await db.user.findUnique({
         where: {
           auth_id: profile.id
         }
       });
       if(!user) {
         try {
-          user = await db.users.create({
+          user = await db.user.create({
             data: {
+              nickname: '',
+              name: '',
+              surname: '',
               auth_id: profile.id,
-              email: profile.emails[0].value
+              email: profile.emails![0].value
             }
           });
         } catch(error) {

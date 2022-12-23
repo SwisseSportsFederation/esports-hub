@@ -1,7 +1,6 @@
 import Icon from "../Icon";
 import classNames from "classnames";
-// import { useRouter } from "next/router";
-import { PropsWithClassName } from "../../utils/PropsWithClassName";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import { useNavigate } from "react-router";
 
 export type IIconButtonProps = {

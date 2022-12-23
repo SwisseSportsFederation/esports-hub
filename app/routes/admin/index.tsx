@@ -1,27 +1,23 @@
+import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { LoaderFunction, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { StringOrNull } from "~/db/queries.server";
-import { ReactNode } from "react";
+import type { StringOrNull } from "~/db/queries.server";
+import type { ReactNode } from "react";
+import { RequestStatus } from "@prisma/client";
 
-enum RequestStatusEnum {
-  Accepted = 1,
-  PendingUserAccount = 2,
-  PendingTeamAccount = 3,
-  PendingOrganisationAccount = 4,
-}
 
 type Membership = {
   short_name: StringOrNull,
   name: StringOrNull,
   image: StringOrNull,
   members: {
-    request_status_id: bigint | null
+    request_status: RequestStatus | null
   }[]
 };
 
@@ -30,7 +26,7 @@ function splitInvitations<T extends Membership>(array: T[]): [T[], T[]] {
     if(!elem.members[0]) {
       return [pass, fail];
     }
-    if(elem.members[0].request_status_id === BigInt(RequestStatusEnum.PendingUserAccount)) {
+    if(elem.members[0].request_status === RequestStatus.PENDING) {
       return [pass, [...fail, elem]];
     }
     return [[...pass, elem], fail];
@@ -56,7 +52,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     where: {
       members: {
         some: {
-          users: {
+          user: {
             auth_id: user.profile.id
           }
         }
@@ -68,10 +64,10 @@ export const loader: LoaderFunction = async ({ request }) => {
       image: true,
       members: {
         select: {
-          request_status_id: true
+          request_status: true
         },
         where: {
-          users: {
+          user: {
             auth_id: user.profile.id
           }
         }
@@ -79,10 +75,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     }
   };
 
-  const teamQuery = db.teams.findMany(query);
-  const orgQuery = db.organisations.findMany(query);
+  const teamQuery = db.team.findMany(query);
+  const orgQuery = db.organisation.findMany(query);
   const [teams, orgs] = await Promise.all([teamQuery, orgQuery]);
-
   const result = getMemberships(teams, orgs);
   return json(result);
 };
@@ -92,9 +87,9 @@ export default function() {
 
   const getTeaser = (memberships: Membership[], icons: ReactNode) => {
     return memberships.map((mem: Membership) => ({
-      avatarPath: mem.image,
+      avatarPath: mem.image ?? undefined,
       name: mem.name ?? "",
-      team: mem.short_name,
+      team: mem.short_name ?? undefined,
       games: [],
       icons: <>
         {icons}

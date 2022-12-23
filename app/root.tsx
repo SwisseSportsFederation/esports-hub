@@ -1,36 +1,32 @@
-import type { LoaderFunction, MetaFunction } from "@remix-run/react";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
-import styles from "./styles/tailwind.css";
-import contentPageStyles from "~/styles/contentpage.css";
-import Footer from "~/components/Footer";
-import Header from "~/components/Header/Header";
+import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, } from "@remix-run/react";
+import styles from "./styles/app.css";
 import { authenticator } from "~/services/auth.server";
+import Header from "~/components/Header/Header";
+import Footer from "~/components/Footer";
+
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles }, { rel: "stylesheet", href: contentPageStyles }];
+  return [{ rel: "stylesheet", href: styles }];
 }
 
-export const meta: MetaFunction = () => {
-  return { title: "SESF Esports Database" };
-};
+export const meta: MetaFunction = () => ({
+  charset: "utf-8",
+  title: "SESF Esports Database",
+  viewport: "width=device-width,initial-scale=1",
+});
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
   return json({ user });
 }
 
-// @ts-ignore
-BigInt.prototype.toJSON = function() {
-  return this.toString()
-}
 
 export default function App() {
   return (
     <html lang="en">
     <head>
-      <meta charSet="utf-8"/>
-      <meta name="viewport" content="width=device-width,initial-scale=1"/>
       <Meta/>
       <Links/>
     </head>
@@ -47,7 +43,7 @@ export default function App() {
     </div>
     <ScrollRestoration/>
     <Scripts/>
-    {process.env.NODE_ENV === "development" && <LiveReload/>}
+    <LiveReload/>
     </body>
     </html>
   );

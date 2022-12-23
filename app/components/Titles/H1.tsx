@@ -1,5 +1,5 @@
-import { PropsWithChildren } from "react";
-import { PropsWithClassName } from "~/utils/PropsWithClassName";
+import type { PropsWithChildren } from "react";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 
 const H1 = ({ children, className = '' }: PropsWithChildren<PropsWithClassName<Record<never, never>>>) => {
   return <h1 className={`font-bold text-xl mb-5 ${className}`}>

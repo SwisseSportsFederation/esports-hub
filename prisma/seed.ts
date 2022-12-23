@@ -1,0 +1,213 @@
+import type { Prisma } from "@prisma/client";
+import { AccessRight, PrismaClient, RequestStatus, Role, SocialPlatform, VerificationLevel } from "@prisma/client";
+import { faker } from '@faker-js/faker';
+
+const prisma = new PrismaClient();
+
+async function seed() {
+
+  await prisma.canton.createMany({
+    data: [
+      { name: "Zürich" },
+      { name: "Bern" },
+      { name: "Luzern" },
+      { name: "Uri" },
+      { name: "Schwyz" },
+      { name: "Obwalden" },
+      { name: "Nidwalden" },
+      { name: "Glarus" },
+      { name: "Zug" },
+      { name: "Freiburg" },
+      { name: "Solothurn" },
+      { name: "Basel-Stadt" },
+      { name: "Basel-Landschaft" },
+      { name: "Schaffhausen" },
+      { name: "Appenzell A.Rh." },
+      { name: "Appenzell I.Rh." },
+      { name: "Sankt Gallen" },
+      { name: "Graubünden" },
+      { name: "Aargau" },
+      { name: "Thurgau" },
+      { name: "Tessin" },
+      { name: "Waadt" },
+      { name: "Wallis" },
+      { name: "Neuenburg" },
+      { name: "Genf" },
+      { name: "Jura" }
+    ]
+  });
+
+  await prisma.game.createMany({
+    data: [
+      { name: 'League of Legends' },
+      { name: 'Call of Duty' },
+      { name: 'Hearthstone' },
+      { name: 'Counterstrike' },
+      { name: 'Valorant' },
+      { name: 'Overwatch' },
+      { name: 'Fortnite' }
+    ]
+  });
+
+  await prisma.language.createMany({
+    data: [
+      { name: 'Deutsch' },
+      { name: 'English' },
+      { name: 'Français' },
+      { name: 'Italiano' },
+      { name: 'Español' },
+      { name: 'Português' },
+    ]
+  });
+
+
+  await Promise.all(createOrgs().map(data => prisma.organisation.create({ data })));
+  await Promise.all(createTeams().map(data => prisma.team.create({ data })));
+  await Promise.all(createUsers().map(data => prisma.user.create({ data })));
+}
+
+seed();
+
+function fakeBigInt(min: number, max: number) {
+  return faker.datatype.bigInt({
+    min,
+    max
+  })
+}
+
+function common() {
+  const languagesCount = faker.datatype.number({
+    min: 1,
+    max: 3
+  });
+
+  return {
+    verification_level: faker.helpers.objectValue(VerificationLevel),
+    name: faker.company.name(),
+    description: faker.lorem.lines(3),
+    socials: {
+      create: [{
+        name: faker.company.name(),
+        platform: faker.helpers.objectValue(SocialPlatform)
+      }]
+    },
+    languages: {
+      connect: Array.from({ length: languagesCount }).map(() => {
+        return {
+          id: fakeBigInt(1, 6)
+        }
+      })
+    },
+    canton: {
+      connect: {
+        id: fakeBigInt(1, 26)
+      }
+    }
+  }
+}
+
+const array = (max: number = 4) => Array.from({ length: max });
+
+
+function createUsers(): Prisma.UserCreateInput[] {
+  return array(10).map(() => {
+    return {
+      ...common(),
+      email: faker.internet.email(),
+      surname: faker.name.lastName(),
+      nickname: faker.name.firstName(),
+      organisations: {
+        createMany: {
+          data: createOrgMember()
+        }
+      },
+      teams: {
+        createMany: {
+          data: createTeamMember()
+        }
+      },
+      former_teams: {
+        createMany: {
+          data: createFormerTeams()
+        }
+      },
+      games: {
+        connect: array(3).map(() => {
+          return {
+            id: fakeBigInt(1, 7)
+          }
+        })
+      }
+    }
+  });
+}
+
+
+function createFormerTeams(): Prisma.FormerTeamCreateManyUserInput[] {
+  return array().map(() => {
+    return {
+      name: faker.name.middleName(),
+      from: faker.datatype.datetime(),
+      to: faker.datatype.datetime(),
+    }
+  });
+
+}
+
+function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
+  return array().map((_, index) => {
+    return {
+      access_rights: faker.helpers.objectValue(AccessRight),
+      is_main_team: faker.datatype.boolean(),
+      request_status: faker.helpers.objectValue(RequestStatus),
+      joined_at: faker.datatype.datetime(),
+      role: faker.helpers.objectValue(Role),
+      team_id: index + 1
+    }
+  });
+}
+
+function createOrgMember(): Prisma.OrganisationMemberCreateManyUserInput[] {
+  return array().map((_, index) => {
+    return {
+      access_rights: faker.helpers.objectValue(AccessRight),
+      is_main_organisation: faker.datatype.boolean(),
+      request_status: faker.helpers.objectValue(RequestStatus),
+      joined_at: faker.datatype.datetime(),
+      role: faker.helpers.objectValue(Role),
+      organisation_id: index + 1
+    }
+  });
+}
+
+function createTeams(): Prisma.TeamCreateInput[] {
+  return array(10).map(() => {
+    return {
+      ...common(),
+      game: {
+        connect: {
+          id: fakeBigInt(1, 7)
+        }
+      },
+      organisation: {
+        connect: {
+          id: fakeBigInt(1, 10)
+        }
+      },
+      website: faker.internet.url(),
+      short_name: faker.name.lastName(),
+    }
+  });
+}
+
+function createOrgs(): Prisma.OrganisationCreateInput[] {
+  return array(10).map(() => {
+    return {
+      ...common(),
+      country: faker.address.country(),
+      website: faker.internet.url(),
+      short_name: faker.name.lastName(),
+    }
+  })
+}
+

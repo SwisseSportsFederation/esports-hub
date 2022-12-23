@@ -1,5 +1,5 @@
-import { PropsWithChildren } from "react";
-import { PropsWithClassName } from "~/utils/PropsWithClassName";
+import type { PropsWithChildren } from "react";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import Icon from "../Icon";
 import H1 from "./H1";
 import { Link } from "@remix-run/react";
