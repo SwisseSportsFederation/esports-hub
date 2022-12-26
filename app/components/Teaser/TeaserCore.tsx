@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import classNames from "classnames";
-import type { Game } from "@prisma/client";
+import type { games } from "@prisma/client";
 
+// TODO Check if TeaserCoreProps are fine like this, because somehow we need to know if it's a team, user or organisation
 export interface ITeaserCoreProps {
   avatarPath?: string,
   name: string,
   team?: string,
-  games: Game[],
+  games: games[],
   icons?: ReactNode
 }
 
@@ -32,7 +33,7 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
           <span className="text-sm"> ({team})</span>
         }
       </div>
-      {games && games.map((game: Game) =>
+      {games && games.map((game: games) =>
         <span key={game.name} className="rounded-full whitespace-nowrap text-sm px-3 mx-1 bg-gray-6 dark:bg-gray-3">
                 {game.name}
               </span>)

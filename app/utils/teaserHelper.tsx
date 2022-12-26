@@ -1,3 +1,4 @@
+import { organisations, team_members } from "@prisma/client";
 import { ITeaserCoreProps } from "~/components/Teaser/TeaserCore";
 import IconButton from "../components/Button/IconButton";
 import { getOrganisationGames } from "./entityFilters";
@@ -14,14 +15,12 @@ export const getTeamTeasers = (teams: ITeam[]): ITeaserCoreProps[] => {
   });
 };
 
-export const getOrganisationTeasers = (organisations: IOrganisation[]): ITeaserCoreProps[] => {
-  return organisations?.map((organisation: IOrganisation) => {
+export const getOrganisationTeasers = (organisations: organisations[]): ITeaserCoreProps[] => {
+  return organisations?.map((organisation: organisations) => {
     return {
-      id: organisation.id,
-      type: EntityType.Organisation,
-      name: organisation.name,
+      avatarPath: organisation.image || undefined,
+      name: organisation.name || "",
       games: getOrganisationGames(organisation),
-      avatarPath: organisation.image,
     };
   });
 };
@@ -43,7 +42,7 @@ export const getOrganisationMemberTeasers = (organisationMembers: organisation_m
   return organisationMembers?.map((member: organisation_members) => {
     return {
       id: member.user.id,
-      type:  EntityType.User,
+      type: EntityType.User,
       name: member.user.nickname,
       team: member.role,
       games: member.user.games || [],

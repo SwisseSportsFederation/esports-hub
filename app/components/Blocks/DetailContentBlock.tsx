@@ -22,7 +22,7 @@ const DetailContentBlock = (props: IDetailContantBlockProps) => {
       <p>Age: {age}</p>
       }
       {languages && languages.length > 0 &&
-      <p>Languages: {languages.map((language: ILanguage) => language.name).join(", ")}</p>
+      <p>Languages: {languages.map((language: languages) => language.name).join(", ")}</p>
       }
       {canton &&
       <p>Canton: {canton.name}</p>
