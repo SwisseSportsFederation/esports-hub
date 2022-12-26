@@ -1,17 +1,16 @@
 import React from "react";
-import IGame from "../../models/IGame";
-import IEntitySocial from "../../models/IEntitySocial";
 import IconButton from "../Button/IconButton";
 import SocialIconButton from "../Button/SocialIconButton";
 import { checkUserAuth } from "~/utils/auth.server";
 import classNames from "classnames";
 import { Link } from "@remix-run/react";
+import { games, socials } from "@prisma/client";
 
 type IDetailHeaderProps = {
   imagePath?: string,
   name: string,
-  entitySocials?: IEntitySocial[],
-  games?: IGame[],
+  entitySocials?: socials[],
+  games?: games[],
   isMember?: boolean,
   onApply?: (() => void)
 } & ({
@@ -24,7 +23,7 @@ type IDetailHeaderProps = {
 
 const DetailHeader = (props: IDetailHeaderProps) => {
   const { imagePath, name, parentLink, parentName, entitySocials, games, isMember, onApply } = props;
-  const user = await checkUserAuth(request);
+  const user = checkUserAuth(request);
 
   const avatarPath = imagePath ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${imagePath}` : "/assets/user-solid.svg";
 

@@ -1,9 +1,4 @@
-import EntityType from "../models/enums/EntityTypeEnum";
 import { ITeaserCoreProps } from "~/components/Teaser/TeaserCore";
-import IOrganisation from "../models/IOrganisation";
-import IOrganisationMember from "../models/IOrganisationMember";
-import ITeam from "../models/ITeam";
-import ITeamMember from "../models/ITeamMember";
 import IconButton from "../components/Button/IconButton";
 import { getOrganisationGames } from "./entityFilters";
 
@@ -31,8 +26,8 @@ export const getOrganisationTeasers = (organisations: IOrganisation[]): ITeaserC
   });
 };
 
-export const getTeamMemberTeasers = (teamName: string, members: ITeamMember[]): ITeaserCoreProps[] => {
-  return members?.map((member: ITeamMember) => {
+export const getTeamMemberTeasers = (teamName: string, members: team_members[]): ITeaserCoreProps[] => {
+  return members?.map((member: team_members) => {
     return {
       id: member.user.id,
       type: EntityType.User,
@@ -44,8 +39,8 @@ export const getTeamMemberTeasers = (teamName: string, members: ITeamMember[]): 
   });
 };
 
-export const getOrganisationMemberTeasers = (organisationMembers: IOrganisationMember[]): ITeaserCoreProps[] => {
-  return organisationMembers?.map((member: IOrganisationMember) => {
+export const getOrganisationMemberTeasers = (organisationMembers: organisation_members[]): ITeaserCoreProps[] => {
+  return organisationMembers?.map((member: organisation_members) => {
     return {
       id: member.user.id,
       type:  EntityType.User,

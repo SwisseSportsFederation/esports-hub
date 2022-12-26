@@ -1,11 +1,11 @@
-import ICanton from "../../models/ICanton";
-import ILanguage from "../../models/ILanguage";
+import { cantons, languages } from "@prisma/client";
+
 
 interface IDetailContantBlockProps {
   fullName?: string;
   age?: number;
-  languages?: ILanguage[];
-  canton?: ICanton;
+  languages?: languages[];
+  canton?: cantons;
   website?: string;
   description?: string;
 }

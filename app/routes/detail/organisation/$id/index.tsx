@@ -4,14 +4,14 @@ import IconButton from "~/components/Button/IconButton";
 import {checkUserAuth} from "~/utils/auth.server";
 import {db} from "~/services/db.server";
 import {json} from "@remix-run/node";
-import IOrganisation from "~/models/IOrganisation";
 import {getOrganisationMemberTeasers, getTeamTeasers} from "~/utils/teaserHelper";
 import TeaserList from "~/components/Teaser/TeaserList";
 import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import {getAcceptedOrganisationTeams, isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
-const { addNotification } = useNotification(); // TODO add notification logic
+import { organisations as Organisation } from "@prisma/client";
+// const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await checkUserAuth(request);
@@ -41,7 +41,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   };
 
   const orgQuery = db.organisations.findFirst(query);
-  const organisations: ([IOrganisation]) = await Promise.all([orgQuery]);
+  const organisations: ([Organisation]) = await Promise.all([orgQuery]);
   const organisation = organisations[0];
 
   const teamTeasers = getTeamTeasers(getAcceptedOrganisationTeams(organisation.teams));
@@ -75,7 +75,7 @@ export default function() {
   };
 
   const handleActionClick = async () => {
-    addNotification("Error", 3000);
+    //addNotification("Error", 3000);
     /* TODO later apply button
     const [, error] = await authenticatedFetch(`/users/${user.profile.id}/organisation/apply`, {
       method: 'PUT',
