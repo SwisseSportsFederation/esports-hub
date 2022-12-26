@@ -1,5 +1,7 @@
-import TeaserCore, { ITeaserCoreProps } from "./TeaserCore";
-import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import type { ITeaserCoreProps } from "./TeaserCore";
+import TeaserCore from "./TeaserCore";
+import type { PropsWithChildren} from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "../Icon";
 import classNames from "classnames";
 

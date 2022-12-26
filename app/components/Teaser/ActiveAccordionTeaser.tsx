@@ -1,22 +1,21 @@
 import AccordionTeaser from "./AccordionTeaser";
 import Icon from "../Icon";
-import { MouseEvent, useState } from "react";
-import DateInput from "../Form/DateInput";
+import type { MouseEvent} from "react";
+import { useState } from "react";
+// import DateInput from "../Form/DateInput";
 import ActionButton from "../Button/ActionButton";
-import EntityType from "../../models/enums/EntityTypeEnum";
 import classNames from "classnames";
-import IGame from "../../models/IGame";
+import type { Game } from "@prisma/client";
 
-type OrgTeam = EntityType.Organisation | EntityType.Team;
 
 export interface IActiveEntity {
-  type: OrgTeam;
+  type: 'TEAM' | 'ORGANISATION';
   id: number;
   name: string;
   image: string;
   isMain: boolean;
   joinedAt: Date;
-  games: IGame[];
+  games: Game[];
 }
 
 interface IActiveAccordionTeaserProps {
@@ -28,7 +27,7 @@ interface IActiveAccordionTeaserProps {
 
 const ActiveAccordionTeaser = ({ onLeave, onSave, onChangeMainTeam, entity }: IActiveAccordionTeaserProps) => {
   const [local, setEntity] = useState(entity);
-  const dateString = local.joinedAt.toISOString().split('T')[0];
+  // const dateString = local.joinedAt.toISOString().split('T')[0];
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     const newEntity = {
@@ -48,16 +47,16 @@ const ActiveAccordionTeaser = ({ onLeave, onSave, onChangeMainTeam, entity }: IA
     <Icon path={'/assets/star.svg'} className={`w-8 h-8 ${starStyle}`}/>
   </button>;
 
-  const setJoinedAt = (value: string) => {
-    setEntity({
-      ...local,
-      joinedAt: new Date(value)
-    });
-  };
+  // const setJoinedAt = (value: string) => {
+  //   setEntity({
+  //     ...local,
+  //     joinedAt: new Date(value)
+  //   });
+  // };
 
   return <AccordionTeaser name={local.name} games={local.games} icons={starIcon} avatarPath={local.image}>
     <div className='py-5 flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
-      <DateInput label='From' value={dateString} onChange={setJoinedAt} required={true}/>
+      {/*<DateInput label='From' value={dateString} onChange={setJoinedAt} required={true}/>*/}
       <div className='w-full flex flex-row space-x-4 justify-center'>
         <ActionButton content='Save' action={() => onSave(local)}/>
         <ActionButton content='Leave' action={() => onLeave(local)}/>

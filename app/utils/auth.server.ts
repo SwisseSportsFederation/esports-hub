@@ -1,4 +1,5 @@
-import { authenticator, AuthUser } from "~/services/auth.server";
+import type { AuthUser } from "~/services/auth.server";
+import { authenticator } from "~/services/auth.server";
 
 function logout(request: Request, path: string = ''): Promise<void> {
   const returnTo = `http://${request.headers.get("host")}${path}`;
@@ -16,7 +17,7 @@ const checkUserAuth = async (request: Request): Promise<AuthUser> => {
     return user;
   }
   // logged in
-  if(!user.profile._json.email_verified) {
+  if(!user.profile._json!.email_verified) {
     // email not verified
     await logout(request, '/auth/verify');
   }

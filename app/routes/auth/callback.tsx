@@ -1,8 +1,8 @@
-import type { LoaderFunction } from "@remix-run/react";
-import { redirect } from "@remix-run/react";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
 import logout from "~/utils/auth.server";
+import type { LoaderFunction } from "@remix-run/node";
+import { redirect} from "@remix-run/node";
 
 export let loader: LoaderFunction = async ({ request }) => {
   let user;
@@ -15,7 +15,7 @@ export let loader: LoaderFunction = async ({ request }) => {
     console.log(error);
     return redirect("/");
   }
-  if(!user.profile._json.email_verified) {
+  if(!user.profile._json!.email_verified) {
     return logout(request, '/auth/verify');
   }
   let session = await getSession(request.headers.get("cookie"));

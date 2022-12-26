@@ -1,7 +1,7 @@
 import { db } from "~/services/db.server";
-import { Prisma, PrismaPromise } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
-const query = (search?: string): Prisma.StringNullableFilter => ({
+const query = (search?: string): Prisma.StringFilter => ({
   contains: search?.toString(),
   mode: 'insensitive'
 });
@@ -12,7 +12,7 @@ type TeamsQuery = {
   image: StringOrNull,
   name: StringOrNull,
   short_name: StringOrNull,
-  games: { name: StringOrNull } | null;
+  game: { name: StringOrNull } | null;
 }[]
 
 type OrgsQuery = {
@@ -24,8 +24,8 @@ type OrgsQuery = {
 type UsersQuery = {
   image: StringOrNull,
   nickname: StringOrNull,
-  user_games: { games: { name: StringOrNull } }[],
-  team_members: { teams: { name: StringOrNull } }[]
+  games: { name: StringOrNull }[],
+  teams: { team: { name: StringOrNull } }[]
 }[];
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
@@ -37,13 +37,31 @@ const searchQueries = (search?: string, canton?: string, game?: string, language
   return [u, t, o];
 };
 
-const teamsQuery = (search?: string, canton?: string, game?: string, language?: string) => db.teams.findMany({
+const usersQuery = (search?: string, canton?: string, language?: string, game?: string) => db.user.findMany({
   take: 10,
   where: {
     AND: [
-      { cantons: { name: { equals: canton } } },
-      { games: { name: { equals: game } } },
-      { languages: { some: { languages: { name: language } } } },
+      { canton: { name: { equals: canton } } },
+      { languages: { some: { name: language } } },
+      { games: { some: { name: game } } },
+      { nickname: query(search) }
+    ],
+  },
+  select: {
+    image: true,
+    nickname: true,
+    games: { select: { name: true } },
+    teams: { select: { team: { select: { name: true } } } }
+  }
+});
+
+const teamsQuery = (search?: string, canton?: string, game?: string, language?: string) => db.team.findMany({
+  take: 10,
+  where: {
+    AND: [
+      { canton: { name: { equals: canton } } },
+      { game: { name: { equals: game } } },
+      { languages: { some: { name: language } } },
       {
         OR: [
           { name: query(search) },
@@ -56,7 +74,7 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
     image: true,
     name: true,
     short_name: true,
-    games: {
+    game: {
       select: {
         name: true
       }
@@ -64,12 +82,12 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
   }
 });
 
-const orgsQuery = (search?: string, canton?: string, language?: string) => db.organisations.findMany({
+const orgsQuery = (search?: string, canton?: string, language?: string) => db.organisation.findMany({
   take: 10,
   where: {
     AND: [
-      { cantons: { name: { equals: canton } } },
-      { languages: { some: { languages: { name: language } } } },
+      { canton: { name: { equals: canton } } },
+      { languages: { some: { name: language } } },
       {
         OR: [
           { name: query(search) },
@@ -85,23 +103,6 @@ const orgsQuery = (search?: string, canton?: string, language?: string) => db.or
   }
 });
 
-const usersQuery = (search?: string, canton?: string, language?: string, game?: string) => db.users.findMany({
-  take: 10,
-  where: {
-    AND: [
-      { cantons: { name: { equals: canton } } },
-      { user_languages: { some: { languages: { name: language } } } },
-      { user_games: { some: { games: { name: game } } } },
-      { nickname: query(search) }
-    ],
-  },
-  select: {
-    image: true,
-    nickname: true,
-    user_games: { select: { games: { select: { name: true } } } },
-    team_members: { select: { teams: { select: { name: true } } } }
-  }
-});
 
 export {
   searchQueries

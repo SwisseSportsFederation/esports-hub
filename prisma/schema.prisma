@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -8,254 +8,193 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model cantons {
-  id            BigInt          @id @default(autoincrement())
-  created_at    DateTime?       @db.Timestamptz(6)
-  updated_at    DateTime?       @db.Timestamptz(6)
-  deleted_at    DateTime?       @db.Timestamptz(6)
-  name          String?
-  organisations organisations[]
-  teams         teams[]
-  users         users[]
-
-  @@index([deleted_at], map: "idx_cantons_deleted_at")
-  @@index([name], map: "idx_cantons_name")
+enum Role {
+  ADMIN
+  MODERATOR
+  PLAYER
 }
 
-model former_teams {
-  id         BigInt    @id @default(autoincrement())
-  created_at DateTime? @db.Timestamptz(6)
-  updated_at DateTime? @db.Timestamptz(6)
-  deleted_at DateTime? @db.Timestamptz(6)
-  user_id    BigInt?
-  name       String?
-  from       DateTime? @db.Timestamptz(6)
-  to         DateTime? @db.Timestamptz(6)
-  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_former_teams")
+enum SocialPlatform {
+  INSTAGRAM
+  TWITCH
+  TWITTER
+  DISCORD
+  FACEBOOK
+  STEAM
+  ORIGIN
+}
+
+enum RequestStatus {
+  ACCEPTED
+  PENDING
+}
+
+enum VerificationLevel {
+  NOT_VERIFIED
+  PRE_VERIFIED
+  VERIFIED
+}
+
+enum AccessRight {
+  NONE
+  MEMBER
+  MODERATOR
+  ADMINISTRATOR
+}
+
+model Canton {
+  id            BigInt         @id @default(autoincrement())
+  name          String
+  organisations Organisation[]
+  teams         Team[]
+  users         User[]
+
+  @@index([name], map: "idx_cantons_name")
+  @@map("canton")
+}
+
+model FormerTeam {
+  id      BigInt    @id @default(autoincrement())
+  user_id BigInt
+  name    String
+  from    DateTime? @db.Timestamptz(6)
+  to      DateTime? @db.Timestamptz(6)
+  user    User      @relation(fields: [user_id], references: [id])
 
   @@unique([user_id, name], map: "userID_name")
-  @@index([deleted_at], map: "idx_former_teams_deleted_at")
+  @@map("former_team")
 }
 
-model games {
-  id         BigInt       @id @default(autoincrement())
-  created_at DateTime?    @db.Timestamptz(6)
-  updated_at DateTime?    @db.Timestamptz(6)
-  deleted_at DateTime?    @db.Timestamptz(6)
-  name       String?
-  teams      teams[]
-  user_games user_games[]
+model Game {
+  id    BigInt @id @default(autoincrement())
+  name  String
+  teams Team[]
+  users User[]
 
-  @@index([deleted_at], map: "idx_games_deleted_at")
   @@index([name], map: "idx_games_name")
+  @@map("game")
 }
 
-model languages {
-  id                     BigInt                   @id @default(autoincrement())
-  created_at             DateTime?                @db.Timestamptz(6)
-  updated_at             DateTime?                @db.Timestamptz(6)
-  deleted_at             DateTime?                @db.Timestamptz(6)
-  name                   String?
-  organisation_languages organisation_languages[]
-  team_languages         team_languages[]
-  user_languages         user_languages[]
+model Language {
+  id            BigInt         @id @default(autoincrement())
+  name          String
+  organisations Organisation[]
+  teams         Team[]
+  users         User[]
 
-  @@index([deleted_at], map: "idx_languages_deleted_at")
   @@index([name], map: "idx_languages_name")
+  @@map("language")
 }
 
-model organisation_languages {
-  organisation_id BigInt
-  language_id     BigInt
-  languages       languages     @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisation_languages_language")
-  organisations   organisations @relation(fields: [organisation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisation_languages_organisation")
-
-  @@id([organisation_id, language_id])
-}
-
-model organisation_members {
+model OrganisationMember {
   user_id              BigInt
   organisation_id      BigInt
-  is_main_organisation Boolean?
-  joined_at            DateTime?     @db.Timestamptz(6)
-  role                 String?
-  request_status_id    BigInt?
-  access_rights_id     BigInt?
-  organisations        organisations @relation(fields: [organisation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisations_members")
-  users                users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_organisation_memberships")
+  is_main_organisation Boolean
+  joined_at            DateTime      @db.Timestamptz(6)
+  role                 Role
+  request_status       RequestStatus @default(PENDING)
+  access_rights        AccessRight   @default(NONE)
+  organisation         Organisation  @relation(fields: [organisation_id], references: [id])
+  user                 User          @relation(fields: [user_id], references: [id])
 
   @@id([user_id, organisation_id])
+  @@map("organisation_member")
 }
 
-model organisation_socials {
-  social_id       BigInt
-  organisation_id BigInt
-  name            String?
-  organisations   organisations @relation(fields: [organisation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisations_socials")
-  socials         socials       @relation(fields: [social_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisation_socials_social")
+model Organisation {
+  id                 BigInt               @id @default(autoincrement())
+  name               String
+  short_name         String
+  description        String
+  website            String?
+  image              String?
+  street             String?
+  zip                String?
+  country            String?
+  canton_id          BigInt?
+  verification_level VerificationLevel    @default(NOT_VERIFIED)
+  is_active          Boolean              @default(true)
+  canton             Canton?              @relation(fields: [canton_id], references: [id])
+  languages          Language[]
+  members            OrganisationMember[]
+  socials            Social[]
+  teams              Team[]
 
-  @@id([social_id, organisation_id])
+  @@map("organisation")
 }
 
-model organisation_teams {
-  team_id           BigInt
-  organisation_id   BigInt
-  request_status_id BigInt?
-  organisations     organisations @relation(fields: [organisation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisations_organisation_teams")
-  teams             teams         @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_organisation_teams")
+model Social {
+  id              BigInt         @id @default(autoincrement())
+  name            String
+  platform        SocialPlatform
+  organisation    Organisation?  @relation(fields: [organisation_id], references: [id])
+  team            Team?          @relation(fields: [team_id], references: [id])
+  user            User?          @relation(fields: [user_id], references: [id])
+  organisation_id BigInt?
+  team_id         BigInt?
+  user_id         BigInt?
 
-  @@id([team_id, organisation_id])
+  @@map("social")
 }
 
-model organisations {
-  id                     BigInt                   @id @default(autoincrement())
-  created_at             DateTime?                @db.Timestamptz(6)
-  updated_at             DateTime?                @db.Timestamptz(6)
-  deleted_at             DateTime?                @db.Timestamptz(6)
-  name                   String?
-  short_name             String?
-  description            String?
-  website                String?
-  image                  String?
-  street                 String?
-  zip                    String?
-  country                String?
-  canton_id              BigInt?
-  verification_level     BigInt?
-  is_active              Boolean?
-  cantons                cantons?                 @relation(fields: [canton_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_organisations_canton")
-  languages organisation_languages[]
-  members   organisation_members[]
-  socials   organisation_socials[]
-  teams     organisation_teams[]
-
-  @@index([deleted_at], map: "idx_organisations_deleted_at")
-}
-
-model socials {
-  id                   BigInt                 @id @default(autoincrement())
-  created_at           DateTime?              @db.Timestamptz(6)
-  updated_at           DateTime?              @db.Timestamptz(6)
-  deleted_at           DateTime?              @db.Timestamptz(6)
-  name                 String?
-  only_user            Boolean?
-  organisation_socials organisation_socials[]
-  team_socials         team_socials[]
-  user_socials         user_socials[]
-
-  @@index([deleted_at], map: "idx_socials_deleted_at")
-  @@index([name], map: "idx_socials_name")
-}
-
-model team_languages {
-  team_id     BigInt
-  language_id BigInt
-  languages   languages @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_team_languages_language")
-  teams       teams     @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_team_languages_team")
-
-  @@id([team_id, language_id])
-}
-
-model team_members {
-  user_id           BigInt
-  team_id           BigInt
-  is_main_team      Boolean?
-  joined_at         DateTime? @db.Timestamptz(6)
-  role              String?
-  request_status_id BigInt?
-  access_rights_id  BigInt?
-  teams             teams     @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_members")
-  users             users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_team_memberships")
+model TeamMember {
+  user_id        BigInt
+  team_id        BigInt
+  is_main_team   Boolean?
+  joined_at      DateTime?     @db.Timestamptz(6)
+  role           Role
+  request_status RequestStatus @default(PENDING)
+  access_rights  AccessRight   @default(NONE)
+  team           Team          @relation(fields: [team_id], references: [id])
+  user           User          @relation(fields: [user_id], references: [id])
 
   @@id([user_id, team_id])
+  @@map("team_member")
 }
 
-model team_socials {
-  social_id BigInt
-  team_id   BigInt
-  name      String?
-  socials   socials @relation(fields: [social_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_team_socials_social")
-  teams     teams   @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_socials")
-
-  @@id([social_id, team_id])
-}
-
-model teams {
-  id                 BigInt               @id @default(autoincrement())
-  created_at         DateTime?            @db.Timestamptz(6)
-  updated_at         DateTime?            @db.Timestamptz(6)
-  deleted_at         DateTime?            @db.Timestamptz(6)
-  name               String?
-  short_name         String?
-  description        String?
+model Team {
+  id                 BigInt            @id @default(autoincrement())
+  name               String
+  short_name         String
+  description        String
   website            String?
   image              String?
   canton_id          BigInt?
-  game_id            BigInt?
-  verification_level BigInt?
-  is_active          Boolean?
-  cantons            cantons?             @relation(fields: [canton_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_canton")
-  games              games?               @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_teams_game")
-  organisation_teams organisation_teams[]
-  languages     team_languages[]
-  members       team_members[]
-  socials       team_socials[]
+  game_id            BigInt
+  organisation_id    BigInt?
+  verification_level VerificationLevel @default(NOT_VERIFIED)
+  is_active          Boolean           @default(true)
+  canton             Canton?           @relation(fields: [canton_id], references: [id])
+  game               Game              @relation(fields: [game_id], references: [id])
+  organisation       Organisation?     @relation(fields: [organisation_id], references: [id])
+  request_status     RequestStatus?    @default(PENDING)
+  languages          Language[]
+  members            TeamMember[]
+  socials            Social[]
 
-  @@index([deleted_at], map: "idx_teams_deleted_at")
+  @@map("team")
 }
 
-model user_games {
-  user_id BigInt
-  game_id BigInt
-  games   games  @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_games_game")
-  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_games_user")
+model User {
+  id                 BigInt               @id @default(autoincrement())
+  auth_id            String?              @unique(map: "idx_users_auth_id")
+  email              String
+  nickname           String
+  name               String
+  surname            String
+  birth_date         DateTime?            @db.Timestamptz(6)
+  description        String?
+  image              String?
+  canton_id          BigInt?
+  verification_level VerificationLevel    @default(NOT_VERIFIED)
+  is_active          Boolean              @default(true)
+  canton             Canton?              @relation(fields: [canton_id], references: [id])
+  former_teams       FormerTeam[]
+  organisations      OrganisationMember[]
+  teams              TeamMember[]
+  games              Game[]
+  languages          Language[]
+  socials            Social[]
 
-  @@id([user_id, game_id])
-}
-
-model user_languages {
-  user_id     BigInt
-  language_id BigInt
-  languages   languages @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_languages_language")
-  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_languages_user")
-
-  @@id([user_id, language_id])
-}
-
-model user_socials {
-  social_id BigInt
-  user_id   BigInt
-  name      String?
-  socials   socials @relation(fields: [social_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_socials_social")
-  users     users   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_socials")
-
-  @@id([social_id, user_id])
-}
-
-model users {
-  id                   BigInt                 @id @default(autoincrement())
-  created_at           DateTime?              @db.Timestamptz(6)
-  updated_at           DateTime?              @db.Timestamptz(6)
-  deleted_at           DateTime?              @db.Timestamptz(6)
-  auth_id              String?                @unique(map: "idx_users_auth_id")
-  email                String?
-  nickname             String?
-  name                 String?
-  surname              String?
-  birth_date           DateTime?              @db.Timestamptz(6)
-  description          String?
-  image                String?
-  canton_id            BigInt?
-  verification_level   BigInt?
-  is_active            Boolean?
-  cantons              cantons?               @relation(fields: [canton_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_canton")
-  former_teams         former_teams[]
-  organisation_members organisation_members[]
-  team_members         team_members[]
-  user_games           user_games[]
-  user_languages       user_languages[]
-  user_socials         user_socials[]
-
-  @@index([deleted_at], map: "idx_users_deleted_at")
-  @@index([email], map: "idx_users_email")
+  @@map("user")
 }
