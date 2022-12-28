@@ -4,13 +4,13 @@ import SocialIconButton from "../Button/SocialIconButton";
 import { checkUserAuth } from "~/utils/auth.server";
 import classNames from "classnames";
 import { Link } from "@remix-run/react";
-import { games, socials } from "@prisma/client";
+import { Game, Social } from "@prisma/client";
 
 type IDetailHeaderProps = {
   imagePath?: string,
   name: string,
-  entitySocials?: socials[],
-  games?: games[],
+  entitySocials?: Social[],
+  games?: Game[],
   isMember?: boolean,
   onApply?: (() => void)
 } & ({
@@ -23,7 +23,6 @@ type IDetailHeaderProps = {
 
 const DetailHeader = (props: IDetailHeaderProps) => {
   const { imagePath, name, parentLink, parentName, entitySocials, games, isMember, onApply } = props;
-  const user = checkUserAuth(request);
 
   const avatarPath = imagePath ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${imagePath}` : "/assets/user-solid.svg";
 
@@ -31,21 +30,16 @@ const DetailHeader = (props: IDetailHeaderProps) => {
     '!p-1 bg-white rounded-full': avatarPath === "/assets/user-solid.svg",
   });
 
-  const imgLoader = ({ src }: ImageLoaderProps) => {
-    return src;
-  };
-
   return (
     <div className="max-w-full">
       <div className="p-3 rounded-xl bg-white bg-gray-7 dark:bg-gray-2">
         <div className="flex justify-center relative">
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
-            <Image loader={imgLoader} src={avatarPath} alt="Profile Picture" layout='fill'
-                   className={`absolute ${imagePadding}`} objectFit='contain' quality={50}/>
+            <img src={avatarPath} alt="Profile Picture" className={`absolute ${imagePadding} object-fill h-full w-full`}/>
           </div>
-          {onApply && user && !isMember &&
+          {onApply && !isMember &&
             <div className="absolute right-0 top-2">
-              <IconButton icon={"apply"} action={onApply} size="large" />
+              <IconButton icon={"apply"} action={onApply} size="large" type="button" />
             </div>
           }
         </div>
@@ -62,7 +56,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         <div className="flex justify-center items-center mb-5">
           <div className="flex justify-center flex-wrap">
             {games &&
-              games.map((game: IGame) =>
+              games.map((game: Game) =>
                 <span key={game.id} className="rounded-full my-1 whitespace-nowrap text-sm px-3 mx-2 bg-gray-6 dark:bg-gray-3">{game.name}</span>
               )
             }
@@ -71,8 +65,8 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         <div className="flex justify-center flex-wrap">
           {entitySocials &&
             entitySocials
-              .filter((entitySocials: IEntitySocial) => entitySocials.name !== "")
-              .map((entitySocial: IEntitySocial) =>
+              .filter((entitySocials: Social) => entitySocials.name !== "")
+              .map((entitySocial: Social) =>
                 <SocialIconButton key={entitySocial.social.id} entitySocial={entitySocial} />
             )
           }

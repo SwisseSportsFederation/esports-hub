@@ -10,7 +10,7 @@ import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import {getAcceptedOrganisationTeams, isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
-import { organisations as Organisation } from "@prisma/client";
+import { Organisation, RequestStatus, OrganisationMember } from "@prisma/client";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -26,17 +26,30 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       short_name: true,
       name: true,
       image: true,
-      members: {
-        select: {
-          request_status: true
+      description: true,
+      languages: true,
+      teams: {
+        where: {
+          request_status: {
+            equals: RequestStatus.ACCEPTED
+          }
         }
+      },
+      members: {
+        where: {
+          request_status: {
+            equals: RequestStatus.ACCEPTED
+          }
+        },
+        include: { user: true }
       }
     }
   });
   const organisations2: ([Organisation | null]) = await Promise.all([orgQuery]);
   const organisation = organisations2[0];
+  console.log(organisation)
 
-  const teamTeasers = getTeamTeasers(getAcceptedOrganisationTeams(organisation?.teams));
+  const teamTeasers = getTeamTeasers(organisation?.teams);
   const isMember = isOrganisationMember(organisation?.members, user.profile.id ?? "");
   const memberTeasers = getOrganisationMemberTeasers(organisation?.members);
 
@@ -54,8 +67,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function() {
   const data = useLoaderData();
 
-  const getTeaser = (memberships: Membership[], icons: ReactNode) => {
-    return memberships.map((mem: Membership) => ({
+  const getTeaser = (memberships: OrganisationMember[], icons: ReactNode) => {
+    return memberships.map((mem: OrganisationMember) => ({
       avatarPath: mem.image,
       name: mem.name ?? "",
       team: mem.short_name,
@@ -89,15 +102,6 @@ export default function() {
     addNotification("Success", 3000);
     await mutate();*/
   };
-
-  const editIcon = <IconButton icon='edit' type="link" path='/admin/teams' />;
-  const statusIcons = <>
-    <IconButton icon='accept' type="button" action={() => console.log("a")} />
-    <IconButton icon='decline' type="button" action={() => console.log("d")} />
-  </>;
-  const teamsTeaser = getTeaser(data.teams, editIcon);
-  const orgTeaser = getTeaser(data.orgs, editIcon);
-  const invitationTeaser = getTeaser(data.invitations, statusIcons);
 
   return <div className="mx-3">
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">

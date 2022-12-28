@@ -1,11 +1,11 @@
-import { organisations, teams, team_members, organisation_members } from "@prisma/client";
+import { Organisation, Team, TeamMember, OrganisationMember } from "@prisma/client";
 import { ITeaserCoreProps } from "~/components/Teaser/TeaserCore";
 import { EntityType } from "~/helpers/entityType";
 import IconButton from "../components/Button/IconButton";
 import { getOrganisationGames } from "./entityFilters";
 
-export const getTeamTeasers = (teams: teams[]): ITeaserCoreProps[] => {
-  return teams.map((team: teams) => {
+export const getTeamTeasers = (teams: Team[]): ITeaserCoreProps[] => {
+  return teams.map((team: Team) => {
     return {
       id: team.id,
       type: "TEAM" as EntityType,
@@ -17,8 +17,8 @@ export const getTeamTeasers = (teams: teams[]): ITeaserCoreProps[] => {
   });
 };
 
-export const getOrganisationTeasers = (organisations: organisations[]): ITeaserCoreProps[] => {
-  return organisations?.map((organisation: organisations) => {
+export const getOrganisationTeasers = (organisations: Organisation[]): ITeaserCoreProps[] => {
+  return organisations?.map((organisation: Organisation) => {
     return {
       avatarPath: organisation.image || null,
       name: organisation.name || "",
@@ -28,8 +28,8 @@ export const getOrganisationTeasers = (organisations: organisations[]): ITeaserC
   });
 };
 
-export const getTeamMemberTeasers = (teamName: string, members: team_members[]): ITeaserCoreProps[] => {
-  return members?.map((member: team_members) => {
+export const getTeamMemberTeasers = (teamName: string, members: TeamMember[]): ITeaserCoreProps[] => {
+  return members?.map((member: TeamMember) => {
     return {
       id: member.user.id,
       type: "USER" as EntityType,
@@ -41,8 +41,8 @@ export const getTeamMemberTeasers = (teamName: string, members: team_members[]):
   });
 };
 
-export const getOrganisationMemberTeasers = (members: organisation_members[]): ITeaserCoreProps[] => {
-  return members?.map((member: organisation_members) => {
+export const getOrganisationMemberTeasers = (members: OrganisationMember[]): ITeaserCoreProps[] => {
+  return members?.map((member: OrganisationMember) => {
     return {
       id: member.user.id,
       type: "USER" as EntityType,
