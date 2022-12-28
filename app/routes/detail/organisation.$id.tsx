@@ -18,7 +18,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const id = Number(params.id);
 
   /* TODO check query */
-  const orgQuery = db.organisation.findUnique({
+  const organisation = await db.organisation.findUnique({
     where: {
       id: id
     },
@@ -45,9 +45,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       }
     }
   });
-  const organisations2: ([Organisation | null]) = await Promise.all([orgQuery]);
-  const organisation = organisations2[0];
-  console.log(organisation)
+
+  // TODO: Add Null handling
 
   const teamTeasers = getTeamTeasers(organisation?.teams);
   const isMember = isOrganisationMember(organisation?.members, user.profile.id ?? "");
