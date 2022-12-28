@@ -2,7 +2,7 @@ import type { ITeaserCoreProps } from "./TeaserCore";
 import TeaserCore from "./TeaserCore";
 import type { PropsWithChildren} from "react";
 import { useEffect, useRef, useState } from "react";
-import Icon from "../Icon";
+import Icon from "../Icons";
 import classNames from "classnames";
 
 export type IAccordionTeaserProps = {
@@ -50,7 +50,7 @@ const AccordionTeaser = (props: PropsWithChildren<IAccordionTeaserProps>) => {
   const icon = <>
     {icons}
     <button onClick={toggleExtended}>
-      <Icon path={'/assets/arrow-down.svg'} className={`h-8 w-8 ${iconRotation}`}/>
+      <Icon iconName='arrowDown' className={`h-8 w-8 ${iconRotation}`}/>
     </button>
   </>;
 

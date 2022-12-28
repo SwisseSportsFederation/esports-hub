@@ -10,30 +10,30 @@ export type StringOrNull = string | null;
 
 type TeamsQuery = {
   image: StringOrNull,
-  name: StringOrNull,
+  name: string,
   short_name: StringOrNull,
-  game: { name: StringOrNull } | null;
+  game: { name: string } | null;
 }[]
 
 type OrgsQuery = {
   image: StringOrNull,
-  name: StringOrNull,
+  name: string,
   short_name: StringOrNull
 }[]
 
 type UsersQuery = {
   image: StringOrNull,
-  nickname: StringOrNull,
-  games: { name: StringOrNull }[],
+  nickname: string,
+  games: { name: string }[],
   teams: { team: { name: StringOrNull } }[]
 }[];
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
 
 const searchQueries = (search?: string, canton?: string, game?: string, language?: string, type?: string): [Promise<UsersQuery>, Promise<TeamsQuery>, Promise<OrgsQuery>] => {
+  const u = typeFilter("User", type) ? usersQuery(search, canton, game, language) : Promise.resolve<UsersQuery>([]);
   const t = typeFilter("Team", type) ? teamsQuery(search, canton, game, language) : Promise.resolve<TeamsQuery>([]);
   const o = typeFilter("Organisation", type) ? orgsQuery(search, canton, language) : Promise.resolve<OrgsQuery>([]);
-  const u = typeFilter("User", type) ? usersQuery(search, canton, game, language) : Promise.resolve<UsersQuery>([]);
   return [u, t, o];
 };
 

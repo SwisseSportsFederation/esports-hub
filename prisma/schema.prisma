@@ -8,12 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  MODERATOR
-  PLAYER
-}
-
 enum SocialPlatform {
   INSTAGRAM
   TWITCH
@@ -91,7 +85,7 @@ model OrganisationMember {
   organisation_id      BigInt
   is_main_organisation Boolean
   joined_at            DateTime      @db.Timestamptz(6)
-  role                 Role
+  role                 String
   request_status       RequestStatus @default(PENDING)
   access_rights        AccessRight   @default(NONE)
   organisation         Organisation  @relation(fields: [organisation_id], references: [id])
@@ -142,11 +136,11 @@ model TeamMember {
   team_id        BigInt
   is_main_team   Boolean?
   joined_at      DateTime?     @db.Timestamptz(6)
-  role           Role
+  role           String
   request_status RequestStatus @default(PENDING)
   access_rights  AccessRight   @default(NONE)
-  team           Team          @relation(fields: [team_id], references: [id])
-  user           User          @relation(fields: [user_id], references: [id])
+  team           Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, team_id])
   @@map("team_member")

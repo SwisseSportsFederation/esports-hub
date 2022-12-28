@@ -14,7 +14,7 @@ const pages: IFooterPage[] = [
 
 const Footer = () => {
   return (
-    <footer className="px-5 pt-4 pb-8 mt-16 bg-gray-7 dark:bg-gray-1">
+    <footer className="px-5 pt-4 pb-8 mt-8 bg-gray-7 dark:bg-gray-1">
       <ul className="flex justify-center w-full">
         {
           pages.map((page: IFooterPage) =>
