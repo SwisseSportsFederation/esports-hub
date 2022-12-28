@@ -1,6 +1,4 @@
 import {useLoaderData} from "@remix-run/react";
-import {ReactNode} from "react";
-import IconButton from "~/components/Button/IconButton";
 import {checkUserAuth} from "~/utils/auth.server";
 import {db} from "~/services/db.server";
 import {LoaderFunction, json} from "@remix-run/node";
@@ -9,8 +7,9 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import {getAcceptedOrganisationTeams, isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
-import { Organisation, RequestStatus, OrganisationMember } from "@prisma/client";
+import { isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
+import { RequestStatus } from "@prisma/client";
+import { errorUtil } from "zod/lib/helpers/errorUtil";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -18,7 +17,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const id = Number(params.id);
 
   /* TODO check query */
-  const organisation = await db.organisation.findUnique({
+  const organisation = await db.organisation.findUniqueOrThrow({
     where: {
       id: id
     },
@@ -44,9 +43,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
         include: { user: true }
       }
     }
-  });
-
-  // TODO: Add Null handling
+  }).catch(() => { 
+      throw new Response("Not Found", {
+        status: 404,
+      }) })
 
   const teamTeasers = getTeamTeasers(organisation?.teams);
   const isMember = isOrganisationMember(organisation?.members, user.profile.id ?? "");
@@ -65,18 +65,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function() {
   const data = useLoaderData();
-
-  const getTeaser = (memberships: OrganisationMember[], icons: ReactNode) => {
-    return memberships.map((mem: OrganisationMember) => ({
-      avatarPath: mem.image,
-      name: mem.name ?? "",
-      team: mem.short_name,
-      games: [],
-      icons: <>
-        {icons}
-      </>
-    }));
-  };
 
   const handleActionClick = async () => {
     //addNotification("Error", 3000);
