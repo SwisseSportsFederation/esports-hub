@@ -1,4 +1,4 @@
-import Icon from "~/components/Icon";
+import Icon from "~/components/Icons";
 import { Form, useSearchParams } from "@remix-run/react";
 import ActionButton from "~/components/Button/ActionButton";
 import TextInput from "~/components/Forms/TextInput";
@@ -38,7 +38,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
 
   return (
     <Form method="get" action={'/search'} autoComplete={"on"}>
-      <TextInput id="search" label="Search" iconPath="/assets/search.svg"
+      <TextInput id="search" label="Search" searchIcon={true}
                  buttonType="submit" defaultValue={params.get("search")}/>
       {!small && <div className="flex items-center flex-col">
         <CSSTransition
@@ -59,7 +59,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 type="button">
           <div className="max-w-full max-h-full flex items-center justify-center">
-            <Icon path="/assets/arrow-down.svg"
+            <Icon iconName='arrowDown'
                   className={`h-6 w-6 transition-transform transform dark:text-white text-black 
                   ${isDropdownOpen ? 'rotate-180' : ''}`}/>
           </div>

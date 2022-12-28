@@ -1,5 +1,5 @@
 import AccordionTeaser from "./AccordionTeaser";
-import Icon from "../Icon";
+import Icon from "../Icons";
 import type { MouseEvent} from "react";
 import { useState } from "react";
 // import DateInput from "../Form/DateInput";
@@ -44,7 +44,7 @@ const ActiveAccordionTeaser = ({ onLeave, onSave, onChangeMainTeam, entity }: IA
   });
 
   const starIcon = <button onClick={handleClick}>
-    <Icon path={'/assets/star.svg'} className={`w-8 h-8 ${starStyle}`}/>
+    <Icon iconName='star' className={`w-8 h-8 ${starStyle}`}/>
   </button>;
 
   // const setJoinedAt = (value: string) => {

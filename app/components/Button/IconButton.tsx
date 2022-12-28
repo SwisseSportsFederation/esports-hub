@@ -1,33 +1,41 @@
-import Icon from "../Icon";
 import classNames from "classnames";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
-import { useNavigate } from "react-router";
+import { Link } from "@remix-run/react";
+import Icon from "~/components/Icons";
 
 export type IIconButtonProps = {
   icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove",
   size?: "small" | "medium" | "large",
+  type: "submit" | 'link' | 'button'
 } & ({
+  type: 'button',
   action: (() => void),
-  path?: never
+  path?: never,
+  name?: never,
+  value?: never
+
 } | {
+  type: 'link'
   action?: never,
-  path: string
-}
-  | {
+  path: string,
+  name?: never,
+  value?: never
+
+} | {
+  type: 'submit',
   action?: never,
-  path?: never
+  path?: never,
+  name: string,
+  value: string
 });
 
 
-const IconButton = ({ icon, action, path, size = "medium", className }: PropsWithClassName<IIconButtonProps>) => {
-  const navigate = useNavigate();
+const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
+  const { icon, action, path, size = "medium", className, type, name, value } = props;
   const useHandleClick = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
     event.stopPropagation();
-    action && action();
-    if(path) {
-      navigate(path, { replace: true });
-    }
+    action?.();
   };
 
   const classname = classNames({
@@ -36,14 +44,23 @@ const IconButton = ({ icon, action, path, size = "medium", className }: PropsWit
     "h-12 w-12": size === "large"
   }, className);
 
-  return (
-    <button onClick={useHandleClick}>
-      <Icon
-        path={`/assets/${icon}.svg`}
-        className={`rounded-full align-middle inline ${classname}`}
-      />
-    </button>
-  );
+  const core = <Icon iconName={icon} className={`rounded-full align-middle inline ${classname}`}/>;
+
+  if(type === 'submit') {
+    return <button type='submit' name={name} value={value}>
+      {core}
+    </button>;
+  }
+
+  if(type === 'link') {
+    return <Link to={path}>
+      {core}
+    </Link>;
+  }
+
+  return <button onClick={useHandleClick}>
+    {core}
+  </button>;
 };
 
 export default IconButton;

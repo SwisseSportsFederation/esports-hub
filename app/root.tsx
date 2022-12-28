@@ -22,6 +22,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({ user });
 }
 
+// @ts-ignore
+BigInt.prototype.toJSON = function() {
+  return this.toString()
+}
 
 export default function App() {
   return (
@@ -31,6 +35,7 @@ export default function App() {
       <Links/>
     </head>
     <body>
+    <div id="modal-root"/>
     <div className='min-h-screen min-h-[-webkit-fill-available]
         dark:bg-gray-1 dark:text-white bg-gray-7 flex flex-col'>
       <Header/>

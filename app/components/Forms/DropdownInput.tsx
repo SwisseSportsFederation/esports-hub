@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { Listbox, Transition } from '@headlessui/react';
-import Icon from "~/components/Icon";
+import Icon from "~/components/Icons";
 import classNames from "classnames";
 
 type DropdownInputProps = {
@@ -24,7 +24,7 @@ const DropdownInput = ({ inputs, name, selected }: DropdownInputProps) => {
         <Listbox.Button
           className={listBoxButton}>
           <span className="whitespace-nowrap overflow-hidden">{value === "All" ? name.charAt(0).toUpperCase() + name.slice(1) : value}</span>
-          <Icon path="/assets/arrow-down.svg" className="h-5 w-5 absolute right-2 mt-auto mb-auto z-[1]"/>
+          <Icon iconName='arrowDown' className="h-5 w-5 absolute right-2 mt-auto mb-auto z-[1]"/>
         </Listbox.Button>
         <Transition
           as={Fragment}

@@ -12,6 +12,7 @@ const types: RadioButtonValue[] = Object.keys(AccessRight)
   .map((m: string) => Number(m))
   .map((index: number) => ({
     id: index,
+    // TODO: fix this
     name: AccessRight.ADMINISTRATOR
   }));
 
