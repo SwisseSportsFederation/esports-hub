@@ -26,7 +26,7 @@ export default function() {
   if(searchResults) {
     const results = new Array<UserSearchResult>().concat(searchResults.teams, searchResults.orgs, searchResults.users);
     resultsNode = results.map((teaser: UserSearchResult, index: number) =>
-      <Teaser key={index} name={teaser.name} team={teaser.team} games={teaser.games} avatarPath={teaser.image}/>
+      <Teaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games} avatarPath={teaser.image} type={teaser.type}/>
     );
   }
   return <div className="space-y-4 max-w-md w-full mx-auto">

@@ -2,6 +2,7 @@ import getCache from "~/services/cache.server";
 import { db } from "~/services/db.server";
 import { searchQueries } from "~/db/queries.server";
 import type { Game } from "@prisma/client";
+import { EntityType } from "~/helpers/entityType";
 
 export type SearchParams = {
   games: string[],
@@ -10,10 +11,12 @@ export type SearchParams = {
 };
 
 export type UserSearchResult = {
+  id: number,
   image: string | null,
   name: string,
   team: string | null,
-  games: Omit<Game, 'id'>[]
+  games: Omit<Game, 'id'>[],
+  type: EntityType,
 };
 
 export type SearchResult = {
@@ -36,24 +39,30 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const [usersResult, teamsResult, orgsResult] = await Promise.all(queries);
 
   const users = usersResult.map(user => ({
+    id: user.id,
     name: user.nickname,
     image: user.image,
     team: user.teams.map(mem => mem.team.name)?.[0],
-    games: user.games
+    games: user.games,
+    type: 'USER' as EntityType
   }));
 
   const teams = teamsResult.map(team => ({
+    id: team.id,
     image: team.image,
     name: team.name,
     team: team.short_name,
-    games: team.game ? [team.game] : []
+    games: team.game ? [team.game] : [],
+    type: 'TEAM' as EntityType
   }));
 
   const orgs = orgsResult.map(org => ({
+    id: org.id,
     image: org.image,
     name: org.name,
     team: org.short_name,
-    games: []
+    games: [],
+    type: 'ORG' as EntityType
   }));
   return { users, teams, orgs };
 }

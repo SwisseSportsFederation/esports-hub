@@ -4,6 +4,7 @@ import type { Game } from "@prisma/client";
 import { StringOrNull } from "~/db/queries.server";
 import Icons from "~/components/Icons";
 
+// TODO Check if TeaserCoreProps are fine like this, because somehow we need to know if it's a team, user or organisation
 export interface ITeaserCoreProps {
   avatarPath: StringOrNull,
   name: string,
