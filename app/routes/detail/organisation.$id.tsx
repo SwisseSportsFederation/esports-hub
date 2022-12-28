@@ -15,18 +15,12 @@ import { organisations as Organisation } from "@prisma/client";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await checkUserAuth(request);
-  const id = params.organisationId as string;
+  const id = Number(params.id);
 
   /* TODO check query */
-  const query = {
+  const orgQuery = db.organisation.findUnique({
     where: {
-      organisations: {
-        some: {
-          organisation: {
-            auth_id: id
-          }
-        }
-      }
+      id: id
     },
     select: {
       short_name: true,
@@ -34,13 +28,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       image: true,
       members: {
         select: {
-          request_status_id: true
+          request_status: true
         }
       }
     }
-  };
-
-  const orgQuery = db.organisations.findFirst(query);
+  });
   const organisations2: ([Organisation | null]) = await Promise.all([orgQuery]);
   const organisation = organisations2[0];
 

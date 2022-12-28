@@ -1,16 +1,18 @@
-import { organisations, team_members } from "@prisma/client";
+import { organisations, teams, team_members, organisation_members } from "@prisma/client";
 import { ITeaserCoreProps } from "~/components/Teaser/TeaserCore";
+import { EntityType } from "~/helpers/entityType";
 import IconButton from "../components/Button/IconButton";
 import { getOrganisationGames } from "./entityFilters";
 
-export const getTeamTeasers = (teams: ITeam[]): ITeaserCoreProps[] => {
-  return teams.map((team: ITeam) => {
+export const getTeamTeasers = (teams: teams[]): ITeaserCoreProps[] => {
+  return teams.map((team: teams) => {
     return {
       id: team.id,
-      type: EntityType.Team,
-      name: team.name,
+      type: "TEAM" as EntityType,
+      name: team.name || "",
       games: team.game ? [team.game] : [],
-      avatarPath: team.image
+      avatarPath: team.image,
+      team: team.name
     };
   });
 };
@@ -18,9 +20,10 @@ export const getTeamTeasers = (teams: ITeam[]): ITeaserCoreProps[] => {
 export const getOrganisationTeasers = (organisations: organisations[]): ITeaserCoreProps[] => {
   return organisations?.map((organisation: organisations) => {
     return {
-      avatarPath: organisation.image || undefined,
+      avatarPath: organisation.image || null,
       name: organisation.name || "",
       games: getOrganisationGames(organisation),
+      team: null
     };
   });
 };
@@ -29,7 +32,7 @@ export const getTeamMemberTeasers = (teamName: string, members: team_members[]):
   return members?.map((member: team_members) => {
     return {
       id: member.user.id,
-      type: EntityType.User,
+      type: "USER" as EntityType,
       name: member.user.nickname,
       team: teamName,
       games: member.user.games || [],
@@ -38,11 +41,11 @@ export const getTeamMemberTeasers = (teamName: string, members: team_members[]):
   });
 };
 
-export const getOrganisationMemberTeasers = (organisationMembers: organisation_members[]): ITeaserCoreProps[] => {
-  return organisationMembers?.map((member: organisation_members) => {
+export const getOrganisationMemberTeasers = (members: organisation_members[]): ITeaserCoreProps[] => {
+  return members?.map((member: organisation_members) => {
     return {
       id: member.user.id,
-      type: EntityType.User,
+      type: "USER" as EntityType,
       name: member.user.nickname,
       team: member.role,
       games: member.user.games || [],
@@ -55,7 +58,7 @@ export const wrapWithEditIcon = (teasers: ITeaserCoreProps[], path: string): ITe
   return teasers.map((teaserProps: ITeaserCoreProps) => {
     return {
       ...teaserProps,
-      icons: <IconButton icon='edit' path={`${path}/${teaserProps.id}`} className="text-white"/>
+      icons: <IconButton icon='edit' type='link' path={`${path}/${teaserProps.id}`} className="text-white"/>
     };
   });
 };
@@ -74,7 +77,7 @@ export const wrapWithIRemoveIcon = (teasers: ITeaserCoreProps[], handleRemove: (
     return {
       ...teaserProps,
       icons: <>
-        <IconButton icon='decline' action={() => handleRemove(teaserProps.id)} />
+        <IconButton icon='decline' type='button' action={() => handleRemove(teaserProps.id)} />
       </>
     };
   });
@@ -85,8 +88,8 @@ export const wrapWithInvitationIcons = (teasers: ITeaserCoreProps[], handleAccep
     return {
       ...teaserProps,
       icons: <>
-        <IconButton icon='accept' action={() => handleAcceptClick(teaserProps.id)} />
-        <IconButton icon='decline' action={() => handleDeclineClick(teaserProps.id)} />
+        <IconButton icon='accept' type='button' action={() => handleAcceptClick(teaserProps.id)} />
+        <IconButton icon='decline' type='button' action={() => handleDeclineClick(teaserProps.id)} />
       </>
     };
   });

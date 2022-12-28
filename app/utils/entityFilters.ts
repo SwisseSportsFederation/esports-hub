@@ -26,7 +26,7 @@ export const getTeamRequests = (teamMemberships: team_members[]) : team_members[
 };
 
 /** Organisation */
-export const isOrganisationMember = (organisationMemberships: organisation_members[], userId: string): boolean => organisationMemberships?.some((om: organisation_members) => om.user.id === userId);
+export const isOrganisationMember = (organisationMemberships: organisation_members[], userId: string): boolean => organisationMemberships?.some((om: organisation_members) => om.user_id === Number(userId));
 export const getOwnOrganisations = (organisationMemberships: organisation_members[]) : organisations[] => {
   return organisationMemberships?.filter((o: organisation_members) => o.access_rights_id === AccessRightsEnum.Moderator || o.access_rights_id == AccessRightsEnum.Admin).map((o: organisation_members) => o.organisation) ?? [];
 };
