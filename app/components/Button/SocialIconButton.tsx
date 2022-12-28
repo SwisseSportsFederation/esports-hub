@@ -1,4 +1,4 @@
-import Icon from "../Icon";
+import Icon from "../Icons";
 import React from "react";
 import type { Social } from "@prisma/client";
 // import useNotification from "../../hooks/useNotification";
@@ -26,7 +26,7 @@ const SocialIconButton = ({ entitySocial }: ISocialIconButtonProps) => {
 
   return <>
     <button onClick={onClick} className="mx-3 mb-2">
-      <Icon className="w-9 h-9" path={`/assets/${entitySocial.platform.toLowerCase()}.svg`}/>
+      <Icon iconName={entitySocial.platform.toLowerCase()} className="w-9 h-9"/>
     </button>
   </>;
 };
