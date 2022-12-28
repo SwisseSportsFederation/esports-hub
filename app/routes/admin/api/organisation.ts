@@ -7,7 +7,6 @@ import { checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
-
 export const action: ActionFunction = async ({ request }) => {
   if(request.method !== "DELETE") {
     throw json({}, 404);
@@ -16,13 +15,13 @@ export const action: ActionFunction = async ({ request }) => {
     entityId: z.string(),
   });
   const user = await checkUserAuth(request);
-  const team_id = Number(entityId);
+  const organisation_id = Number(entityId);
 
   try {
-    const membership = await db.teamMember.findFirstOrThrow({
+    const membership = await db.organisationMember.findFirstOrThrow({
       where: {
         user_id: Number(user.db.id),
-        team_id
+        organisation_id
       },
       select: {
         access_rights: true
@@ -33,9 +32,9 @@ export const action: ActionFunction = async ({ request }) => {
       return json({}, 403);
     }
 
-    await db.team.delete({
+    await db.organisation.delete({
       where: {
-        id: team_id
+        id: organisation_id
       }
     });
   } catch(error) {
