@@ -1,5 +1,5 @@
 import { Link, useLoaderData, useLocation } from "@remix-run/react";
-import Icon from "../Icon";
+import Icon from "../Icons";
 import { useEffect, useRef, useState } from "react";
 import MobileMenu from "./MobileMenu";
 // import ThemeToggle from "../ThemeToggle";
@@ -13,7 +13,7 @@ const UserState = () => {
   if(data.user) {
     return <div className="relative group">
       <Link to="/admin">
-        <Icon path={'/assets/user-solid.svg'} className="text-black dark:text-white p-0 m-0 w-[40px] h-[40px]"/>
+        <Icon iconName='user' className="text-black dark:text-white p-0 m-0 w-[40px] h-[40px]"/>
       </Link>
       <div
         className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4  rounded-md top-full right-0 opacity-0
@@ -73,7 +73,7 @@ const Header = () => {
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
         <Link to={'/'} className="flex-1">
-          <Icon path={'/assets/logo.svg'} className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
+          <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
         </Link>
         {/*desktop menu*/}
         <div className="hidden md:flex flex-row space-x-10">

@@ -18,7 +18,8 @@ const AuthButtons = () => {
 };
 
 const MobileMenu = ({ menuActive }: IMobileMenu) => {
-  return <div className={`absolute w-full h-full overflow-hidden flex flex-col md:hidden
+  // todo: use CSSTransitions
+  return <div className={`absolute w-full overflow-hidden flex flex-col md:hidden
     left-0 top-0 bottom-0 mt-16 dark:bg-gray-2 bg-white transform -translate-x-full
     transition-transform p-2 ${menuActive ? 'translate-x-0' : ''}`}>
     <Menu/>

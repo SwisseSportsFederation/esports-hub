@@ -1,11 +1,11 @@
-import Icon from "../Icon";
+import Icon from "../Icons";
 import classNames from "classnames";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 
 interface ITextInputProps {
   id: string,
   label: string,
-  iconPath?: string,
+  searchIcon?: boolean,
   buttonType?: 'submit' | 'button',
   inputType?: "email" | "password" | "text"
   required?: boolean,
@@ -16,7 +16,7 @@ const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
   const {
     id,
     label,
-    iconPath,
+    searchIcon = false,
     buttonType = 'button',
     required = false,
     inputType = 'text',
@@ -24,7 +24,7 @@ const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
     defaultValue
   } = props;
   const inputIconPadding = classNames({
-    'pr-14': !!iconPath
+    'pr-14': searchIcon
   });
 
   return (
@@ -34,11 +34,11 @@ const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
                className={`bg-white rounded-full w-full h-10 px-4 text-black focus:outline-none border border-gray-6 dark:border-white ${inputIconPadding}`}/>
         <span className={`absolute left-4 top-2 transition-all text-black`}>{label}</span>
       </label>
-      {iconPath &&
+      {searchIcon &&
         <>
           <div className="absolute top-1/2 transform -translate-y-1/2 right-4 w-5 h-5 flex-none flex-end z-10">
             <button type={buttonType} className="focus:outline-none">
-              <Icon path={iconPath} className="h-5 w-5"/>
+              <Icon iconName='search' className="h-5 w-5"/>
             </button>
           </div>
           <div className="absolute right-0 top-0 bg-gradient-to-l w-20 h-full

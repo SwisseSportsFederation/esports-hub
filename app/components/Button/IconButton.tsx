@@ -1,7 +1,7 @@
-import Icon from "../Icon";
 import classNames from "classnames";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import { Link } from "@remix-run/react";
+import Icon from "~/components/Icons";
 
 export type IIconButtonProps = {
   icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove",
@@ -44,10 +44,7 @@ const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
     "h-12 w-12": size === "large"
   }, className);
 
-  const core = <Icon
-    path={`/assets/${icon}.svg`}
-    className={`rounded-full align-middle inline ${classname}`}
-  />;
+  const core = <Icon iconName={icon} className={`rounded-full align-middle inline ${classname}`}/>;
 
   if(type === 'submit') {
     return <button type='submit' name={name} value={value}>

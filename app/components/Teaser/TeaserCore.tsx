@@ -1,34 +1,31 @@
-import type { ReactNode } from "react";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import classNames from "classnames";
 import type { Game } from "@prisma/client";
 import { StringOrNull } from "~/db/queries.server";
+import Icons from "~/components/Icons";
 
 export interface ITeaserCoreProps {
   avatarPath: StringOrNull,
   name: string,
   team: StringOrNull,
   games: Omit<Game, 'id'>[],
-  icons?: ReactNode
 }
 
 const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
-  const { name, team, avatarPath, games, icons = <></>, className } = props;
+  const { name, team, avatarPath, games, className = '' } = props;
 
   const background = classNames({
     'bg-white': !className?.includes("bg-"),
     'dark:bg-gray-2': !className?.includes("dark:bg-")
   });
 
-  const imagePath = avatarPath ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${avatarPath}` : "/assets/user-solid.svg";
-
-  return <div className={`flex items-center p-3 mx-3 my-2 rounded-xl ${background} ${className}`}>
+  return <div className={`flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl ${background} ${className}`}>
     <div className='rounded-full h-10 w-10 min-w-[2.5rem] m-1 bg-white relative overflow-hidden'>
-      <img src={imagePath} alt="User profile" className={`absolute p-1`}/>
+      {!avatarPath && <Icons iconName='user' className={`absolute m-1 text-black`}/>}
     </div>
     <div className="flex-grow overflow-hidden">
       <div className="mx-1">
-        <span className="font-bold">{name}</span>
+        <span className="font-bold break-all block">{name}</span>
         {team &&
           <span className="text-sm"> ({team})</span>
         }
@@ -38,9 +35,6 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
                 {game.name}
               </span>)
       }
-    </div>
-    <div className="flex-none flex-end space-x-2 flex">
-      {icons}
     </div>
   </div>;
 };

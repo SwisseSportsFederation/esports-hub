@@ -1,7 +1,6 @@
 import type { Prisma } from "@prisma/client";
-import { AccessRight, PrismaClient, RequestStatus, Role, SocialPlatform, VerificationLevel } from "@prisma/client";
+import { AccessRight, PrismaClient, RequestStatus, SocialPlatform, VerificationLevel } from "@prisma/client";
 import { faker } from '@faker-js/faker';
-import { func } from "prop-types";
 
 const prisma = new PrismaClient();
 
@@ -170,7 +169,7 @@ function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
       is_main_team: faker.datatype.boolean(),
       request_status: faker.helpers.objectValue(RequestStatus),
       joined_at: faker.datatype.datetime(),
-      role: faker.helpers.objectValue(Role),
+      role: faker.name.jobTitle(),
       team_id: index + 1
     }
   });
@@ -183,7 +182,7 @@ function createOrgMember(): Prisma.OrganisationMemberCreateManyUserInput[] {
       is_main_organisation: faker.datatype.boolean(),
       request_status: faker.helpers.objectValue(RequestStatus),
       joined_at: faker.datatype.datetime(),
-      role: faker.helpers.objectValue(Role),
+      role: faker.name.jobTitle(),
       organisation_id: index + 1
     }
   });

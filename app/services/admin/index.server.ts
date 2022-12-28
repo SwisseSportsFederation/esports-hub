@@ -1,16 +1,15 @@
 import { db } from "~/services/db.server";
 import type { AuthUser } from "~/services/auth.server";
 import type { StringOrNull } from "~/db/queries.server";
-import { RequestStatus } from "@prisma/client";
+import { AccessRight, RequestStatus } from "@prisma/client";
 
 export type Membership = {
+  request_status: RequestStatus,
+  access_rights: AccessRight
   id: bigint,
-  short_name: StringOrNull,
-  name: StringOrNull,
+  short_name: string,
+  name: string,
   image: StringOrNull,
-  members: {
-    request_status: RequestStatus | null
-  }[]
 }
 
 export type Invitation = Membership & {
@@ -19,10 +18,7 @@ export type Invitation = Membership & {
 
 function splitInvitations(array: Membership[]): [Membership[], Membership[]] {
   return array.reduce<[Membership[], Membership[]]>(([member, invitation], elem) => {
-    if(!elem.members[0]) {
-      return [member, invitation];
-    }
-    if(elem.members[0].request_status === RequestStatus.PENDING) {
+    if(elem.request_status === RequestStatus.PENDING) {
       return [member, [...invitation, elem]];
     }
     return [[...member, elem], invitation];
@@ -42,45 +38,58 @@ const getMemberships = (teams: Membership[], orgs: Membership[]): { invitations:
     ...invitation,
     type: 'ORG'
   }));
+  const modAdminFilter = (entity: {access_rights: AccessRight}) => entity.access_rights === 'ADMINISTRATOR' || entity.access_rights === 'MODERATOR';
   return {
     invitations: typedTeamInvitations.concat(typedOrgInvitations),
-    teams: myTeams,
-    orgs: myOrgs
+    teams: myTeams.filter(modAdminFilter),
+    orgs: myOrgs.filter(modAdminFilter)
   };
 };
 
 export async function getUserMemberships(user: AuthUser) {
-  const query = {
+  const teamQuery = db.teamMember.findMany({
     where: {
-      members: {
-        some: {
-          user: {
-            auth_id: user.profile.id
-          }
-        }
-      }
+      user_id: Number(user.db.id),
     },
     select: {
-      id: true,
-      short_name: true,
-      name: true,
-      image: true,
-      members: {
+      request_status: true,
+      access_rights: true,
+      team: {
         select: {
-          request_status: true
-        },
-        where: {
-          user: {
-            auth_id: user.profile.id
-          }
+          id: true,
+          short_name: true,
+          name: true,
+          image: true
         }
       }
     }
-  };
-
-  const teamQuery = db.team.findMany(query);
-  const orgQuery = db.organisation.findMany(query);
+  });
+  const orgQuery = db.organisationMember.findMany({
+    where: {
+      user_id: Number(user.db.id),
+    },
+    select: {
+      request_status: true,
+      access_rights: true,
+      organisation: {
+        select: {
+          id: true,
+          short_name: true,
+          name: true,
+          image: true
+        }
+      }
+    }
+  });
   const [teams, orgs] = await Promise.all([teamQuery, orgQuery]);
-  return getMemberships(teams, orgs);
+  const membershipTeam: Membership[] = teams.map(team => ({
+    ...team,
+    ...team.team
+  }));
+  const membershipOrg: Membership[] = orgs.map(org => ({
+    ...org,
+    ...org.organisation
+  }))
+  return getMemberships(membershipTeam, membershipOrg);
 }
 

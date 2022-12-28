@@ -1,9 +1,9 @@
 import { Form } from "@remix-run/react";
-import Icon from "~/components/Icon";
+import Icon from "~/components/Icons";
 
 const Login = () => <Form action={"/auth/login"} method="post">
   <button>
-    <Icon path={'/assets/sign-in.svg'} className="text-black dark:text-white p-0 m-0 w-[40px] h-[40px]"/>
+    <Icon iconName='signIn' className="text-black dark:text-white p-0 m-0 w-[40px] h-[40px]"/>
   </button>
 </Form>;
 

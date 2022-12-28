@@ -1,9 +1,9 @@
-import Icon from "../Icon";
+import Icon, { IconType } from "../Icons";
 import { Link } from "@remix-run/react";
 
 export interface IBlockTeaserProps {
   path: string,
-  icon: string,
+  icon: IconType,
   text: string
 }
 
@@ -16,7 +16,7 @@ const BlockTeaser = (props: IBlockTeaserProps) => {
         <div className="rounded-xl px-3 pb-4 pt-5 transition-colors bg-white hover:bg-gray-6 dark:bg-gray-2
         dark:hover:bg-gray-3">
           <div className="flex justify-center">
-            <Icon path={`/assets/${icon}`} className={`h-8 w-12 mb-2 text-black dark:text-white`}/>
+            <Icon iconName={icon} className={`h-8 w-12 mb-2 text-black dark:text-white`}/>
           </div>
           <div className="hidden md:flex justify-center items-center mt-1">
             <span className="text-sm font-bold">{text}</span>

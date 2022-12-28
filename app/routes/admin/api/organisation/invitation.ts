@@ -9,35 +9,16 @@ export let loader: LoaderFunction = () => redirect("/admin");
 
 
 export const action: ActionFunction = async ({ request }) => {
-  const { action, userId, entityId, entity } = await zx.parseForm(request, {
+  const { action, entityId } = await zx.parseForm(request, {
     action: z.enum(['ACCEPT', 'DECLINE']),
-    userId: z.string(),
     entityId: z.string(),
-    entity: z.enum(['TEAM', 'ORG'])
   });
   const user = await checkUserAuth(request);
-  const user_id = Number(userId);
   const entity_id = Number(entityId);
-
-  if(Number(user.db.id) !== user_id) {
-    throw json({}, 403);
-  }
-
+  const user_id = Number(user.db.id);
   try {
     if(action === 'ACCEPT') {
-      if(entity === 'TEAM') {
-        await db.teamMember.update({
-          where: {
-            user_id_team_id: {
-              user_id,
-              team_id: entity_id
-            }
-          },
-          data: {
-            request_status: 'ACCEPTED'
-          }
-        });
-      } else {
+
         await db.organisationMember.update({
           where: {
             user_id_organisation_id: {
@@ -46,22 +27,12 @@ export const action: ActionFunction = async ({ request }) => {
             }
           },
           data: {
-            request_status: 'ACCEPTED'
+            request_status: 'ACCEPTED',
+            access_rights: 'MEMBER'
           }
         });
-      }
 
     } else {
-      if(entity === 'TEAM') {
-        await db.teamMember.delete({
-          where: {
-            user_id_team_id: {
-              user_id,
-              team_id: entity_id
-            }
-          }
-        });
-      } else {
         await db.organisationMember.delete({
           where: {
             user_id_organisation_id: {
@@ -70,7 +41,6 @@ export const action: ActionFunction = async ({ request }) => {
             }
           }
         });
-      }
     }
   } catch(error) {
     throw json({}, 400);
