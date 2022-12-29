@@ -1,5 +1,5 @@
 import {useLoaderData} from "@remix-run/react";
-import {checkUserAuth} from "~/utils/auth.server";
+import {checkUserAuth, isLoggedIn} from "~/utils/auth.server";
 import {db} from "~/services/db.server";
 import {LoaderFunction, json} from "@remix-run/node";
 import { getTeamMemberTeasers } from "~/utils/teaserHelper";
@@ -13,7 +13,7 @@ import { RequestStatus } from "@prisma/client";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await checkUserAuth(request);
+  const loggedIn = await isLoggedIn(request);
   const id = Number(params.id);
 
   /* TODO check query */
@@ -38,7 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
             equals: RequestStatus.ACCEPTED
           }
         },
-        include: { user: true }
+        include: { user: { include: { games: true } } }
       }
     }
   }).catch(() => { 
@@ -46,13 +46,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
         status: 404,
       }) })
 
-  const isMember = isTeamMember(team?.members, user.profile.id ?? "");
+  let showApply;
+  if (loggedIn) {
+    const user = await checkUserAuth(request);
+    showApply = !isTeamMember(team?.members, user.profile.id ?? "");
+  } else {
+    showApply = false;
+  }
   const memberTeasers = getTeamMemberTeasers(team.name, team?.members);
 
   const result = {
-    user,
     team,
-    isMember,
+    showApply,
     memberTeasers
   }
 
@@ -65,11 +70,11 @@ export default function() {
   const handleActionClick = async () => {
     //addNotification("Error", 3000);
     /* TODO later apply button
-    const [, error] = await authenticatedFetch(`/users/${user.profile.id}/organisation/apply`, {
+    const [, error] = await authenticatedFetch(`/users/${user.profile.id}/team/apply`, {
       method: 'PUT',
       body: JSON.stringify({
         userId: user.profile.id,
-        organisationId: organisation.id,
+        teamId: team.id,
         isMainTeam: false,
         joinedAt: new Date().toISOString(),
         role: ""
@@ -95,14 +100,14 @@ export default function() {
                       imagePath={data.team.image}
                       entitySocials={data.team.socials}
                       games={[data.team.game]}
-                      isMember={data.isMember}
+                      showApply={data.showApply}
                       onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...data.team} />
           <div className="-mx-4">
             <TeaserList title="Members" teasers={data.memberTeasers} />
           </div>
-          { data.user && !data.isMember &&
+          { data.showApply &&
               <div className="flex items-center justify-center my-7">
                 <ActionButton content="Apply" action={handleActionClick} />
               </div>

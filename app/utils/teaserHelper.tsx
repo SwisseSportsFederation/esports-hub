@@ -20,6 +20,8 @@ export const getTeamTeasers = (teams: Team[]): ITeaserCoreProps[] => {
 export const getOrganisationTeasers = (organisations: Organisation[]): ITeaserCoreProps[] => {
   return organisations?.map((organisation: Organisation) => {
     return {
+      id: organisation.id,
+      type: "ORG" as EntityType,
       avatarPath: organisation.image || null,
       name: organisation.name || "",
       games: getOrganisationGames(organisation),
