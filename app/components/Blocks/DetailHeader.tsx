@@ -10,7 +10,7 @@ type IDetailHeaderProps = {
   name: string,
   entitySocials?: Social[],
   games?: Game[],
-  isMember?: boolean,
+  showApply?: boolean,
   onApply?: (() => void)
 } & ({
   parentName: string,
@@ -21,7 +21,7 @@ type IDetailHeaderProps = {
 })
 
 const DetailHeader = (props: IDetailHeaderProps) => {
-  const { imagePath, name, parentLink, parentName, entitySocials, games, isMember, onApply } = props;
+  const { imagePath, name, parentLink, parentName, entitySocials, games, showApply, onApply } = props;
 
   const avatarPath = imagePath ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${imagePath}` : "/assets/user-solid.svg";
 
@@ -36,7 +36,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
             <img src={avatarPath} alt="Profile Picture" className={`absolute ${imagePadding} object-fill h-full w-full`}/>
           </div>
-          {onApply && !isMember &&
+          {onApply && showApply &&
             <div className="absolute right-0 top-2">
               <IconButton icon={"apply"} action={onApply} size="large" type="button" />
             </div>

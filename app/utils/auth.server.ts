@@ -9,6 +9,11 @@ export function logout(request: Request, path: string = ''): Promise<void> {
   return authenticator.logout(request, { redirectTo: logout });
 }
 
+export async function isLoggedIn (request: Request): Promise<Boolean> {
+  let user = await authenticator.isAuthenticated(request);
+  return !!user;
+}
+
 export async function checkUserAuth (request: Request): Promise<AuthUser> {
   let user = await authenticator.isAuthenticated(request);
   if(!user) {

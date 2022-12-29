@@ -1,5 +1,5 @@
 import {useLoaderData} from "@remix-run/react";
-import {checkUserAuth} from "~/utils/auth.server";
+import {checkUserAuth, isLoggedIn} from "~/utils/auth.server";
 import {db} from "~/services/db.server";
 import {LoaderFunction, json} from "@remix-run/node";
 import {getOrganisationMemberTeasers, getTeamTeasers} from "~/utils/teaserHelper";
@@ -12,7 +12,7 @@ import { RequestStatus } from "@prisma/client";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const user = await checkUserAuth(request);
+  const loggedIn = await isLoggedIn(request);
   const id = Number(params.id);
 
   /* TODO check query */
@@ -38,7 +38,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
             equals: RequestStatus.ACCEPTED
           }
         },
-        include: { user: true }
+        include: { user: { include: { games: true } } }
       }
     }
   }).catch(() => { 
@@ -47,14 +47,19 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       }) })
 
   const teamTeasers = getTeamTeasers(organisation?.teams);
-  const isMember = isOrganisationMember(organisation?.members, user.profile.id ?? "");
+  let showApply;
+  if (loggedIn) {
+    const user = await checkUserAuth(request);
+    showApply = !isOrganisationMember(organisation?.members, user.profile.id ?? "");
+  } else {
+    showApply = false;
+  }
   const memberTeasers = getOrganisationMemberTeasers(organisation?.members);
 
   const result = {
-    user,
     organisation,
     teamTeasers,
-    isMember,
+    showApply,
     memberTeasers
   }
 
@@ -95,7 +100,7 @@ export default function() {
                       imagePath={data.organisation.image}
                       entitySocials={data.organisation.socials}
                       games={getOrganisationGames(data.organisation)}
-                      isMember={data.isMember}
+                      showApply={data.showApply}
                       onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...data.organisation} />
@@ -103,7 +108,7 @@ export default function() {
             <TeaserList title="Teams" teasers={data.teamTeasers} />
             <TeaserList title="Members" teasers={data.memberTeasers} />
           </div>
-          { data.user && !data.isMember &&
+          { data.showApply &&
               <div className="flex items-center justify-center my-7">
                 <ActionButton content="Apply" action={handleActionClick} />
               </div>
