@@ -21,9 +21,9 @@ export const action: ActionFunction = async ({ request }) => {
 
         await db.organisationMember.update({
           where: {
-            user_id_organisation_id: {
+            user_id_entity_id: {
               user_id,
-              organisation_id: entity_id
+              entity_id
             }
           },
           data: {
@@ -35,9 +35,9 @@ export const action: ActionFunction = async ({ request }) => {
     } else {
         await db.organisationMember.delete({
           where: {
-            user_id_organisation_id: {
+            user_id_entity_id: {
               user_id,
-              organisation_id: entity_id
+              entity_id
             }
           }
         });

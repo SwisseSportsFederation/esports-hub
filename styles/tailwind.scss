@@ -137,5 +137,58 @@
   .contentpage a {
     color: red;
   }
+
+  .select-list {
+    &-enter {
+      @apply block;
+      & ul {
+        @apply transition-transform ease-in-out duration-200;
+        @apply translate-y-full;
+        @apply lg:transition-opacity lg:opacity-0;
+        & li:last-child {
+          @apply lg:border-none;
+        }
+      }
+
+      &-active ul {
+        @apply translate-y-0;
+        @apply lg:opacity-100;
+        & li:last-child {
+          @apply lg:border-none;
+        }
+      }
+
+      &-done {
+        @apply block;
+        & ul {
+          @apply translate-y-0;
+          @apply lg:opacity-100;
+          & li:last-child {
+            @apply lg:border-none;
+          }
+        }
+      }
+    }
+
+    &-exit {
+      @apply block bg-transparent;
+      & ul {
+        @apply translate-y-0;
+        @apply lg:transition-opacity lg:opacity-100;
+        & li:last-child {
+          @apply lg:border-none;
+        }
+      }
+
+      &-active ul {
+        @apply transition-all ease-in-out duration-200;
+        @apply translate-y-full;
+        @apply lg:opacity-0;
+        & li:last-child {
+          @apply lg:border-none;
+        }
+      }
+    }
+  }
 }
 

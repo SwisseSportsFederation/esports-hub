@@ -124,14 +124,9 @@ function createUsers(): Prisma.UserCreateInput[] {
       email: faker.internet.email(),
       surname: faker.name.lastName(),
       nickname: faker.name.firstName(),
-      organisations: {
+      member_of: {
         createMany: {
-          data: createOrgMember()
-        }
-      },
-      teams: {
-        createMany: {
-          data: createTeamMember()
+          data: createOrgMember().concat(createTeamMember())
         }
       },
       former_teams: {
@@ -162,11 +157,11 @@ function createFormerTeams(): Prisma.FormerTeamCreateManyUserInput[] {
 
 }
 
-function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
+function createTeamMember(): Prisma.MemberCreateManyUserInput[] {
   return array().map((_, index) => {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
-      is_main_team: faker.datatype.boolean(),
+      is_main_entity: faker.datatype.boolean(),
       request_status: faker.helpers.objectValue(RequestStatus),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),
@@ -175,11 +170,11 @@ function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
   });
 }
 
-function createOrgMember(): Prisma.OrganisationMemberCreateManyUserInput[] {
+function createOrgMember(): Prisma.MemberCreateManyUserInput[] {
   return array().map((_, index) => {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
-      is_main_organisation: faker.datatype.boolean(),
+      is_main_entity: faker.datatype.boolean(),
       request_status: faker.helpers.objectValue(RequestStatus),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),

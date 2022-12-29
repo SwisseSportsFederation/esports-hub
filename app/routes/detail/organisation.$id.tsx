@@ -7,7 +7,7 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
+import { getOrganisationGames, isEntityMember } from "~/utils/entityFilters";
 import { RequestStatus } from "@prisma/client";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
@@ -41,10 +41,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
         include: { user: { include: { games: true } } }
       }
     }
-  }).catch(() => { 
-      throw new Response("Not Found", {
-        status: 404,
-      }) })
+  }).catch(() => {
+    throw new Response("Not Found", {
+      status: 404,
+    })
+  })
 
   const teamTeasers = getTeamTeasers(organisation?.teams);
   let showApply;
@@ -82,13 +83,13 @@ export default function() {
         role: ""
       })
     }, token);
-  
+
     if (error) {
       addNotification("Error", 3000);
       console.error(error);
       return;
     }
-  
+
     addNotification("Success", 3000);
     await mutate();*/
   };

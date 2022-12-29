@@ -8,7 +8,7 @@ declare global {
       AUTH0_DOMAIN: string;
       AUTH0_MANAGEMENT_CLIENT_ID: string;
       AUTH0_MANAGEMENT_CLIENT_SECRET: string;
-
+      AUTH0_CALLBACK_URL: string;
     }
   }
 }

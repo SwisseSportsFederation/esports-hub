@@ -2,34 +2,34 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import { json, LoaderFunction, redirect } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { AccessRight, Team } from "@prisma/client";
+import { AccessRight, Organisation } from "@prisma/client";
 
-export type TeamWithAccessRights = {
+export type OrganisationWithAccessRights = {
   access_rights: AccessRight,
-  team: Team
+  organisation: Organisation
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const { id } = params;
   const user = await checkUserAuth(request);
-  const team = await db.teamMember.findFirst({
+  const team = await db.organisationMember.findFirst({
     where: {
       user_id: Number(user.db.id),
       entity_id: Number(id)
     },
     select: {
       access_rights: true,
-      team: true
+      organisation: true
     }
   });
   if(!team || team.access_rights === 'NONE' || team.access_rights === 'MEMBER') {
     throw redirect('/admin')
   }
-  return json<TeamWithAccessRights>(team);
+  return json<OrganisationWithAccessRights>(team);
 };
 
 export default function() {
-  const team  = useLoaderData();
+  const organisation  = useLoaderData();
 
-  return <Outlet context={{ team }}/>;
+  return <Outlet context={{ organisation }}/>;
 }

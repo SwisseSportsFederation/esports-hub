@@ -1,8 +1,10 @@
 import type { AuthUser } from "~/services/auth.server";
 import { authenticator } from "~/services/auth.server";
+import { db } from "~/services/db.server";
 
 export function logout(request: Request, path: string = ''): Promise<void> {
-  const returnTo = `http://${request.headers.get("host")}${path}`;
+  const url = new URL(request.url);
+  const returnTo = `${url.protocol}//${url.host}${path}`;
   const auth0Domain = process.env.AUTH0_DOMAIN;
   const clientId = process.env.AUTH0_CLIENT_ID;
   const logout = `https://${auth0Domain}/v2/logout?client_id=${clientId}&returnTo=${returnTo}`;
@@ -30,3 +32,12 @@ export async function checkUserAuth (request: Request): Promise<AuthUser> {
   return user;
 
 }
+
+export const checkAccessForEntity = async (user: AuthUser, entityId: number, entity: EndingType) => {
+  await db.organisationMember.findFirstOrThrow({
+    where: {
+      user_id: Number(user.db.id),
+
+    }
+  })
+};

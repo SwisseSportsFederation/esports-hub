@@ -20,9 +20,9 @@ export const action: ActionFunction = async ({ request }) => {
     if(action === 'ACCEPT') {
       await db.teamMember.update({
         where: {
-          user_id_team_id: {
+          user_id_entity_id: {
             user_id,
-            team_id: entity_id
+            entity_id
           }
         },
         data: {
@@ -33,9 +33,9 @@ export const action: ActionFunction = async ({ request }) => {
     } else {
       await db.teamMember.delete({
         where: {
-          user_id_team_id: {
+          user_id_entity_id: {
             user_id,
-            team_id: entity_id
+            entity_id
           }
         }
       });
