@@ -1,7 +1,6 @@
 import React from "react";
 import IconButton from "../Button/IconButton";
 import SocialIconButton from "../Button/SocialIconButton";
-import { checkUserAuth } from "~/utils/auth.server";
 import classNames from "classnames";
 import { Link } from "@remix-run/react";
 import { Game, Social } from "@prisma/client";
@@ -66,8 +65,8 @@ const DetailHeader = (props: IDetailHeaderProps) => {
           {entitySocials &&
             entitySocials
               .filter((entitySocials: Social) => entitySocials.name !== "")
-              .map((entitySocial: Social) =>
-                <SocialIconButton key={entitySocial.social.id} entitySocial={entitySocial} />
+              .map((entitySocial: Social, index: number) =>
+                <SocialIconButton key={index.toString()} entitySocial={entitySocial} />
             )
           }
         </div>

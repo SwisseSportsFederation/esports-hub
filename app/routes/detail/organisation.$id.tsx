@@ -9,7 +9,6 @@ import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import { isOrganisationMember, getOrganisationGames} from "~/utils/entityFilters";
 import { RequestStatus } from "@prisma/client";
-import { errorUtil } from "zod/lib/helpers/errorUtil";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -26,7 +25,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       name: true,
       image: true,
       description: true,
+      canton: true,
       languages: true,
+      socials: true,
+      website: true,
       teams: {
         where: {
           request_status: {

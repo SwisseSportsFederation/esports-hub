@@ -24,7 +24,7 @@ const SocialIconButton = ({ entitySocial }: ISocialIconButtonProps) => {
   };
 
   return <button onClick={onClick} className="mx-3 mb-2">
-      <Icon iconName={entitySocial.platform.toLowerCase()} className="w-9 h-9"/>
+      <Icon iconName={entitySocial.platform.toLowerCase()} className="w-9 h-9"/> 
     </button>;
 };
 

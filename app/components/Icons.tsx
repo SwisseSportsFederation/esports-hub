@@ -199,6 +199,14 @@ const WebsiteIcon = ({ className }: PropsWithClassName<{}>) =>
   </defs>
   </svg>;
 
+const TwitchIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg className={className} viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M14.3923 6.67817H16.8219V13.9641H14.3909L14.3923 6.67817ZM21.0719 6.67817H23.5001V13.9641H21.0719V6.67817ZM6.50006 0L0.428223 6.07183V27.9282H7.71414V34L13.786 27.9282H18.6423L29.5719 17V0H6.50006ZM27.1423 15.7859L22.286 20.6423H17.4282L13.1782 24.8922V20.6423H7.71414V2.42817H27.1423V15.7859Z"
+    fill="currentColor"/>
+  </svg>;
+
+
 
 
 const iconMap = {
@@ -225,10 +233,11 @@ const iconMap = {
   "steam": SteamIcon,
   "twitter": TwitterIcon,
   "uplay": UplayIcon,
-  "website": WebsiteIcon
+  "website": WebsiteIcon,
+  "twitch": TwitchIcon
 };
 
-export type IconType = "accept" | "add" | "arrowDown" | "apply" | "clock" | "decline" | "edit" | "envelope" | "logo" | "remove" | "organisation" | "search" | "signIn" | "team" | "user" | "star" | "battlenet" | "discord" | "facebook" | "instagram" | "steam" | "uplay" | "website";
+export type IconType = "accept" | "add" | "arrowDown" | "apply" | "clock" | "decline" | "edit" | "envelope" | "logo" | "remove" | "organisation" | "search" | "signIn" | "team" | "user" | "star" | "battlenet" | "discord" | "facebook" | "instagram" | "steam" | "uplay" | "website" | "twitch";
 
 type IconPropType = {
   iconName: IconType
