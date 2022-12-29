@@ -8,6 +8,7 @@ import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import { isTeamMember} from "~/utils/entityFilters";
+import { entityToPathSegment } from "~/helpers/entityType";
 import { RequestStatus } from "@prisma/client";
 // const { addNotification } = useNotification(); // TODO add notification logic
 
@@ -89,9 +90,11 @@ export default function() {
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
         <DetailHeader name={data.team.name}
+                      parentLink={`/detail/${entityToPathSegment('ORG')}/${data.team.organisation.id}`}
+                      parentName={data.team.organisation.name}
                       imagePath={data.team.image}
                       entitySocials={data.team.socials}
-                      games={data.team.games}
+                      games={[data.team.game]}
                       isMember={data.isMember}
                       onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">

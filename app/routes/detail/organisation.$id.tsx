@@ -30,11 +30,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       socials: true,
       website: true,
       teams: {
-        where: {
-          request_status: {
-            equals: RequestStatus.ACCEPTED
-          }
-        }
+        include: { game: true }
       },
       members: {
         where: {
