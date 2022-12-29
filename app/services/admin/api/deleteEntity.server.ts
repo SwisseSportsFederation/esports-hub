@@ -18,7 +18,7 @@ export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'U
   const entityName = entity === 'TEAM' ? 'team_id' : 'organisation_id';
 
   try {
-    const membership = await db.member.findFirstOrThrow({
+    const membershipQuery = {
       where: {
         user_id: Number(user.db.id),
         [entityName]: entity_id
@@ -26,18 +26,24 @@ export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'U
       select: {
         access_rights: true
       }
-    });
+    };
+    let membership;
+    if(entity === 'TEAM') {
+      membership = await db.teamMember.findFirstOrThrow(membershipQuery);
+    } else {
+      membership = await db.organisationMember.findFirstOrThrow(membershipQuery);
+    }
 
     if(membership.access_rights !== "ADMINISTRATOR") {
       return json({}, 403);
     }
 
+    const query = { where: { id: entity_id } };
+
     if(entity === 'TEAM') {
-      await db.team.delete({
-        where: {
-          id: entity_id
-        }
-      });
+      await db.team.delete(query);
+    } else {
+      await db.organisation.delete(query);
     }
   } catch(error) {
     throw json({}, 404)

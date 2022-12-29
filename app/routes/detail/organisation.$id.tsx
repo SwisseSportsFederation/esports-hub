@@ -7,7 +7,7 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { getOrganisationGames, isEntityMember } from "~/utils/entityFilters";
+import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilters";
 import { RequestStatus } from "@prisma/client";
 // const { addNotification } = useNotification(); // TODO add notification logic
 

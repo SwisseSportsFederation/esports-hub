@@ -5,7 +5,6 @@ import { z } from "zod";
 import { checkUserAuth, logout } from "~/utils/auth.server";
 import auth0 from 'auth0';
 import { db } from "~/services/db.server";
-import { destroySession, getSession } from "~/services/session.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 

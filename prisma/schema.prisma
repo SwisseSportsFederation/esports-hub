@@ -83,8 +83,23 @@ model Language {
   @@map("language")
 }
 
+model OrganisationMember {
+  user_id              BigInt
+  organisation_id      BigInt
+  is_main_organisation Boolean
+  joined_at            DateTime      @db.Timestamptz(6)
+  role                 String
+  request_status       RequestStatus @default(PENDING)
+  access_rights        AccessRight   @default(NONE)
+  organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
+  user                 User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, organisation_id])
+  @@map("organisation_member")
+}
+
 model Organisation {
-  id                 BigInt            @id @default(autoincrement())
+  id                 BigInt               @id @default(autoincrement())
   name               String
   short_name         String
   description        String
@@ -94,11 +109,11 @@ model Organisation {
   zip                String?
   country            String?
   canton_id          BigInt?
-  verification_level VerificationLevel @default(NOT_VERIFIED)
-  is_active          Boolean           @default(true)
-  canton             Canton?           @relation(fields: [canton_id], references: [id])
+  verification_level VerificationLevel    @default(NOT_VERIFIED)
+  is_active          Boolean              @default(true)
+  canton             Canton?              @relation(fields: [canton_id], references: [id])
   languages          Language[]
-  members            Member[]
+  members            OrganisationMember[]
   socials            Social[]
   teams              Team[]
 
@@ -116,29 +131,22 @@ model Social {
   team_id         BigInt?
   user_id         BigInt?
 
-  @@unique([platform, organisation_id])
-  @@unique([platform, team_id])
-  @@unique([platform, user_id])
   @@map("social")
 }
 
-model Member {
-  id              BigInt        @id @default(autoincrement())
-  user_id         BigInt
-  organisation_id BigInt?
-  team_id         BigInt?
-  is_main_entity  Boolean?
-  joined_at       DateTime?     @db.Timestamptz(6)
-  role            String
-  request_status  RequestStatus @default(PENDING)
-  access_rights   AccessRight   @default(NONE)
-  team            Team?         @relation(fields: [team_id], references: [id], onDelete: Cascade)
-  organisation    Organisation? @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
-  user            User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model TeamMember {
+  user_id        BigInt
+  team_id        BigInt
+  is_main_team   Boolean?
+  joined_at      DateTime?     @db.Timestamptz(6)
+  role           String
+  request_status RequestStatus @default(PENDING)
+  access_rights  AccessRight   @default(NONE)
+  team           Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, team_id])
-  @@unique([user_id, organisation_id])
-  @@map("member")
+  @@id([user_id, team_id])
+  @@map("team_member")
 }
 
 model Team {
@@ -158,32 +166,32 @@ model Team {
   organisation       Organisation?     @relation(fields: [organisation_id], references: [id])
   request_status     RequestStatus?    @default(PENDING)
   languages          Language[]
-  members            Member[]
+  members            TeamMember[]
   socials            Social[]
 
   @@map("team")
 }
 
 model User {
-  id                 BigInt            @id @default(autoincrement())
-  auth_id            String?           @unique(map: "idx_users_auth_id")
+  id                 BigInt               @id @default(autoincrement())
+  auth_id            String?              @unique(map: "idx_users_auth_id")
   email              String
   nickname           String
   name               String
   surname            String
-  birth_date         DateTime?         @db.Timestamptz(6)
+  birth_date         DateTime?            @db.Timestamptz(6)
   description        String?
   image              String?
   canton_id          BigInt?
-  verification_level VerificationLevel @default(NOT_VERIFIED)
-  is_active          Boolean           @default(true)
-  canton             Canton?           @relation(fields: [canton_id], references: [id])
+  verification_level VerificationLevel    @default(NOT_VERIFIED)
+  is_active          Boolean              @default(true)
+  canton             Canton?              @relation(fields: [canton_id], references: [id])
   former_teams       FormerTeam[]
-  member_of          Member[]
+  organisations      OrganisationMember[]
+  teams              TeamMember[]
   games              Game[]
   languages          Language[]
   socials            Social[]
-
 
   @@map("user")
 }

@@ -15,7 +15,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const team = await db.teamMember.findFirst({
     where: {
       user_id: Number(user.db.id),
-      entity_id: Number(id)
+      team_id: Number(id)
     },
     select: {
       access_rights: true,
