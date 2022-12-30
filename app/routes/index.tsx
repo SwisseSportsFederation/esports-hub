@@ -18,8 +18,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 export default function Index() {
   const { searchParams } = useLoaderData<LoaderData>();
   return <>
-    <section className="flex items-center justify-center flex-col mx-3">
-      <h2 className="text-xl lg:text-3xl font-bold">Search for Swiss Esports Actors</h2>
+    <section className="flex items-center justify-center flex-col mx-3 h-full min-h-[80vh]">
+      <h2 className="text-xl lg:text-3xl font-bold mb-4">Search for Swiss Esports Actors</h2>
       <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
                 languages={searchParams.languages ?? []}/>
     </section>
