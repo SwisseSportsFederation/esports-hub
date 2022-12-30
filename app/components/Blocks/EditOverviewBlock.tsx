@@ -2,7 +2,7 @@ import ActionButton from "../Button/ActionButton";
 import H1Nav from "../Titles/H1Nav";
 import IconTitle from "../Titles/IconTitle";
 import LinkBlock from "./LinkBlock";
-import { EntityType } from "~/helpers/entityType";
+import { entityToPathSegment, EntityType } from "~/helpers/entityType";
 import Modal from "~/components/Notifications/Modal";
 import { useState } from "react";
 import AskModalBody from "~/components/Notifications/AskModalBody";
@@ -19,14 +19,15 @@ interface IEditOverviewBlockProps {
 const EditOverviewBlock = ({ entityId, title, type, navigations = [], canDelete }: IEditOverviewBlockProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const fetcher = useFetcher();
-  console.log(fetcher);
+
   const handleDelete = () => {
     setModalOpen(false);
+    const path = entityToPathSegment(type);
     fetcher.submit({
-      teamId: entityId
+      entityId
     }, {
       method: 'delete',
-      action: '/admin/api/team'
+      action: `/admin/api/${path}`
     })
   };
 

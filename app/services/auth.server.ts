@@ -24,10 +24,15 @@ if(!process.env.AUTH0_DOMAIN) {
   throw new Error("Missing AUTH0_DOMAIN env");
 }
 
+let callbackURL = process.env.AUTH0_CALLBACK_URL;
+if(process.env.VERCEL_ENV === 'preview') {
+  callbackURL = `${process.env.VERCEL_URL}/auth/callback`;
+}
+
 authenticator.use(
   new Auth0Strategy(
     {
-      callbackURL: "http://localhost:3000/auth/callback",
+      callbackURL,
       clientID: process.env.AUTH0_CLIENT_ID,
       clientSecret: process.env.AUTH0_CLIENT_SECRET,
       domain: process.env.AUTH0_DOMAIN,

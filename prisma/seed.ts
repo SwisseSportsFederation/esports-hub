@@ -68,7 +68,7 @@ async function seed() {
   await prisma.user.create({
     data: {
       ...user,
-      auth_id: 'auth0|63a5b893a7323af401038dff',
+      auth_id: 'auth0|63ac8a2f73084ca5370c4aed',
       email: 'test@test.com'
     }
   });
@@ -154,7 +154,7 @@ function createUsers(): Prisma.UserCreateInput[] {
 function createFormerTeams(): Prisma.FormerTeamCreateManyUserInput[] {
   return array().map(() => {
     return {
-      name: faker.name.middleName(),
+      name: faker.company.name(),
       from: faker.datatype.datetime(),
       to: faker.datatype.datetime(),
     }
@@ -166,7 +166,7 @@ function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
   return array().map((_, index) => {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
-      is_main_team: faker.datatype.boolean(),
+      is_main_team: index === 0,
       request_status: faker.helpers.objectValue(RequestStatus),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),
@@ -179,7 +179,7 @@ function createOrgMember(): Prisma.OrganisationMemberCreateManyUserInput[] {
   return array().map((_, index) => {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
-      is_main_organisation: faker.datatype.boolean(),
+      is_main_organisation: index === 0,
       request_status: faker.helpers.objectValue(RequestStatus),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),
