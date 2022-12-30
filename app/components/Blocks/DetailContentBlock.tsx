@@ -14,21 +14,36 @@ const DetailContentBlock = (props: IDetailContantBlockProps) => {
   const { fullName, age, languages, canton, website, description } = props;
   return (
     <div className="p-4 rounded-xl bg-white dark:bg-gray-2">
-      <span className="font-bold text-lg">Details</span>
+      <p className="font-bold text-lg">Details</p>
       {fullName &&
-      <p>Full Name: {fullName}</p>
+      <div className="flex flex-row justify-between">
+        <b>Full Name</b>
+        <span>{fullName}</span>
+      </div>
       }
       {age &&
-      <p>Age: {age}</p>
+      <div className="flex flex-row justify-between">
+          <b>Age</b>
+          <span>{age}</span>
+        </div>
       }
       {languages && languages.length > 0 &&
-      <p>Languages: {languages.map((language: languages) => language.name).join(", ")}</p>
+      <div className="flex flex-row justify-between">
+        <b>Languages</b>
+        <span>{languages.map((language: languages) => language.name).join(", ")}</span>
+      </div>
       }
       {canton &&
-      <p>Canton: {canton.name}</p>
+      <div className="flex flex-row justify-between">
+        <b>Canton</b>
+        <span>{canton.name}</span>
+      </div>
       }
       {website &&
-      <p>Website: <a href={website} className="text-red-1">{website}</a></p>
+      <div className="flex flex-row justify-between">
+        <b>Website</b>
+        <span><a href={website} className="text-red-1">{website}</a></span>
+      </div>
       }
       {description &&
       <div className="pt-4">

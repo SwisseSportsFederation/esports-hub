@@ -76,19 +76,21 @@ const Header = () => {
           <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
         </Link>
         {/*desktop menu*/}
-        <div className="hidden md:flex flex-row space-x-10">
+        <div className="hidden md:flex flex-row space-x-4">
           <Menu/>
         </div>
         {/* Icons (login/user) + desktop:theme + mobile:hamburger */}
-        <div className="flex justify-end space-x-5 flex-1">
-          <UserState/>
-          {/*  <div className='hidden md:flex items-center justify-center'>*/}
-          {/*    /!*<ThemeToggle/>*!/*/}
-          {/*  </div>*/}
-          <a onClick={toggleMenu}
-             className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
-            <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''}`}/>
-          </a>
+        <div className="flex-none md:ml-8">
+          <div className="flex justify-end space-x-5 flex-1">
+            <UserState/>
+            {/*  <div className='hidden md:flex items-center justify-center'>*/}
+            {/*    /!*<ThemeToggle/>*!/*/}
+            {/*  </div>*/}
+            <a onClick={toggleMenu}
+              className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
+              <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''}`}/>
+            </a>
+          </div>
         </div>
       </div>
     </nav>

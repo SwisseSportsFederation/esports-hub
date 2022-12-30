@@ -14,7 +14,7 @@ const DropdownInput = ({ inputs, name, selected }: DropdownInputProps) => {
   const listBoxButton = classNames({
     "text-gray-4": value === "All",
     "text-black": value !== "All"
-  }, "py-1 pl-3 pr-10 text-sm relative inline-flex items-center justify-between w-full rounded-full bg-white border" +
+  }, "py-1 pl-3 pr-10 text-sm relative inline-flex items-center justify-between w-full rounded-xl bg-white border" +
     "border-gray-300");
 
   return <>
