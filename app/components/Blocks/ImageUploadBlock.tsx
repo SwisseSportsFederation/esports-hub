@@ -59,7 +59,7 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
   return <>
     <div className="relative flex items-center w-full max-w-lg bg-white dark:bg-gray-2 rounded-3xl p-5">
       <div className={`relative mr-5 group h-16 w-16 rounded-full overflow-hidden`}>
-        {imageId && <img src={`https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/${imageId}/public`} alt="User profile"
+        {imageId && <img src={`${process.env.CDN_URL}/${imageId}/public`} alt="User profile"
                          className={`absolute`}/>}
         {!imageId && <Icons iconName='user' className='absolute m-1'/>}
       </div>

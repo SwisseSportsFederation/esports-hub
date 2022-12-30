@@ -1,9 +1,8 @@
-import React from "react";
 import IconButton from "../Button/IconButton";
 import SocialIconButton from "../Button/SocialIconButton";
-import classNames from "classnames";
 import { Link } from "@remix-run/react";
 import { Game, Social } from "@prisma/client";
+import Icons from "~/components/Icons";
 
 type IDetailHeaderProps = {
   imagePath?: string,
@@ -23,18 +22,13 @@ type IDetailHeaderProps = {
 const DetailHeader = (props: IDetailHeaderProps) => {
   const { imagePath, name, parentLink, parentName, entitySocials, games, showApply, onApply } = props;
 
-  const avatarPath = imagePath ? `https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/${imagePath}/public` : "/assets/user-solid.svg";
-
-  const imagePadding = classNames({
-    '!p-1 bg-white rounded-full': avatarPath === "/assets/user-solid.svg",
-  });
-
   return (
     <div className="max-w-full">
       <div className="p-3 rounded-xl bg-white bg-gray-7 dark:bg-gray-2">
         <div className="flex justify-center relative">
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
-            <img src={avatarPath} alt="Profile Picture" className={`absolute ${imagePadding} object-fill h-full w-full`}/>
+            {!imagePath && <Icons iconName='user' className={`absolute text-black p-2 bg-white rounded-full`}/>}
+            {imagePath && <img src={`${process.env.CDN_URL}/${imagePath}/public`} alt="Profile Picture" className={`absolute object-fill h-full w-full`}/>}
           </div>
           {onApply && showApply &&
             <div className="absolute right-0 top-2">
