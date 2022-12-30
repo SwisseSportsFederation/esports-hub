@@ -6,14 +6,13 @@ interface IMenuEntry {
 }
 
 const MenuEntry = ({ path, title }: IMenuEntry) => {
-  return <Link to={path} className="font-bold md:text-[20px] text-[24px] ml-[20px]">
+  return <Link to={path} className="font-bold md:font-normal md:text-base text-xl mb-2 md:mb-0">
     {title}
   </Link>;
 };
 
 const Menu = () => {
   return <>
-    <MenuEntry path='/search' title='Search'/>
     <MenuEntry path='/wiki/about-us' title='About us'/>
     <MenuEntry path='/contact' title='Contact'/>
   </>;

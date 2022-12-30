@@ -21,8 +21,10 @@ const MobileMenu = ({ menuActive }: IMobileMenu) => {
   // todo: use CSSTransitions
   return <div className={`absolute w-full overflow-hidden flex flex-col md:hidden
     left-0 top-0 bottom-0 mt-16 dark:bg-gray-2 bg-white transform -translate-x-full
-    transition-transform p-2 ${menuActive ? 'translate-x-0' : ''}`}>
-    <Menu/>
+    transition-transform p-2 pt-4 ${menuActive ? 'translate-x-0' : ''}`}>
+    <div className="ml-[20px]">
+      <Menu/>
+    </div>
     <div>
       <div className="ml-[20px] mt-[20px] mb-[27px] flex items-center justify-start w-full">
         {/*<ThemeToggle/>*/}
