@@ -23,7 +23,7 @@ type IDetailHeaderProps = {
 const DetailHeader = (props: IDetailHeaderProps) => {
   const { imagePath, name, parentLink, parentName, entitySocials, games, showApply, onApply } = props;
 
-  const avatarPath = imagePath ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/${imagePath}` : "/assets/user-solid.svg";
+  const avatarPath = imagePath ? `https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/${imagePath}/public` : "/assets/user-solid.svg";
 
   const imagePadding = classNames({
     '!p-1 bg-white rounded-full': avatarPath === "/assets/user-solid.svg",
@@ -56,7 +56,8 @@ const DetailHeader = (props: IDetailHeaderProps) => {
           <div className="flex justify-center flex-wrap">
             {games &&
               games.map((game: Game) =>
-                <span key={game.id} className="rounded-full my-1 whitespace-nowrap text-sm px-3 mx-2 bg-gray-6 dark:bg-gray-3">{game.name}</span>
+                <span key={Number(game.id)}
+                      className="rounded-full my-1 whitespace-nowrap text-sm px-3 mx-2 bg-gray-6 dark:bg-gray-3">{game.name}</span>
               )
             }
           </div>

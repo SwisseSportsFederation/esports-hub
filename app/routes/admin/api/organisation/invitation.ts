@@ -14,16 +14,15 @@ export const action: ActionFunction = async ({ request }) => {
     entityId: z.string(),
   });
   const user = await checkUserAuth(request);
-  const entity_id = Number(entityId);
+  const organisation_id = Number(entityId);
   const user_id = Number(user.db.id);
   try {
     if(action === 'ACCEPT') {
-
         await db.organisationMember.update({
           where: {
-            user_id_entity_id: {
+            user_id_organisation_id: {
               user_id,
-              entity_id
+              organisation_id
             }
           },
           data: {
@@ -35,9 +34,9 @@ export const action: ActionFunction = async ({ request }) => {
     } else {
         await db.organisationMember.delete({
           where: {
-            user_id_entity_id: {
+            user_id_organisation_id: {
               user_id,
-              entity_id
+              organisation_id
             }
           }
         });

@@ -213,8 +213,13 @@ const OriginIcon = ({ className }: PropsWithClassName<{}>) =>
       fill="currentColor"/>
   </svg>;
 
-
-
+const UploadIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>;
 
 const iconMap = {
   "accept": AcceptIcon,
@@ -242,10 +247,11 @@ const iconMap = {
   "uplay": UplayIcon,
   "website": WebsiteIcon,
   "twitch": TwitchIcon,
-  "origin": OriginIcon
+  "origin": OriginIcon,
+  "upload": UploadIcon
 };
 
-export type IconType = "accept" | "add" | "arrowDown" | "apply" | "clock" | "decline" | "edit" | "envelope" | "logo" | "remove" | "organisation" | "search" | "signIn" | "team" | "user" | "star" | "battlenet" | "discord" | "facebook" | "instagram" | "steam" | "uplay" | "website" | "twitch" | "origin";
+export type IconType = "accept" | "add" | "arrowDown" | "apply" | "clock" | "decline" | "edit" | "envelope" | "logo" | "remove" | "organisation" | "search" | "signIn" | "team" | "user" | "star" | "battlenet" | "discord" | "facebook" | "instagram" | "steam" | "uplay" | "website" | "twitch" | "origin" | "upload";
 
 type IconPropType = {
   iconName: IconType

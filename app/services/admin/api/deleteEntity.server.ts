@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 import { zx } from "zodix";
 import { z } from "zod";
-import { checkUserAuth } from "~/utils/auth.server";
+import { checkAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { EntityType } from "~/helpers/entityType";
 
@@ -14,30 +14,8 @@ export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'U
   });
   const user = await checkUserAuth(request);
   const entity_id = Number(entityId);
-
-  const entityName = entity === 'TEAM' ? 'team_id' : 'organisation_id';
-
+  await checkAccessForEntity(user, entity_id, entity, 'ADMINISTRATOR');
   try {
-    const membershipQuery = {
-      where: {
-        user_id: Number(user.db.id),
-        [entityName]: entity_id
-      },
-      select: {
-        access_rights: true
-      }
-    };
-    let membership;
-    if(entity === 'TEAM') {
-      membership = await db.teamMember.findFirstOrThrow(membershipQuery);
-    } else {
-      membership = await db.organisationMember.findFirstOrThrow(membershipQuery);
-    }
-
-    if(membership.access_rights !== "ADMINISTRATOR") {
-      return json({}, 403);
-    }
-
     const query = { where: { id: entity_id } };
 
     if(entity === 'TEAM') {

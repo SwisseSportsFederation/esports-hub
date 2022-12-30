@@ -1,7 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { FetcherWithComponents } from "@remix-run/react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { FetcherWithComponents, Form, useFetcher, useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
@@ -41,13 +40,11 @@ const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[
 };
 
 
-const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComponents<any>, user: AuthUser): ITeaserProps[] => {
+const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.map(invitation => {
     const path = entityToPathSegment(invitation.type)
     const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`}>
-      <input type='hidden' name='entity' value={invitation.type}/>
       <input type='hidden' name='entityId' value={Number(invitation.id)}/>
-      <input type='hidden' name='userId' value={Number(user.db.id)}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
       <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
     </fetcher.Form>;
@@ -68,11 +65,10 @@ const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComp
 export default function() {
   const { memberships, user } = useLoaderData();
   const fetcher = useFetcher();
-
   const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
   const orgTeaser = getTeaser(memberships.orgs, 'ORG');
 
-  const invitationTeaser = getInvitationTeaser(memberships.invitations, fetcher, user)
+  const invitationTeaser = getInvitationTeaser(memberships.invitations, fetcher)
 
   const addOrgClassNames = classNames({
     'mb-4': invitationTeaser.length > 0,
