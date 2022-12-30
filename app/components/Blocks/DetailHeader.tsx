@@ -3,6 +3,7 @@ import SocialIconButton from "../Button/SocialIconButton";
 import { Link } from "@remix-run/react";
 import { Game, Social } from "@prisma/client";
 import Icons from "~/components/Icons";
+import { CDN_URL } from "~/constants";
 
 type IDetailHeaderProps = {
   imagePath?: string,
@@ -28,7 +29,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         <div className="flex justify-center relative">
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
             {!imagePath && <Icons iconName='user' className={`absolute text-black p-2 bg-white rounded-full`}/>}
-            {imagePath && <img src={`${process.env.CDN_URL}/${imagePath}/public`} alt="Profile Picture" className={`absolute object-fill h-full w-full`}/>}
+            {imagePath && <img src={`${CDN_URL}/${imagePath}/public`} alt="Profile Picture" className={`absolute object-fill h-full w-full`}/>}
           </div>
           {onApply && showApply &&
             <div className="absolute right-0 top-2">

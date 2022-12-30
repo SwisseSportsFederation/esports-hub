@@ -7,6 +7,7 @@ import { useFetcher } from "@remix-run/react";
 import ActionButton from "~/components/Button/ActionButton";
 import { EntityType } from "~/helpers/entityType";
 import { StringOrNull } from "~/db/queries.server";
+import { CDN_URL } from "~/constants";
 
 type ImageUploadBlockPropTypes = {
   entity: EntityType,
@@ -59,7 +60,7 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
   return <>
     <div className="relative flex items-center w-full max-w-lg bg-white dark:bg-gray-2 rounded-3xl p-5">
       <div className={`relative mr-5 group h-16 w-16 rounded-full overflow-hidden`}>
-        {imageId && <img src={`${process.env.CDN_URL}/${imageId}/public`} alt="User profile"
+        {imageId && <img src={`${CDN_URL}/${imageId}/public`} alt="User profile"
                          className={`absolute`}/>}
         {!imageId && <Icons iconName='user' className='absolute m-1'/>}
       </div>
