@@ -105,7 +105,7 @@ export default function() {
                       onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...data.organisation} />
-          <div className="-mx-4">
+          <div className="">
             <TeaserList title="Teams" teasers={data.teamTeasers} />
             <TeaserList title="Members" teasers={data.memberTeasers} />
           </div>

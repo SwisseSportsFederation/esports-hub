@@ -84,7 +84,7 @@ export default function() {
                       games={data.user.games} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...data.user} />
-          <div className="-mx-4">
+          <div className="">
             <TeamHistory memberships={data.teams} formerTeams={data.formerTeams}/>
             <TeaserList title="Organisations" teasers={data.organisationTeasers} />
           </div>
