@@ -1,31 +1,14 @@
-import React from "react";
-import { json } from "@remix-run/node";
+import styles from 'react-image-crop/dist/ReactCrop.css'
+import { useOutletContext } from "@remix-run/react";
+import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
+import { TeamWithAccessRights } from "~/routes/admin/team/$id";
 
-type IdAndName = {
-  id: string,
-  name: string
+export function links() {
+  return [{ rel: "stylesheet", href: styles }];
 }
-
-type Team = {
-  image: string
-  name: string
-  shortName: string
-  game?: IdAndName
-  description: string
-  website: string
-  canton?: IdAndName
-  languages: IdAndName[]
-}
-
-export const loader = () => {
-  return json({});
-};
 
 export default function() {
-  return (
-    <div className="mx-3">
-      hello
-    </div>
-  );
-};
-
+  const { team: teamData } = useOutletContext<{ team: TeamWithAccessRights }>();
+  const { team } = teamData;
+  return <ImageUploadBlock entityId={Number(team.id)} entity={'TEAM'} imageId={team.image}/>;
+}

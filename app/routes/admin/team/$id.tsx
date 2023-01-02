@@ -1,6 +1,6 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { json, LoaderFunction, redirect } from "@remix-run/node";
-import { checkUserAuth } from "~/utils/auth.server";
+import { checkAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { AccessRight, Team } from "@prisma/client";
 
@@ -22,6 +22,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       team: true
     }
   });
+  await checkAccessForEntity(user, Number(id), 'TEAM', 'MODERATOR')
   if(!team || team.access_rights === 'NONE' || team.access_rights === 'MEMBER') {
     throw redirect('/admin')
   }
