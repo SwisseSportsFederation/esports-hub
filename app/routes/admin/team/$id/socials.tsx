@@ -6,11 +6,14 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const { id } = params;
+
   const user = await checkUserAuth(request);
 
   const socials = await db.social.findMany({
     where: {
+      // team_id:
       user_id: Number(user.db.id)
     }
   })
