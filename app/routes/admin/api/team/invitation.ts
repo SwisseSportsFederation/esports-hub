@@ -26,8 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
           }
         },
         data: {
-          request_status: 'ACCEPTED',
-          access_rights: 'MEMBER'
+          request_status: 'ACCEPTED'
         }
       });
     } else {

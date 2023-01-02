@@ -8,9 +8,8 @@ import { ReactNode } from "react";
 
 export type ITeaserProps = {
   type: EntityType,
-  id: number,
+  id: string,
   icons?: ReactNode
-
 } & ITeaserCoreProps;
 
 const Teaser = ({ type, id, icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
@@ -22,10 +21,7 @@ const Teaser = ({ type, id, icons = <></>, ...props }: PropsWithClassName<ITease
     <div className="absolute h-full right-4 flex items-center">
       {icons}
     </div>
-  </div>
-
-
-    ;
+  </div>;
 };
 
 export default Teaser;

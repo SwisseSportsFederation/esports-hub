@@ -1,13 +1,32 @@
-import { Game, Organisation, Team, OrganisationMember, Team, TeamMember, RequestStatus, AccessRight } from "@prisma/client";
+import { AccessRight, Game, Organisation, OrganisationMember, RequestStatus, Team, TeamMember } from "@prisma/client";
+
+/** filters that work */
+export const isTeamMember = (teamMemberships: TeamMember[], userId: number) =>
+  teamMemberships.some(tm => Number(tm.user_id) === userId);
+
+export const isOrganisationMember = (organisationMemberships: OrganisationMember[], userId: number) =>
+  organisationMemberships.some((om: OrganisationMember) => Number(om.user_id) === userId);
+
+
+export const getOrganisationGames = (organisation: { teams: { game: Game }[] }): Game[] => {
+  return organisation.teams
+    .map(team => team.game)
+    .filter((game, index, array) => array.indexOf(game) === index)
+};
+
 
 // TODO fix all filters, that probably don't work anymore
 
-export const getActiveMemberships = <T extends TeamMember | OrganisationMember>(teamMemberships: T[] ): T[] => {
+export const getActiveMemberships = <T extends TeamMember | OrganisationMember>(teamMemberships: T[]): T[] => {
   return teamMemberships?.filter((tm: T) => tm.request_status_id == RequestStatus.ACCEPTED) ?? [];
 };
 
 /** Team */
-export const isTeamMember = (teamMemberships: TeamMember[], userId: string): boolean => teamMemberships.some((tm: TeamMember) => tm.user.id === userId);
+
+
+
+
+
 export const getMainTeam = (teamMemberships: TeamMember[]): Team => {
   return teamMemberships.filter((tm: TeamMember) => tm.is_main_team)[0]?.team;
 };
@@ -27,7 +46,6 @@ export const getTeamRequests = (teamMemberships: TeamMember[]) : TeamMember[] =>
 };
 
 /** Organisation */
-export const isOrganisationMember = (organisationMemberships: OrganisationMember[], userId: string): boolean => organisationMemberships?.some((om: OrganisationMember) => om.user_id === Number(userId));
 export const getOwnOrganisations = (organisationMemberships: OrganisationMember[]) : Organisation[] => {
   return organisationMemberships?.filter((o: OrganisationMember) => o.access_rights_id === AccessRight.MODERATOR || o.access_rights_id == AccessRight.ADMIN).map((o: OrganisationMember) => o.organisation) ?? [];
 };
@@ -41,9 +59,6 @@ export const getOrganisationRequests = (organisationMemberships: OrganisationMem
   return organisationMemberships?.filter((om: OrganisationMember) => om.request_status_id == RequestStatusEnum.PendingOrganisationAccount) ?? [];
 };
 
-export const getOrganisationGames = (organisation: Organisation): Game[] => {
-  return (organisation.teams || []).map((team: Team) => team.game).filter((game: Game, index: number, array: Game[]) => array.indexOf(game) === index);
-};
 
 /** OrganisationTeam */
 export const getActiveOrganisationTeams = (orgTeamRequest: Team[]): Team[] => {

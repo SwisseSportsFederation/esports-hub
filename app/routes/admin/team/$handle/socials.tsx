@@ -1,7 +1,7 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import SocialSelect from "~/components/SocialSelect";
 import { useLoaderData, useOutletContext } from "@remix-run/react";
-import { TeamWithAccessRights } from "~/routes/admin/team/$id";
+import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
 import { json, LoaderFunction } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";

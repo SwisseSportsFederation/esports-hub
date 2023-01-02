@@ -2,8 +2,8 @@ import type { AuthUser } from "~/services/auth.server";
 import { authenticator } from "~/services/auth.server";
 import { db } from "~/services/db.server";
 import { EntityType } from "~/helpers/entityType";
-import { AccessRight } from "@prisma/client";
-import { json } from "@remix-run/node";
+import { AccessRight, RequestStatus } from "@prisma/client";
+import { redirect } from "@remix-run/node";
 
 export function logout(request: Request, path: string = ''): Promise<void> {
   const url = new URL(request.url);
@@ -36,19 +36,42 @@ export async function checkUserAuth (request: Request): Promise<AuthUser> {
 
 }
 
-export const checkAccessForEntity = async (user: AuthUser, entityId: number, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<void> => {
+export const checkIdAccessForEntity = async (user: AuthUser, id: number, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
   const entityName = entity === 'TEAM' ? 'team_id' : 'organisation_id';
 
   const query = {
     where: {
       user_id: Number(user.db.id),
-      [entityName]: entityId
+      [entityName]: id
     },
     select: {
-      access_rights: true
+      access_rights: true,
+      request_status: true
     }
   };
+  return checkAccessForEntity(entity, query, minAccess);
+};
 
+export const checkHandleAccessForEntity = async (user: AuthUser, handle: string, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
+  const entityName = entity === 'TEAM' ? 'team' : 'organisation';
+
+  const query = {
+    where: {
+      user_id: Number(user.db.id),
+      [entityName]: {
+        handle
+      }
+    },
+    select: {
+      access_rights: true,
+      request_status: true
+    }
+  };
+  return checkAccessForEntity(entity, query, minAccess);
+
+};
+
+const checkAccessForEntity = async (entity: Omit<EntityType, 'USER'>, query: any, minAccess: AccessRight) => {
   let membership;
   if(entity === 'TEAM') {
     membership = await db.teamMember.findFirstOrThrow(query);
@@ -56,11 +79,15 @@ export const checkAccessForEntity = async (user: AuthUser, entityId: number, ent
     membership = await db.organisationMember.findFirstOrThrow(query);
   }
 
+  if(membership.request_status === RequestStatus.PENDING) {
+    throw redirect('/admin')
+  }
+
   const accessRoles = ['MEMBER', 'MODERATOR', 'ADMINISTRATOR'];
   const index = accessRoles.indexOf(minAccess);
   const allowed = accessRoles.splice(index);
   if(allowed.includes(membership.access_rights)) {
-    return;
+    return membership.access_rights;
   }
-  throw json({}, 403);
-};
+  throw redirect('/admin');
+}

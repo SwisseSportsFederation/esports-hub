@@ -1,13 +1,14 @@
-import { cantons, languages } from "@prisma/client";
+import { Canton, Language } from "@prisma/client";
+import { StringOrNull } from "~/db/queries.server";
 
 
 interface IDetailContantBlockProps {
   fullName?: string;
   age?: number;
-  languages?: languages[];
-  canton?: cantons;
-  website?: string;
-  description?: string;
+  languages?: Language[];
+  canton?: Canton;
+  website?: StringOrNull;
+  description: StringOrNull;
 }
 
 const DetailContentBlock = (props: IDetailContantBlockProps) => {
@@ -30,7 +31,7 @@ const DetailContentBlock = (props: IDetailContantBlockProps) => {
       {languages && languages.length > 0 &&
       <div className="flex flex-row justify-between">
         <b>Languages</b>
-        <span>{languages.map((language: languages) => language.name).join(", ")}</span>
+        <span>{languages.map((language: Language) => language.name).join(", ")}</span>
       </div>
       }
       {canton &&

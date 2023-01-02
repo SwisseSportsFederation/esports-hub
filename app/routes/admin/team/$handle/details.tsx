@@ -1,7 +1,7 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import { useOutletContext } from "@remix-run/react";
 import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
-import { TeamWithAccessRights } from "~/routes/admin/team/$id";
+import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];

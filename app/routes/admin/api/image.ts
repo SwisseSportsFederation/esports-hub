@@ -2,7 +2,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { zx } from 'zodix';
 import { z } from "zod";
-import { checkAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { resize, upload } from "~/services/admin/api/cloudflareImages.server";
 import { db } from "~/services/db.server";
 
@@ -22,7 +22,7 @@ export const action: ActionFunction = async ({ request }) => {
   const cropData = JSON.parse(crop);
   const user = await checkUserAuth(request);
   if(entity !== 'USER') {
-    await checkAccessForEntity(user, entityId, entity, 'ADMINISTRATOR');
+    await checkIdAccessForEntity(user, entityId, entity, 'ADMINISTRATOR');
   }
   try {
     const croppedImage = await resize(file, cropData);

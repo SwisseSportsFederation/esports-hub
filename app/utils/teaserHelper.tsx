@@ -1,54 +1,59 @@
-import { Organisation, Team, TeamMember, OrganisationMember } from "@prisma/client";
-import { ITeaserCoreProps } from "~/components/Teaser/TeaserCore";
+import { Game, Organisation, Team } from "@prisma/client";
 import { EntityType } from "~/helpers/entityType";
-import IconButton from "../components/Button/IconButton";
 import { getOrganisationGames } from "./entityFilters";
+import { ITeaserProps } from "~/components/Teaser/Teaser";
+import { SerializedOrganisationMember, SerializedTeamMember, SerializedUser } from "~/helpers/serializedDBTypes";
 
-export const getTeamTeasers = (teams: Team[]): ITeaserCoreProps[] => {
-  return teams.map((team: Team) => {
+type TeamWithGame = Team & { game: Game };
+export const getTeamTeasers = (teams: TeamWithGame[]): ITeaserProps[] => {
+  return teams.map((team) => {
     return {
-      id: team.id,
+      id: team.handle,
       type: "TEAM" as EntityType,
       name: team.name || "",
-      games: team.game ? [team.game] : [],
+      games: [team.game],
       avatarPath: team.image,
       team: team.name
     };
   });
 };
 
-export const getOrganisationTeasers = (organisations: Organisation[]): ITeaserCoreProps[] => {
-  return organisations?.map((organisation: Organisation) => {
-    return {
-      id: organisation.id,
+type OrgWithTeamGames = Organisation & { teams: { game: Game }[] };
+export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): ITeaserProps[] => {
+  return organisations.map((organisation) => ({
+      id: organisation.handle,
       type: "ORG" as EntityType,
-      avatarPath: organisation.image || null,
-      name: organisation.name || "",
+      avatarPath: organisation.image,
+      name: organisation.name,
       games: getOrganisationGames(organisation),
-      team: null
-    };
-  });
+      team: null,
+      icons: undefined
+    })
+  );
 };
 
-export const getTeamMemberTeasers = (teamName: string, members: TeamMember[]): ITeaserCoreProps[] => {
-  return members?.map((member: TeamMember) => {
+
+type SerializedTeamMemberWithUser = SerializedTeamMember & { user: SerializedUser & { games: Game[] } };
+export const getTeamMemberTeasers = (teamName: string, members: SerializedTeamMemberWithUser[]): ITeaserProps[] => {
+  return members.map((member) => {
     return {
-      id: member.user.id,
+      id: member.user.handle,
       type: "USER" as EntityType,
-      name: member.user.nickname,
+      name: member.user.handle,
       team: teamName,
       games: member.user.games || [],
-      avatarPath: member.user.image,
+      avatarPath: member.user.image
     };
   });
 };
 
-export const getOrganisationMemberTeasers = (members: OrganisationMember[]): ITeaserCoreProps[] => {
-  return members?.map((member: OrganisationMember) => {
+type SerializedOrganisationMemberWithUser = SerializedOrganisationMember & { user: SerializedUser & { games: Game[] } };
+export const getOrganisationMemberTeasers = (members: SerializedOrganisationMemberWithUser[]): ITeaserProps[] => {
+  return members.map((member) => {
     return {
-      id: member.user.id,
+      id: member.user.handle,
       type: "USER" as EntityType,
-      name: member.user.nickname,
+      name: member.user.handle,
       team: member.role,
       games: member.user.games || [],
       avatarPath: member.user.image,
@@ -56,45 +61,45 @@ export const getOrganisationMemberTeasers = (members: OrganisationMember[]): ITe
   });
 };
 
-export const wrapWithEditIcon = (teasers: ITeaserCoreProps[], path: string): ITeaserCoreProps[] => {
-  return teasers.map((teaserProps: ITeaserCoreProps) => {
-    return {
-      ...teaserProps,
-      icons: <IconButton icon='edit' type='link' path={`${path}/${teaserProps.id}`} className="text-white"/>
-    };
-  });
-};
-
-export const wrapWithClockIcon = (teasers: ITeaserCoreProps[]): ITeaserCoreProps[] => {
-  return teasers.map((teaserProps: ITeaserCoreProps) => {
-    return {
-      ...teaserProps,
-      icons: <IconButton icon='clock'/>
-    };
-  });
-};
-
-export const wrapWithIRemoveIcon = (teasers: ITeaserCoreProps[], handleRemove: (id: number) => void): ITeaserCoreProps[] => {
-  return teasers.map((teaserProps: ITeaserCoreProps) => {
-    return {
-      ...teaserProps,
-      icons: <>
-        <IconButton icon='decline' type='button' action={() => handleRemove(teaserProps.id)} />
-      </>
-    };
-  });
-};
-
-export const wrapWithInvitationIcons = (teasers: ITeaserCoreProps[], handleAcceptClick: (id: number) => void, handleDeclineClick: (id: number) => void): ITeaserCoreProps[] => {
-  return teasers.map((teaserProps: ITeaserCoreProps) => {
-    return {
-      ...teaserProps,
-      icons: <>
-        <IconButton icon='accept' type='button' action={() => handleAcceptClick(teaserProps.id)} />
-        <IconButton icon='decline' type='button' action={() => handleDeclineClick(teaserProps.id)} />
-      </>
-    };
-  });
-};
+// export const wrapWithEditIcon = (teasers: ITeaserCoreProps[], path: string): ITeaserCoreProps[] => {
+//   return teasers.map((teaserProps: ITeaserCoreProps) => {
+//     return {
+//       ...teaserProps,
+//       icons: <IconButton icon='edit' type='link' path={`${path}/${teaserProps.}`} className="text-white"/>
+//     };
+//   });
+// };
+//
+// export const wrapWithClockIcon = (teasers: ITeaserCoreProps[]): ITeaserCoreProps[] => {
+//   return teasers.map((teaserProps: ITeaserCoreProps) => {
+//     return {
+//       ...teaserProps,
+//       icons: <IconButton icon='clock' type='button' action={() => void 0}/>
+//     };
+//   });
+// };
+//
+// export const wrapWithIRemoveIcon = (teasers: ITeaserCoreProps[], handleRemove: (id: number) => void): ITeaserCoreProps[] => {
+//   return teasers.map((teaserProps: ITeaserCoreProps) => {
+//     return {
+//       ...teaserProps,
+//       icons: <>
+//         <IconButton icon='decline' type='button' action={() => handleRemove(teaserProps.id)} />
+//       </>
+//     };
+//   });
+// };
+//
+// export const wrapWithInvitationIcons = (teasers: ITeaserCoreProps[], handleAcceptClick: (id: number) => void, handleDeclineClick: (id: number) => void): ITeaserCoreProps[] => {
+//   return teasers.map((teaserProps: ITeaserCoreProps) => {
+//     return {
+//       ...teaserProps,
+//       icons: <>
+//         <IconButton icon='accept' type='button' action={() => handleAcceptClick(teaserProps.id)} />
+//         <IconButton icon='decline' type='button' action={() => handleDeclineClick(teaserProps.id)} />
+//       </>
+//     };
+//   });
+// };
 
 

@@ -1,32 +1,31 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { json, LoaderFunction, redirect } from "@remix-run/node";
-import { checkAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { AccessRight, Team } from "@prisma/client";
+import { zx } from "zodix";
+import { z } from "zod";
 
 export type TeamWithAccessRights = {
-  access_rights: AccessRight,
+  accessRight: AccessRight,
   team: Team
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { id } = params;
+  const { handle } = zx.parseParams(params, {
+    handle: z.string()
+  });
   const user = await checkUserAuth(request);
-  const team = await db.teamMember.findFirst({
+  const accessRight = await checkHandleAccessForEntity(user, handle, 'TEAM', 'MODERATOR')
+  const team = await db.team.findFirst({
     where: {
-      user_id: Number(user.db.id),
-      team_id: Number(id)
-    },
-    select: {
-      access_rights: true,
-      team: true
+      handle
     }
   });
-  await checkAccessForEntity(user, Number(id), 'TEAM', 'MODERATOR')
-  if(!team || team.access_rights === 'NONE' || team.access_rights === 'MEMBER') {
-    throw redirect('/admin')
+  if(!team) {
+    throw redirect('/admin');
   }
-  return json<TeamWithAccessRights>(team);
+  return json<TeamWithAccessRights>({ team, accessRight });
 };
 
 export default function() {

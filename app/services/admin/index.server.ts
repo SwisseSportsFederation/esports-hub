@@ -7,7 +7,7 @@ export type Membership = {
   request_status: RequestStatus,
   access_rights: AccessRight
   id: bigint,
-  short_name: string,
+  handle: string,
   name: string,
   image: StringOrNull,
 }
@@ -38,11 +38,10 @@ const getMemberships = (teams: Membership[], orgs: Membership[]): { invitations:
     ...invitation,
     type: 'ORG'
   }));
-  const modAdminFilter = (entity: {access_rights: AccessRight}) => entity.access_rights === 'ADMINISTRATOR' || entity.access_rights === 'MODERATOR';
   return {
     invitations: typedTeamInvitations.concat(typedOrgInvitations),
-    teams: myTeams.filter(modAdminFilter),
-    orgs: myOrgs.filter(modAdminFilter)
+    teams: myTeams,
+    orgs: myOrgs
   };
 };
 
@@ -57,7 +56,7 @@ export async function getUserMemberships(user: AuthUser) {
       team: {
         select: {
           id: true,
-          short_name: true,
+          handle: true,
           name: true,
           image: true
         }
@@ -74,7 +73,7 @@ export async function getUserMemberships(user: AuthUser) {
       organisation: {
         select: {
           id: true,
-          short_name: true,
+          handle: true,
           name: true,
           image: true
         }
