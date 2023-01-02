@@ -27,13 +27,13 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
       </div>
       <div className="pt-5 px-3 -mt-5 w-full max-w-sm md:max-w-lg">
         { !small && 
-        <div className="">
+        <div className="relative">
           <div className="my-4">
-            <div className="flex flex-wrap gap-4 overflow-visible md:justify-center">
-              <DropDownInput inputs={games} name="game" selected={params.get("game")}/>
-              <DropDownInput inputs={cantons} name="canton" selected={params.get("canton")}/>
-              <DropDownInput inputs={languages} name="language" selected={params.get("language")}/>
-              <DropDownInput inputs={types} name="type" selected={params.get("type")}/>
+            <div className="flex gap-2 overflow-x-scroll">
+              <DropDownInput inputs={games} name="game" selected={params.get("game")} search={true}/>
+              <DropDownInput inputs={cantons} name="canton" selected={params.get("canton")} search={true}/>
+              <DropDownInput inputs={languages} name="language" selected={params.get("language")} search={true}/>
+              <DropDownInput inputs={types} name="type" selected={params.get("type")} search={true}/>
             </div>
           </div>
         </div>

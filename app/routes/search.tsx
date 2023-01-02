@@ -29,7 +29,7 @@ export default function() {
       <Teaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games} avatarPath={teaser.image} type={teaser.type}/>
     );
   }
-  return <div className="space-y-4 max-w-md w-full mx-auto">
+  return <div className="max-w-md w-full mx-auto px-4">
     <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
                languages={searchParams.languages ?? []}/>
 
