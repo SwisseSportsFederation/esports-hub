@@ -32,9 +32,9 @@ const TextareaInput = (props: ITextareaInputProps) => {
   return (
     <div className="w-full max-w-sm lg:max-w-full relative">
       <label>
-      <textarea name={id} value={value} required={required} placeholder=" "
+      <textarea name={id} defaultValue={value} required={required} placeholder=" "
                 onBlur={handleBlur} onFocus={handleFocus}
-                className={`bg-white rounded-3xl h-48 min-h-[150px] w-full mt-3 px-4 py-3 text-black focus:outline-none border border-gray-6 dark:border-white resize-y`}/>
+                className={`bg-white rounded-xl h-48 min-h-[150px] w-full mt-3 px-4 py-3 text-black focus:outline-none border border-gray-6 dark:border-white resize-y`}/>
         <span className={`absolute left-4 top-6 transition-all text-black ${labelInvalid}`}>{label}</span>
       </label>
     </div>

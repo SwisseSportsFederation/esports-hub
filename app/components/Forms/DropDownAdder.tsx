@@ -1,50 +1,53 @@
 import DropDownInput from "./DropdownInput";
 import ActionBlock from "../Blocks/ActionBlock";
-
-type ISimpleType = {
-  id: number;
-  name: string;
-}
+import { useState } from "react";
 
 interface IDropDownAdderProps {
   name: string,
   label: string,
   values: string[],
-  selectedValues: [],
-  onAddItem?: ((item: ISimpleType) => void),
-  onRemoveItem?: ((item: ISimpleType) => void),
+  defaultValues: string[]
 }
 
-/* TODO check if types work out like this and if this component works */
-
 const DropDownAdder = (props: IDropDownAdderProps) => {
-  const { name, label, values, selectedValues = [], onAddItem, onRemoveItem } = props;
-  const selectableValues = values.filter((value) => !selectedValues.some((selectedValue) => selectedValue.id === value.id));
-  const addItem = (itemId: string, item: any) => {
-    item && onAddItem && onAddItem({
-      id:  parseInt(item.id),
-      name: item.text
-    });
+  const { name, label, values, defaultValues = []} = props;
+  const selectableValues = values.filter((value) => !defaultValues.some((defaultValue) => defaultValue === value));
+  let [selectedValues, setSelectedValues] = useState(defaultValues);
+
+  const addItem = (element: string) => {
+    if(element) {
+      console.log('test')
+      setSelectedValues([
+        ...selectedValues,
+        element
+      ])
+      const checkbox: HTMLInputElement | null = document.getElementById(`${name}-${element}`) as HTMLInputElement;
+      checkbox.checked = true;
+    }
   };
 
-  const removeItem = (item) => {
-    onRemoveItem && onRemoveItem({
-      id:  parseInt(item.id),
-      name: item.text
-    });
+  const removeItem = (element: string) => {
+    if(element) {
+      setSelectedValues(
+        selectedValues.filter(val =>
+        val !== element
+      ))
+      const checkbox: HTMLInputElement | null = document.getElementById(`${name}-${element}`) as HTMLInputElement;
+      checkbox.checked = false;
+    }
   };
 
-  return (
-    <>
-      <div className="w-full max-w-sm lg:max-w-full">
-        <label><span className={`absolute left-4 top-6 transition-all text-black`}>{label}</span></label>
-        <DropDownInput name={name} inputs={selectableValues} selected={null}/>
-          { selectedValues.map((value) =>
-            <ActionBlock key={value.id} title={value.text} onAction={() => removeItem(value)} className="mt-4" />
-          )}
-        </div>
-    </>
-  );
+  return <>
+    <div className="w-full">
+      <label><span className={`absolute left-4 top-6 transition-all text-black`}>{label}</span></label>
+      <DropDownInput name={name} inputs={selectableValues} selected={null} isBig={true} className="mt-1 block" onChange={addItem}/>
+      { selectedValues.map((value, index) => <>
+        <ActionBlock key={index} title={value} onAction={() => removeItem(value)} className="mt-4" />
+        <input key={index} type="checkbox" name={name} id={`${name}-${value}`} value={value} className="hidden" checked/>
+      </>
+      )}
+    </div>
+  </>
 };
 
 export default DropDownAdder;

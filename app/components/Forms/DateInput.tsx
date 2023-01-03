@@ -246,7 +246,7 @@ const DateInput = ({ label, value, min, max, required = false }: IDateInputProps
                    onKeyDown={(event: React.KeyboardEvent) => handleDatePickerKeydown(event)}
                    onBlur={() => handleOpen(false)}
                    onChange={onValueChange}
-                   className={`w-full pl-4 pr-10 py-3 appearance-none leading-none rounded-full text-black
+                   className={`w-full pl-4 pr-10 py-3 appearance-none leading-none rounded-xl text-black
                       font-medium bg-white outline-none focus:outline-none focus:shadow-outline border border-gray-6 dark:border-white ${inputInvalid}`}
                    placeholder="Select date"
             />

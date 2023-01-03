@@ -72,11 +72,11 @@ export default function() {
         <TextareaInput id="description" label="Description" value={user.description} />
         <div className="w-full max-w-sm lg:max-w-full">
           <label><span className={`absolute left-4 top-6 transition-all text-black`}>Canton</span></label>
-          <DropdownInput name="canton" selected={user.canton} inputs={searchParams.cantons || []}/>
+          <DropdownInput name="canton" selected={user.canton} inputs={searchParams.cantons || []} isBig={true} className="mt-1 block"/>
         </div>
-        <DropDownAdder name="languages" label="Language" values={searchParams.languages || []} selectedValues={user.languages} />
+        <DropDownAdder name="languages" label="Language" values={searchParams.languages || []} selectedValues={user.languages || []} />
         <div className="w-full max-w-sm lg:max-w-full">
-          <LinkBlock title="Password" path={`/admin/user/${user.id}/change-password`} />
+          <LinkBlock title="Password" path={`/admin/user/change-password`} />
         </div>
         <ActionButton content='Save' type='submit' />
       </form>
