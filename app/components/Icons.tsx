@@ -32,6 +32,16 @@ const DeclineIcon = ({ className }: PropsWithClassName<{}>) =>
     <line x1="10" y1="20" x2="20" y2="10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
   </svg>;
 
+const ClockIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg className={className}  viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M20.3447 17.6491L16.1619 14.512V8.12163C16.1619 7.47909 15.6425 6.95972 15 6.95972C14.3574 6.95972 13.8381 7.47909 13.8381 8.12163V15.093C13.8381 15.459 14.01 15.8041 14.3028 16.0225L18.9504 19.5082C19.1595 19.6651 19.4035 19.7406 19.6463 19.7406C20.0007 19.7406 20.3493 19.5814 20.577 19.2747C20.9629 18.7622 20.8583 18.0337 20.3447 17.6491Z"
+    fill="#FEE715"/>
+  <path
+    d="M15 0C6.7285 0 0 6.7285 0 15C0 23.2715 6.7285 30 15 30C23.2715 30 30 23.2715 30 15C30 6.7285 23.2715 0 15 0ZM15 27.6762C8.01123 27.6762 2.32377 21.9888 2.32377 15C2.32377 8.01123 8.01123 2.32377 15 2.32377C21.9899 2.32377 27.6762 8.01123 27.6762 15C27.6762 21.9888 21.9888 27.6762 15 27.6762Z"
+    fill="#FEE715"/>
+  </svg>;
+
 const EditIcon = ({ className }: PropsWithClassName<{}>) =>
   <svg className={className} viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="15" cy="15" r="15" fill="#4F4F4F"/>
@@ -222,17 +232,28 @@ const UploadIcon = ({ className }: PropsWithClassName<{}>) =>
     <line x1="12" y1="3" x2="12" y2="15"/>
   </svg>;
 
+const DateIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg className={className}  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17 12H12V17H17V12ZM16 1V3H8V1H6V3H5C3.89 3 3.01 3.9 3.01 5L3 19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3H18V1H16ZM19 19H5V8H19V19Z" fill="currentColor"/>
+  </svg>;
+
+const RemoveIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>;
+
 const iconMap = {
   "accept": AcceptIcon,
   "add": AddIcon,
   "arrowDown": ArrowDownIcon,
   "apply": AddIcon,
-  "clock": AddIcon,
+  "clock": ClockIcon,
   "decline": DeclineIcon,
   "edit": EditIcon,
   "envelope": EnvelopeIcon,
   "logo": SESFLogoIcon,
-  "remove": AddIcon,
+  "remove": RemoveIcon,
   "organisation": OrganisationIcon,
   "search": SearchIcon,
   "signIn": SignInIcon,
@@ -249,10 +270,11 @@ const iconMap = {
   "website": WebsiteIcon,
   "twitch": TwitchIcon,
   "origin": OriginIcon,
-  "upload": UploadIcon
+  "upload": UploadIcon,
+  "date": DateIcon
 };
 
-export type IconType = "accept" | "add" | "arrowDown" | "apply" | "clock" | "decline" | "edit" | "envelope" | "logo" | "remove" | "organisation" | "search" | "signIn" | "team" | "user" | "star" | "battlenet" | "discord" | "facebook" | "instagram" | "steam" | "uplay" | "website" | "twitch" | "origin" | "upload";
+export type IconType = "accept" | "add" | "arrowDown" | "apply" | "clock" | "decline" | "edit" | "envelope" | "logo" | "remove" | "organisation" | "search" | "signIn" | "team" | "user" | "star" | "battlenet" | "discord" | "facebook" | "instagram" | "steam" | "uplay" | "website" | "twitch" | "origin" | "upload" | "date";
 
 type IconPropType = {
   iconName: IconType
