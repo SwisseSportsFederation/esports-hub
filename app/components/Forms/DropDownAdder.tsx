@@ -46,8 +46,8 @@ const DropDownAdder = (props: IDropDownAdderProps) => {
       <label><span className={`absolute left-4 top-6 transition-all text-black`}>{label}</span></label>
       <DropDownInput name={label} inputs={selectableValues} selected={null} isBig={true} className="mt-1 block" onChange={addItem}/>
       { selectedValues.map((value, index) => <>
-        <ActionBlock key={index} title={value} onAction={() => removeItem(value)} className="mt-4" />
-        <input key={index} type="checkbox" name={name} id={`${name}-${value}`} value={value} className="hidden" checked/>
+        <ActionBlock key={`action-${index}`} title={value} onAction={() => removeItem(value)} className="mt-4" />
+        <input key={`input-${index}`} type="checkbox" name={name} id={`${name}-${value}`} value={value} className="hidden" checked readOnly/>
       </>
       )}
     </div>
