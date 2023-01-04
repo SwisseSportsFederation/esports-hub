@@ -159,7 +159,7 @@
       }
 
       &-done {
-        @apply block;
+        @apply block !important;
         & ul {
           @apply translate-y-0;
           @apply lg:opacity-100;

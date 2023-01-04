@@ -44,7 +44,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         {parentLink && parentName &&
           <div className="flex justify-center items-center mb-3 text-red-1 text-xl">
             <Link to={`${parentLink}`}>
-              <a>{parentName}</a>
+              {parentName}
             </Link>
           </div>
         }

@@ -1,4 +1,4 @@
-import Icon, { IconType } from "./Icons";
+import Icons, { IconType } from "./Icons";
 import IconButton from "./Button/IconButton";
 import { useRef, useState } from "react";
 import { CSSTransition } from "react-transition-group";
@@ -15,24 +15,26 @@ export type ISelectListValue = {
 
 interface ISelectListProps {
   values: SocialPlatform[];
+  showButton: boolean;
   onSelect: (selected: SocialPlatform) => void;
 }
 
 const SelectListItem = ({ icon, title, onClick }: ISelectListItemProps) => {
   return <li
-    className='flex p-5 border-b border-gray-300 dark:border-black cursor-pointer hover:text-red-1 transition-colors'
+    className='flex p-5 border-b border-gray-300 dark:border-black cursor-pointer hover:text-red-1 transition-colors capitalize'
     onClick={onClick}>
-    {/*<Icon iconName={icon} className='w-8 h-8 mr-5'/>*/}
-    {title}
+    <Icons iconName={icon} className='w-8 h-8 mr-5'/>
+    {title.toLowerCase()}
   </li>;
 };
 
-const SelectList = ({ values, onSelect }: ISelectListProps) => {
+const SelectList = ({ values, onSelect, showButton }: ISelectListProps) => {
   const [visible, setVisible] = useState(false);
   const nodeRef = useRef(null);
 
   return <>
-    {values.length > 0 && <IconButton icon='add' action={() => setVisible(true)} size='medium' type='button'/>}
+    {values.length > 0 && showButton &&
+      <IconButton icon='add' action={() => setVisible(true)} size='medium' type='button'/>}
     <CSSTransition
       in={visible}
       timeout={200}

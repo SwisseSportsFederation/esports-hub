@@ -7,16 +7,20 @@ import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { id } = params;
+  const { handle } = params;
 
-  const user = await checkUserAuth(request);
+  await checkUserAuth(request);
 
   const socials = await db.social.findMany({
     where: {
-      // team_id:
-      user_id: Number(user.db.id)
+      team: {
+        handle
+      }
+    },
+    orderBy: {
+      id: 'asc'
     }
-  })
+  });
 
   return json({
     socials
