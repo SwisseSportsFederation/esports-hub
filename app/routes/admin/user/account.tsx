@@ -28,17 +28,20 @@ export const action = async ({ request }: ActionArgs) => {
     canton = await db.canton.findFirst({ where: {
       name: formData.get("canton")
     }})
-  } /* TODO fix canton update */
+  }
   let languageUpdate = undefined;
   if(formData.get("languages") !== "All") {
     const formLangs: string[] = formData.getAll("languages[]") || [];
-    const languages: Language[] = await db.language.findMany({ where: {
-      OR: formLangs.map(language => { 
-        return {
-          name: { equals: language }
-        }
-      })
-    }})
+    let languages: Language[] = [];
+    if(formLangs.length > 0) {
+      languages = await db.language.findMany({ where: {
+        OR: formLangs.map(language => { 
+          return {
+            name: { equals: language }
+          }
+        })
+      }})
+    }
     languageUpdate = {
       languages: {
         set: languages.map((language: Language) => {return {id: language.id}})
