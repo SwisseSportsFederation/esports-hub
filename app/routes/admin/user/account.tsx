@@ -124,7 +124,7 @@ export default function() {
         <TextInput id="nickname" label="Nickname" defaultValue={user.nickname} required={true} />
         <TextInput id="name" label="Name" defaultValue={user.name} required={true} />
         <TextInput id="surname" label="Surname" defaultValue={user.surname} />
-        <DateInput label="Birthdate" value={dateToFormattedString(birthDate)} min={new Date(1900, 0, 0)} max={new Date()} />
+        <DateInput label="Birthdate" value={birthDate} min={new Date(1900, 0, 0)} max={new Date()} />
         <TextareaInput id="description" label="Description" value={user.description} />
         <div className="w-full max-w-sm lg:max-w-full">
           <label><span className={`absolute left-4 top-6 transition-all text-black`}>Canton</span></label>

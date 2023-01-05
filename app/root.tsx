@@ -2,6 +2,7 @@ import type { MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useCatch } from "@remix-run/react";
 import styles from "./styles/app.css";
+import dateInputStyles from "./styles/date-input.css";
 import { authenticator } from "~/services/auth.server";
 import Header from "~/components/Header/Header";
 import Footer from "~/components/Footer";
@@ -10,7 +11,7 @@ import LinkButton from "./components/Button/LinkButton";
 import { LoaderFunctionArgs } from "@remix-run/router";
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles }];
+  return [{ rel: "stylesheet", href: styles },{ rel: "stylesheet", href: dateInputStyles }];
 }
 
 export const meta: MetaFunction = () => ({
