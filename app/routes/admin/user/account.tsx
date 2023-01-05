@@ -20,15 +20,7 @@ export function links() {
   return [{ rel: "stylesheet", href: styles }];
 }
 
-export const action = async ({ request }: ActionArgs) => {
-  const formData = await request.formData();
-  const user = await checkUserAuth(request);
-  let canton = undefined;
-  if(formData.get("canton") !== "All") {
-    canton = await db.canton.findFirst({ where: {
-      name: formData.get("canton")
-    }})
-  }
+const getLanguages = async (formData: FormData) => {
   let languageUpdate = undefined;
   if(formData.get("languages") !== "All") {
     const formLangs: string[] = formData.getAll("languages[]") || [];
@@ -48,6 +40,23 @@ export const action = async ({ request }: ActionArgs) => {
       },
     };
   }
+  return languageUpdate;
+}
+
+export const action = async ({ request }: ActionArgs) => {
+  const formData = await request.formData();
+  const user = await checkUserAuth(request);
+  let birthDate = undefined;
+  if(formData.get("birthDate")) {
+    birthDate = new Date(formData.get("birthDate"));
+  }
+  let canton = undefined;
+  if(formData.get("canton") !== "All") {
+    canton = await db.canton.findFirst({ where: {
+      name: formData.get("canton")
+    }})
+  }
+  let languages = getLanguages(formData);
   const userData = await db.user.update({
     where: {
       id: Number(user.db.id)
@@ -56,15 +65,15 @@ export const action = async ({ request }: ActionArgs) => {
       nickname: formData.get("nickname"),
       name: formData.get("name"),
       surname: formData.get("surname"),
-      birth_date: formData.get("birthDate"),
+      birth_date: birthDate,
       description: formData.get("description"),
       canton: {
         connect: {
           id: canton.id
         }
       },
-      ...languageUpdate
-    },
+      ...languages
+    }
   });
   return null;
 
@@ -97,6 +106,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       nickname: true,
       name: true,
       surname: true,
+      birth_date: true,
       image: true,
       description: true,
       canton: true,
@@ -113,7 +123,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function() {
   const { user, searchParams } = useLoaderData<{ user: User, searchParams: SearchParams }>();
-  const birthDate = user.birthDate ? new Date(user.birthDate) : new Date();
+  const birthDate = user.birth_date ? new Date(user.birth_date) : new Date();
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
       <H1Nav path={`/admin/user/${user.id}`}>Account</H1Nav>
@@ -124,7 +134,7 @@ export default function() {
         <TextInput id="nickname" label="Nickname" defaultValue={user.nickname} required={true} />
         <TextInput id="name" label="Name" defaultValue={user.name} required={true} />
         <TextInput id="surname" label="Surname" defaultValue={user.surname} />
-        <DateInput label="Birthdate" value={birthDate} min={new Date(1900, 0, 0)} max={new Date()} />
+        <DateInput name="birthDate" label="Birthdate" value={birthDate} min={new Date(1900, 0, 0)} max={new Date()} />
         <TextareaInput id="description" label="Description" value={user.description} />
         <div className="w-full max-w-sm lg:max-w-full">
           <label><span className={`absolute left-4 top-6 transition-all text-black`}>Canton</span></label>
