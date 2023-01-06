@@ -2,26 +2,36 @@ import { Fragment, useState } from "react";
 import { Listbox, Transition } from '@headlessui/react';
 import Icon from "~/components/Icons";
 import classNames from "classnames";
+import { PropsWithClassName } from "~/utils/PropsWithClassName";
 
 type DropdownInputProps = {
   inputs: string[],
   name: string,
   selected: string | null,
-  search?: boolean
+  search?: boolean,
+  isBig?: boolean,
+  onChange?: Function
 }
 
-const DropdownInput = ({ inputs, name, selected, search = false }: DropdownInputProps) => {
+const DropdownInput = ({ inputs, name, selected, search = false, isBig = false, className, onChange }: PropsWithClassName<DropdownInputProps>) => {
   const [value, setValue] = useState(selected ?? "All");
   const listBoxButton = classNames({
     "text-gray-4": value === "All",
-    "text-black": value !== "All"
-  }, "py-1 pl-3 pr-10 text-sm relative inline-flex items-center justify-between rounded-xl bg-white border" +
-    "border-gray-300");
-  const wrapperClasses = classNames({"relative": !search}, "mt-1 inline-block")
+    "text-black": value !== "All",
+    "h-10 text-md": isBig,
+    "text-sm": !isBig
+  }, "py-1 pl-3 pr-10 relative inline-flex items-center justify-between rounded-xl bg-white border" +
+    "border-gray-300 w-full");
+  const wrapperClasses = classNames({"relative": !search}, className || "mt-1 inline-block")
+
+  const onValueChange = (value: string) => {
+    setValue(value);
+    onChange && onChange(value);
+  }
 
   return <>
     <input type="hidden" name={name} value={value ?? "All"}/>
-    <Listbox value={value} onChange={setValue}>
+    <Listbox value={value} onChange={onValueChange}>
       <div className={wrapperClasses}>
         <Listbox.Button
           className={listBoxButton}>

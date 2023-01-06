@@ -4,6 +4,7 @@
 
 /* Slide down/up */
 @layer components {
+
   .slide-y-enter,
   .slide-y-enter-done,
   .slide-y-exit {
@@ -81,23 +82,23 @@
     }
   }
 
-  textarea:placeholder-shown + label,
-  textarea:placeholder-shown + span,
-  input:placeholder-shown + label,
-  input:placeholder-shown + span {
+  textarea:placeholder-shown+label,
+  textarea:placeholder-shown+span,
+  input:placeholder-shown+label,
+  input:placeholder-shown+span {
     @apply text-gray-4;
   }
 
-  input:not(:placeholder-shown) + label,
-  input:not(:placeholder-shown) + span {
+  input:not(:placeholder-shown)+label,
+  input:not(:placeholder-shown)+span {
     transform: translate3d(0, -2em, 0) scale(0.7);
     transform-origin: left;
     opacity: 1;
     @apply text-white;
   }
 
-  textarea:not(:placeholder-shown) + label,
-  textarea:not(:placeholder-shown) + span {
+  textarea:not(:placeholder-shown)+label,
+  textarea:not(:placeholder-shown)+span {
     transform: translate3d(0, -2.4em, 0) scale(0.7);
     transform-origin: left;
     opacity: 1;
@@ -105,10 +106,10 @@
 
   textarea[required]::placeholder,
   input[required]::placeholder,
-  textarea[required] + label:after,
-  input[required] + label:after,
-  textarea[required] + span:after,
-  input[required] + span:after {
+  textarea[required]+label:after,
+  input[required]+label:after,
+  textarea[required]+span:after,
+  input[required]+span:after {
     content: " *";
     color: currentColor;
   }
@@ -141,10 +142,12 @@
   .select-list {
     &-enter {
       @apply block;
+
       & ul {
         @apply transition-transform ease-in-out duration-200;
         @apply translate-y-full;
         @apply lg:transition-opacity lg:opacity-0;
+
         & li:last-child {
           @apply lg:border-none;
         }
@@ -153,6 +156,7 @@
       &-active ul {
         @apply translate-y-0;
         @apply lg:opacity-100;
+
         & li:last-child {
           @apply lg:border-none;
         }
@@ -163,6 +167,7 @@
         & ul {
           @apply translate-y-0;
           @apply lg:opacity-100;
+
           & li:last-child {
             @apply lg:border-none;
           }
@@ -172,9 +177,11 @@
 
     &-exit {
       @apply block bg-transparent;
+
       & ul {
         @apply translate-y-0;
         @apply lg:transition-opacity lg:opacity-100;
+
         & li:last-child {
           @apply lg:border-none;
         }
@@ -184,11 +191,12 @@
         @apply transition-all ease-in-out duration-200;
         @apply translate-y-full;
         @apply lg:opacity-0;
+
         & li:last-child {
           @apply lg:border-none;
         }
       }
     }
   }
+  
 }
-
