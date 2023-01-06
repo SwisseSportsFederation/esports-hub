@@ -7,7 +7,6 @@ import { db } from "~/services/db.server";
 import { User, Language } from "@prisma/client";
 import TextInput from "~/components/Forms/TextInput";
 import H1Nav from "~/components/Titles/H1Nav";
-import { dateToFormattedString } from "~/utils/dateHelper";
 import ActionButton from "~/components/Button/ActionButton";
 import LinkBlock from "~/components/Blocks/LinkBlock";
 import DateInput from "~/components/Forms/DateInput";
@@ -78,13 +77,7 @@ export const action = async ({ request }: ActionArgs) => {
   return null;
 
   /* TODO: Handle Errors */
-  /* TODO: Fix save for Remix */
-  /*const token = await getAccessTokenSilently();
-  const [, error] = await authenticatedFetch(`/users/${entityId}`, {
-    method: 'PUT',
-    body: JSON.stringify(user)
-  }, token);
-
+  /*
   if (error) {
     addNotification("Error", 3000);
     console.error(error);
@@ -92,8 +85,7 @@ export const action = async ({ request }: ActionArgs) => {
   }
 
   addNotification("Success", 3000);
-  await mutate();
-  await mutateUser?.();*/
+  */
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
