@@ -11,7 +11,7 @@ import LinkButton from "./components/Button/LinkButton";
 import { LoaderFunctionArgs } from "@remix-run/router";
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles },{ rel: "stylesheet", href: dateInputStyles }];
+  return [{ rel: "stylesheet", href: styles }];
 }
 
 export const meta: MetaFunction = () => ({

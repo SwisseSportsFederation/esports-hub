@@ -1,10 +1,11 @@
 import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
 import styles from 'react-image-crop/dist/ReactCrop.css'
-import { json, LoaderFunction, ActionArgs } from "@remix-run/node";
+import dateInputStyles from "~/styles/date-input.css";
+import { json, ActionArgs } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
-import { User, Language } from "@prisma/client";
+import { Language } from "@prisma/client";
 import TextInput from "~/components/Forms/TextInput";
 import H1Nav from "~/components/Titles/H1Nav";
 import ActionButton from "~/components/Button/ActionButton";
@@ -12,16 +13,18 @@ import LinkBlock from "~/components/Blocks/LinkBlock";
 import DateInput from "~/components/Forms/DateInput";
 import TextareaInput from "~/components/Forms/TextareaInput";
 import DropdownInput from "~/components/Forms/DropdownInput";
-import { getSearchParams, SearchParams } from "~/services/search.server";
+import { getSearchParams } from "~/services/search.server";
 import DropDownAdder from "~/components/Forms/DropDownAdder";
+import { LoaderFunctionArgs } from "@remix-run/router";
+import { zx } from 'zodix';
+import { z } from "zod";
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles }];
+  return [{ rel: "stylesheet", href: styles },{ rel: "stylesheet", href: dateInputStyles }];
 }
 
 const getLanguages = async (formData: FormData) => {
-  let languageUpdate = undefined;
-  if(formData.get("languages") !== "All") {
+  if(formData.get("languages[]") !== "All") {
     const formLangs: string[] = formData.getAll("languages[]") || [];
     let languages: Language[] = [];
     if(formLangs.length > 0) {
@@ -33,39 +36,43 @@ const getLanguages = async (formData: FormData) => {
         })
       }})
     }
-    languageUpdate = {
+    return {
       languages: {
         set: languages.map((language: Language) => {return {id: language.id}})
-      },
+      }
     };
   }
-  return languageUpdate;
+  return undefined;
 }
 
 export const action = async ({ request }: ActionArgs) => {
+  const { handle, name, surname, birthDate, description, canton: cantonForm } = await zx.parseForm(request, {
+    handle: z.string(),
+    name: z.string(),
+    surname: z.string(),
+    birthDate: z.string(),
+    description: z.string(),
+    canton: z.string()
+  });
   const formData = await request.formData();
   const user = await checkUserAuth(request);
-  let birthDate = undefined;
-  if(formData.get("birthDate")) {
-    birthDate = new Date(formData.get("birthDate"));
-  }
   let canton = undefined;
-  if(formData.get("canton") !== "All") {
+  if(cantonForm !== "All") {
     canton = await db.canton.findFirst({ where: {
-      name: formData.get("canton")
+      name: cantonForm
     }})
   }
-  let languages = getLanguages(formData);
+  let languages = await getLanguages(formData);
   const userData = await db.user.update({
     where: {
       id: Number(user.db.id)
     },
     data: {
-      nickname: formData.get("nickname"),
-      name: formData.get("name"),
-      surname: formData.get("surname"),
-      birth_date: birthDate,
-      description: formData.get("description"),
+      handle: handle,
+      name: name,
+      surname: surname,
+      birth_date: new Date(birthDate),
+      description: description,
       canton: {
         connect: {
           id: canton.id
@@ -88,22 +95,16 @@ export const action = async ({ request }: ActionArgs) => {
   */
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
   const userData = await db.user.findFirst({
     where: {
       id: Number(user.db.id)
     },
-    select: {
-      nickname: true,
-      name: true,
-      surname: true,
-      birth_date: true,
-      image: true,
-      description: true,
+    include: {
       canton: true,
       languages: true,
-      games: true,
+      games: true
     }
   })
 
@@ -114,16 +115,16 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function() {
-  const { user, searchParams } = useLoaderData<{ user: User, searchParams: SearchParams }>();
+  const { user, searchParams } = useLoaderData<typeof loader>();
   const birthDate = user.birth_date ? new Date(user.birth_date) : new Date();
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={`/admin/user/${user.id}`}>Account</H1Nav>
+      <H1Nav path={`/admin/user`}>Account</H1Nav>
       <form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
         <div className="w-full max-w-sm lg:max-w-full">
           <ImageUploadBlock entityId={Number(user.id)} entity={'USER'} imageId={user.image}/>
         </div>
-        <TextInput id="nickname" label="Nickname" defaultValue={user.nickname} required={true} />
+        <TextInput id="handle" label="Nickname" defaultValue={user.handle} required={true} />
         <TextInput id="name" label="Name" defaultValue={user.name} required={true} />
         <TextInput id="surname" label="Surname" defaultValue={user.surname} />
         <DateInput name="birthDate" label="Birthdate" value={birthDate} min={new Date(1900, 0, 0)} max={new Date()} />
