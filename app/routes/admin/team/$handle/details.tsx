@@ -2,7 +2,7 @@ import styles from 'react-image-crop/dist/ReactCrop.css'
 import { useOutletContext } from "@remix-run/react";
 import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
 import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
-import { json, ActionArgs } from "@remix-run/node";
+import { json, ActionArgs, redirect } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
@@ -45,7 +45,8 @@ const getLanguages = async (formData: FormData) => {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const { handle, name, game: gameForm, website, description, canton: cantonForm } = await zx.parseForm(request, {
+  const { id, handle, name, game: gameForm, website, description, canton: cantonForm } = await zx.parseForm(request, {
+    id: z.string(),
     handle: z.string(),
     name: z.string(),
     game: z.string(),
@@ -70,9 +71,9 @@ export const action = async ({ request }: ActionArgs) => {
     }})
   }
   let languages = await getLanguages(formData);
-  const userData = await db.team.update({
+  await db.team.update({
     where: {
-      handle
+      id: Number(id)
     },
     data: {
       handle,
@@ -92,7 +93,7 @@ export const action = async ({ request }: ActionArgs) => {
       ...languages
     }
   });
-  return null;
+  return redirect(`/admin/team/${handle}/details`)
 
   /* TODO: Handle Errors */
   /*
@@ -123,6 +124,7 @@ export default function() {
         <div className="w-full max-w-sm lg:max-w-full">
           <ImageUploadBlock entityId={Number(team.id)} entity={'TEAM'} imageId={team.image}/>
         </div>
+        <input name="id" type="hidden" value={team.id}/>
         <TextInput id="name" label="Name" defaultValue={team.name} required={true} />
         <TextInput id="handle" label="Short Name" defaultValue={team.handle} required={true} />
         <div className="w-full max-w-sm lg:max-w-full">

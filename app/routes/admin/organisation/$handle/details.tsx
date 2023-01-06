@@ -2,7 +2,7 @@ import styles from 'react-image-crop/dist/ReactCrop.css'
 import { useOutletContext } from "@remix-run/react";
 import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
 import { OrganisationWithAccessRights } from "~/routes/admin/organisation/$handle";
-import { json, ActionArgs } from "@remix-run/node";
+import { json, ActionArgs, redirect } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
@@ -45,7 +45,8 @@ const getLanguages = async (formData: FormData) => {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const { handle, name, website, description, street, zip, canton: cantonForm, country } = await zx.parseForm(request, {
+  const { id, handle, name, website, description, street, zip, canton: cantonForm, country } = await zx.parseForm(request, {
+    id: z.string(),
     handle: z.string(),
     name: z.string(),
     website: z.string(),
@@ -66,9 +67,9 @@ export const action = async ({ request }: ActionArgs) => {
     }})
   }
   let languages = await getLanguages(formData);
-  const userData = await db.organisation.update({
+  await db.organisation.update({
     where: {
-      handle
+      id: Number(id)
     },
     data: {
       handle,
@@ -86,7 +87,7 @@ export const action = async ({ request }: ActionArgs) => {
       ...languages
     }
   });
-  return null;
+  return redirect(`/admin/organisation/${handle}/details`);
 
   /* TODO: Handle Errors */
   /*
@@ -117,6 +118,7 @@ export default function() {
         <div className="w-full max-w-sm lg:max-w-full">
           <ImageUploadBlock entityId={Number(organisation.id)} entity={'ORG'} imageId={organisation.image}/>
         </div>
+        <input name="id" type="hidden" value={organisation.id}/>
         <TextInput id="name" label="Name" defaultValue={organisation.name} required={true} />
         <TextInput id="handle" label="Short Name" defaultValue={organisation.handle} required={true} />
         <TextInput id="website" label="Website" defaultValue={organisation.website} />
