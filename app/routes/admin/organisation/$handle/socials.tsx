@@ -5,10 +5,13 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { OrganisationWithAccessRights } from "~/routes/admin/organisation/$handle";
+import { zx } from "zodix";
+import { z } from "zod";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { handle } = params;
-
+  const { handle } = zx.parseParams(params, {
+    handle: z.string()
+  });
   await checkUserAuth(request);
 
   const socials = await db.social.findMany({

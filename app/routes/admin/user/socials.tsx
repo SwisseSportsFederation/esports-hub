@@ -7,7 +7,6 @@ import { db } from "~/services/db.server";
 import { LoaderFunctionArgs } from "@remix-run/router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-
   const user = await checkUserAuth(request);
 
   const socials = await db.social.findMany({
