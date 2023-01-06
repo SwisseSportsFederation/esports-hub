@@ -21,6 +21,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const organisation = await db.organisation.findFirst({
     where: {
         handle
+    },
+    include: {
+      canton: true,
+      languages: true,
     }
   });
   if(!organisation) {

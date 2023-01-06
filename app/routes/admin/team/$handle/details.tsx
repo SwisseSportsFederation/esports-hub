@@ -2,8 +2,6 @@ import styles from 'react-image-crop/dist/ReactCrop.css'
 import { useOutletContext } from "@remix-run/react";
 import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
 import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
-import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
-import styles from 'react-image-crop/dist/ReactCrop.css';
 import { json, ActionArgs } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
