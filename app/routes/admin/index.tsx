@@ -1,6 +1,6 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { FetcherWithComponents, Form, useFetcher, useLoaderData } from "@remix-run/react";
+import { FetcherWithComponents, useFetcher, useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
@@ -8,7 +8,6 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import { checkUserAuth } from "~/utils/auth.server";
 import type { Invitation, Membership } from "~/services/admin/index.server";
 import { getUserMemberships } from "~/services/admin/index.server";
-import type { AuthUser } from "~/services/auth.server";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
 import { ITeaserProps } from "~/components/Teaser/Teaser";
@@ -26,13 +25,15 @@ export const loader: LoaderFunction = async ({ request }) => {
 const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[] => {
   return memberships.map((mem: Membership) => {
     const pathSegment = entityToPathSegment(entity);
-    const icons = <IconButton icon='edit' type='link' path={`/admin/${pathSegment}/${mem.id}`}/>;
+    const canEdit = ['MODERATOR', 'ADMINISTRATOR'].includes(mem.access_rights)
+    const icons = canEdit ?
+      <IconButton icon='edit' type='link' path={`/admin/${pathSegment}/${mem.handle}`}/> : undefined;
     return {
       type: entity,
-      id: Number(mem.id),
+      id: mem.handle,
       avatarPath: mem.image ?? null,
       name: mem.name,
-      team: mem.short_name,
+      team: mem.handle,
       games: [],
       icons
     }
@@ -51,10 +52,10 @@ const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComp
 
     return {
       type: invitation.type,
-      id: Number(invitation.id),
+      id: invitation.handle,
       avatarPath: invitation.image ?? null,
       name: invitation.name,
-      team: invitation.short_name,
+      team: invitation.handle,
       games: [],
       icons
     }
@@ -63,7 +64,7 @@ const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComp
 
 
 export default function() {
-  const { memberships, user } = useLoaderData();
+  const { memberships } = useLoaderData();
   const fetcher = useFetcher();
   const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
   const orgTeaser = getTeaser(memberships.orgs, 'ORG');

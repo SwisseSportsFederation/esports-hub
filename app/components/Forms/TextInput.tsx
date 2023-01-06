@@ -9,7 +9,9 @@ interface ITextInputProps {
   buttonType?: 'submit' | 'button',
   inputType?: "email" | "password" | "text"
   required?: boolean,
-  defaultValue: string | null
+  defaultValue: string | null,
+  disabled?: boolean,
+  inputClassName?: string
 }
 
 const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
@@ -21,18 +23,20 @@ const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
     required = false,
     inputType = 'text',
     className = '',
-    defaultValue
+    inputClassName = '',
+    defaultValue,
+    disabled = false
   } = props;
   const inputIconPadding = classNames({
     'pr-14': searchIcon
-  });
+  }, inputClassName);
 
   return (
     <div className={`relative mt-3 z-20 w-full ${className}`}>
       <label>
-        <input type={inputType} name={id} required={required} placeholder={" "} defaultValue={defaultValue ?? ""}
+        <input type={inputType} name={id} required={required} placeholder={" "} defaultValue={defaultValue ?? ""} disabled={disabled}
                className={`bg-white rounded-xl w-full h-10 px-4 text-black focus:outline-none border border-gray-6 dark:border-white ${inputIconPadding}`}/>
-        <span className={`absolute left-4 top-2 transition-all text-black`}>{label}</span>
+        <span className={`absolute left-4 top-2 transition-all text-black capitalize`}>{label.toLowerCase()}</span>
       </label>
       {searchIcon &&
         <>

@@ -123,7 +123,7 @@ function createUsers(): Prisma.UserCreateInput[] {
       ...common(),
       email: faker.internet.email(),
       surname: faker.name.lastName(),
-      nickname: faker.name.firstName(),
+      handle: faker.name.firstName(),
       organisations: {
         createMany: {
           data: createOrgMember()
@@ -203,7 +203,7 @@ function createTeams(): Prisma.TeamCreateInput[] {
         }
       },
       website: faker.internet.url(),
-      short_name: faker.name.lastName(),
+      handle: faker.name.lastName(),
     }
   });
 }
@@ -214,7 +214,7 @@ function createOrgs(): Prisma.OrganisationCreateInput[] {
       ...common(),
       country: faker.address.country(),
       website: faker.internet.url(),
-      short_name: faker.name.lastName(),
+      handle: faker.name.lastName(),
     }
   })
 }

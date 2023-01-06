@@ -11,7 +11,7 @@ export type SearchParams = {
 };
 
 export type UserSearchResult = {
-  id: number,
+  handle: string,
   image: string | null,
   name: string,
   team: string | null,
@@ -39,8 +39,8 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const [usersResult, teamsResult, orgsResult] = await Promise.all(queries);
 
   const users = usersResult.map(user => ({
-    id: user.id,
-    name: user.nickname,
+    handle: user.handle,
+    name: user.handle,
     image: user.image,
     team: user.teams.map(mem => mem.team.name)?.[0],
     games: user.games,
@@ -48,19 +48,19 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   }));
 
   const teams = teamsResult.map(team => ({
-    id: team.id,
+    handle: team.handle,
     image: team.image,
     name: team.name,
-    team: team.short_name,
+    team: team.handle,
     games: team.game ? [team.game] : [],
     type: 'TEAM' as EntityType
   }));
 
   const orgs = orgsResult.map(org => ({
-    id: org.id,
+    handle: org.handle,
     image: org.image,
     name: org.name,
-    team: org.short_name,
+    team: org.handle,
     games: [],
     type: 'ORG' as EntityType
   }));

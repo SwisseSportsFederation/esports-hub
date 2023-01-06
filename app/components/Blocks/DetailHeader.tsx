@@ -4,9 +4,10 @@ import { Link } from "@remix-run/react";
 import { Game, Social } from "@prisma/client";
 import Icons from "~/components/Icons";
 import { CDN_URL } from "~/constants";
+import { StringOrNull } from "~/db/queries.server";
 
 type IDetailHeaderProps = {
-  imagePath?: string,
+  imagePath: StringOrNull,
   name: string,
   entitySocials?: Social[],
   games?: Game[],
@@ -43,7 +44,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         {parentLink && parentName &&
           <div className="flex justify-center items-center mb-3 text-red-1 text-xl">
             <Link to={`${parentLink}`}>
-              <a>{parentName}</a>
+              {parentName}
             </Link>
           </div>
         }

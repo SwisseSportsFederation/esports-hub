@@ -9,24 +9,21 @@ const query = (search?: string): Prisma.StringFilter => ({
 export type StringOrNull = string | null;
 
 type TeamsQuery = {
-  id: number;
   image: StringOrNull,
   name: string,
-  short_name: StringOrNull,
+  handle: string,
   game: { name: string } | null;
 }[]
 
 type OrgsQuery = {
-  id: number;
   image: StringOrNull,
   name: string,
-  short_name: StringOrNull
+  handle: string
 }[]
 
 type UsersQuery = {
-  id: number;
   image: StringOrNull,
-  nickname: string,
+  handle: string,
   games: { name: string }[],
   teams: { team: { name: StringOrNull } }[]
 }[];
@@ -47,13 +44,12 @@ const usersQuery = (search?: string, canton?: string, language?: string, game?: 
       { canton: { name: { equals: canton } } },
       { languages: { some: { name: language } } },
       { games: { some: { name: game } } },
-      { nickname: query(search) }
+      { handle: query(search) }
     ],
   },
   select: {
-    id: true,
     image: true,
-    nickname: true,
+    handle: true,
     games: { select: { name: true } },
     teams: { select: { team: { select: { name: true } } } }
   }
@@ -69,16 +65,15 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
       {
         OR: [
           { name: query(search) },
-          { short_name: query(search) }
+          { handle: query(search) }
         ]
       }
     ]
   },
   select: {
-    id: true,
     image: true,
     name: true,
-    short_name: true,
+    handle: true,
     game: {
       select: {
         name: true
@@ -96,16 +91,15 @@ const orgsQuery = (search?: string, canton?: string, language?: string) => db.or
       {
         OR: [
           { name: query(search) },
-          { short_name: query(search) }
+          { handle: query(search) }
         ]
       }
     ]
   },
   select: {
-    id: true,
     image: true,
     name: true,
-    short_name: true
+    handle: true
   }
 });
 

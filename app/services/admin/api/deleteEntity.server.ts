@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 import { zx } from "zodix";
 import { z } from "zod";
-import { checkAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { EntityType } from "~/helpers/entityType";
 
@@ -14,7 +14,7 @@ export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'U
   });
   const user = await checkUserAuth(request);
   const entity_id = Number(entityId);
-  await checkAccessForEntity(user, entity_id, entity, 'ADMINISTRATOR');
+  await checkIdAccessForEntity(user, entity_id, entity, 'ADMINISTRATOR');
   try {
     const query = { where: { id: entity_id } };
 

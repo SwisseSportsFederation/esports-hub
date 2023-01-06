@@ -1,22 +1,30 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import SocialSelect from "~/components/SocialSelect";
 import { useLoaderData, useOutletContext } from "@remix-run/react";
-import { TeamWithAccessRights } from "~/routes/admin/team/$id";
+import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
 import { json, LoaderFunction } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
+import { zx } from "zodix";
+import { z } from "zod";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const { id } = params;
+  const { handle } = zx.parseParams(params, {
+    handle: z.string()
+  });
 
-  const user = await checkUserAuth(request);
+  await checkUserAuth(request);
 
   const socials = await db.social.findMany({
     where: {
-      // team_id:
-      user_id: Number(user.db.id)
+      team: {
+        handle
+      }
+    },
+    orderBy: {
+      id: 'asc'
     }
-  })
+  });
 
   return json({
     socials
