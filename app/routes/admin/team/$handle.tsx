@@ -20,6 +20,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const team = await db.team.findFirst({
     where: {
       handle
+    },
+    include: {
+      game: true,
+      canton: true,
+      languages: true,
     }
   });
   if(!team) {
