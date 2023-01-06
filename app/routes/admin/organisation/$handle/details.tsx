@@ -113,7 +113,7 @@ export default function() {
   const { organisation } = organisationData;
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={`/admin/team/${organisation.handle}`}>Details</H1Nav>
+      <H1Nav path={`/admin/organisation/${organisation.handle}`}>Details</H1Nav>
       <form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
         <div className="w-full max-w-sm lg:max-w-full">
           <ImageUploadBlock entityId={Number(organisation.id)} entity={'ORG'} imageId={organisation.image}/>
