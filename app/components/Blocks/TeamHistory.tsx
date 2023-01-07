@@ -1,11 +1,11 @@
-import { Team } from "@prisma/client";
+import { FormerTeam, Team, TeamMember } from "@prisma/client";
 import { Link } from "@remix-run/react";
-import { SerializedFormerTeam, SerializedTeamMember } from "~/helpers/serializedDBTypes";
+import { SerializeFrom } from "@remix-run/server-runtime";
 
 
 interface ITeamHistoryProps {
-  memberships?: (SerializedTeamMember & { team: Team })[],
-  formerTeams?: SerializedFormerTeam[],
+  memberships?: (SerializeFrom<TeamMember> & { team: SerializeFrom<Team> })[],
+  formerTeams?: SerializeFrom<FormerTeam>[],
 }
 
 const TeamHistory = ({ formerTeams = [], memberships: teams = [] }: ITeamHistoryProps) => {

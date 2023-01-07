@@ -1,76 +1,38 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
-import { useOutletContext } from "@remix-run/react";
-import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
-import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
-import { json, ActionArgs, redirect } from "@remix-run/node";
-import { checkUserAuth } from "~/utils/auth.server";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useOutletContext } from "@remix-run/react";
+import { loader as handleLoader } from "~/routes/admin/team/$handle";
+import { ActionArgs, json, redirect } from "@remix-run/node";
+import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { Language } from "@prisma/client";
-import TextInput from "~/components/Forms/TextInput";
-import H1Nav from "~/components/Titles/H1Nav";
-import ActionButton from "~/components/Button/ActionButton";
-import TextareaInput from "~/components/Forms/TextareaInput";
-import DropdownInput from "~/components/Forms/DropdownInput";
 import { getSearchParams } from "~/services/search.server";
-import DropDownAdder from "~/components/Forms/DropDownAdder";
-import { LoaderFunctionArgs } from "@remix-run/router";
 import { zx } from 'zodix';
 import { z } from "zod";
+import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import { SerializeFrom } from "@remix-run/server-runtime";
+import dateInputStyles from "~/styles/date-input.css";
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
-
-const getLanguages = async (formData: FormData) => {
-  if(formData.get("languages[]") !== "All") {
-    const formLangs: string[] = formData.getAll("languages[]") || [];
-    let languages: Language[] = [];
-    if(formLangs.length > 0) {
-      languages = await db.language.findMany({ where: {
-        OR: formLangs.map(language => { 
-          return {
-            name: { equals: language }
-          }
-        })
-      }})
-    }
-    return {
-      languages: {
-        set: languages.map((language: Language) => {return {id: language.id}})
-      }
-    };
-  }
-  return undefined;
+  return [
+    { rel: "stylesheet", href: styles },
+    { rel: "stylesheet", href: dateInputStyles }
+  ];
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const { id, handle, name, game: gameForm, website, description, canton: cantonForm } = await zx.parseForm(request, {
+  const { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
     id: z.string(),
-    handle: z.string(),
-    name: z.string(),
-    game: z.string(),
-    website: z.string(),
-    description: z.string(),
-    canton: z.string()
+    oldHandle: z.string(),
+    handle: z.string().min(3),
+    name: z.string().min(3),
+    founded: z.string().optional(),
+    game: zx.NumAsString,
+    description: z.string().optional(),
+    canton: zx.NumAsString.optional(),
+    languages: z.string()
   });
-  const formData = await request.formData();
-
-  await checkUserAuth(request);
-
-  let canton = undefined;
-  if(cantonForm !== "All") {
-    canton = await db.canton.findFirst({ where: {
-      name: cantonForm
-    }})
-  }
-  let game = undefined;
-  if(gameForm !== "All") {
-    game = await db.game.findFirst({ where: {
-      name: gameForm
-    }})
-  }
-  let languages = await getLanguages(formData);
+  const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
+  const user = await checkUserAuth(request);
+  await checkHandleAccessForEntity(user, oldHandle, 'TEAM', 'MODERATOR');
   await db.team.update({
     where: {
       id: Number(id)
@@ -78,22 +40,34 @@ export const action = async ({ request }: ActionArgs) => {
     data: {
       handle,
       name,
+      description,
+      ...(founded && ({ founded: new Date(founded) })),
+      ...(!founded && ({ founded: null })),
       game: {
         connect: {
-          id: game.id
+          id: Number(game)
         }
       },
-      website,
-      description,
-      canton: {
-        connect: {
-          id: canton.id
+      ...(canton && {
+        canton: {
+          connect: {
+            id: canton
+          }
         }
-      },
-      ...languages
+      }),
+      ...(!canton && {
+        canton: {
+          disconnect: true
+        }
+      }),
+      languages: {
+        set: languageIds
+      }
     }
   });
-  return redirect(`/admin/team/${handle}/details`)
+  return redirect(`/admin/team/${handle}/details`, {
+    status: 301
+  });
 
   /* TODO: Handle Errors */
   /*
@@ -107,39 +81,16 @@ export const action = async ({ request }: ActionArgs) => {
   */
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  return json({ 
-    searchParams: await getSearchParams() 
+export async function loader() {
+  return json({
+    searchParams: await getSearchParams()
   });
 }
 
 export default function() {
   const { searchParams } = useLoaderData<typeof loader>();
-  const { team: teamData } = useOutletContext<{ team: TeamWithAccessRights }>();
-  const { team } = teamData;
-  return <div className="mx-3">
-    <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={`/admin/team/${team.handle}`}>Details</H1Nav>
-      <form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
-        <div className="w-full max-w-sm lg:max-w-full">
-          <ImageUploadBlock entityId={Number(team.id)} entity={'TEAM'} imageId={team.image}/>
-        </div>
-        <input name="id" type="hidden" value={team.id}/>
-        <TextInput id="name" label="Name" defaultValue={team.name} required={true} />
-        <TextInput id="handle" label="Short Name" defaultValue={team.handle} required={true} />
-        <div className="w-full max-w-sm lg:max-w-full">
-          <label><span className={`absolute left-4 top-6 transition-all text-black`}>Game</span></label>
-          <DropdownInput name="game" selected={team.game.name} inputs={searchParams.games || []} isBig={true} className="mt-1 block"/>
-        </div>
-        <TextInput id="website" label="Website" defaultValue={team.website} />
-        <TextareaInput id="description" label="Description" value={team.description} />
-        <div className="w-full max-w-sm lg:max-w-full">
-          <label><span className={`absolute left-4 top-6 transition-all text-black`}>Canton</span></label>
-          <DropdownInput name="canton" selected={team.canton.name} inputs={searchParams.cantons || []} isBig={true} className="mt-1 block"/>
-        </div>
-        <DropDownAdder name="languages[]" label="Language" values={searchParams.languages || []} defaultValues={team.languages.map((language: Language) => language.name) || []} />
-        <ActionButton content='Save' type='submit' />
-      </form>
-    </div>
-  </div>;
+  const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
+
+  return <EntityDetailBlock {...team} entityId={team.id} entityType='TEAM' entityBirthday={team.founded}
+                            imageId={team.image} searchParams={searchParams}/>
 }

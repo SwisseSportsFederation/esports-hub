@@ -90,6 +90,7 @@ function common() {
   });
 
   return {
+    handle: faker.name.firstName(),
     verification_level: faker.helpers.objectValue(VerificationLevel),
     name: faker.company.name(),
     description: faker.lorem.lines(3),
@@ -123,7 +124,6 @@ function createUsers(): Prisma.UserCreateInput[] {
       ...common(),
       email: faker.internet.email(),
       surname: faker.name.lastName(),
-      handle: faker.name.firstName(),
       organisations: {
         createMany: {
           data: createOrgMember()
@@ -201,21 +201,12 @@ function createTeams(): Prisma.TeamCreateInput[] {
         connect: {
           id: fakeBigInt(1, 10)
         }
-      },
-      website: faker.internet.url(),
-      handle: faker.name.lastName(),
+      }
     }
   });
 }
 
 function createOrgs(): Prisma.OrganisationCreateInput[] {
-  return array(10).map(() => {
-    return {
-      ...common(),
-      country: faker.address.country(),
-      website: faker.internet.url(),
-      handle: faker.name.lastName(),
-    }
-  })
+  return array(10).map(() => common())
 }
 

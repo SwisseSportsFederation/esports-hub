@@ -1,10 +1,10 @@
-import { Game, Organisation, Team } from "@prisma/client";
+import { Game, Organisation, OrganisationMember, Team, TeamMember, User } from "@prisma/client";
 import { EntityType } from "~/helpers/entityType";
 import { getOrganisationGames } from "./entityFilters";
 import { ITeaserProps } from "~/components/Teaser/Teaser";
-import { SerializedOrganisationMember, SerializedTeamMember, SerializedUser } from "~/helpers/serializedDBTypes";
+import { SerializeFrom } from "@remix-run/server-runtime";
 
-type TeamWithGame = Team & { game: Game };
+type TeamWithGame = SerializeFrom<Team> & { game: SerializeFrom<Game> };
 export const getTeamTeasers = (teams: TeamWithGame[]): ITeaserProps[] => {
   return teams.map((team) => {
     return {
@@ -18,7 +18,7 @@ export const getTeamTeasers = (teams: TeamWithGame[]): ITeaserProps[] => {
   });
 };
 
-type OrgWithTeamGames = Organisation & { teams: { game: Game }[] };
+type OrgWithTeamGames = SerializeFrom<Organisation> & { teams: { game: SerializeFrom<Game> }[] };
 export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): ITeaserProps[] => {
   return organisations.map((organisation) => ({
       id: organisation.handle,
@@ -33,7 +33,9 @@ export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): ITeas
 };
 
 
-type SerializedTeamMemberWithUser = SerializedTeamMember & { user: SerializedUser & { games: Game[] } };
+type SerializedTeamMemberWithUser =
+  SerializeFrom<TeamMember>
+  & { user: SerializeFrom<User> & { games: SerializeFrom<Game>[] } };
 export const getTeamMemberTeasers = (teamName: string, members: SerializedTeamMemberWithUser[]): ITeaserProps[] => {
   return members.map((member) => {
     return {
@@ -47,7 +49,9 @@ export const getTeamMemberTeasers = (teamName: string, members: SerializedTeamMe
   });
 };
 
-type SerializedOrganisationMemberWithUser = SerializedOrganisationMember & { user: SerializedUser & { games: Game[] } };
+type SerializedOrganisationMemberWithUser =
+  SerializeFrom<OrganisationMember>
+  & { user: SerializeFrom<User> & { games: SerializeFrom<Game>[] } };
 export const getOrganisationMemberTeasers = (members: SerializedOrganisationMemberWithUser[]): ITeaserProps[] => {
   return members.map((member) => {
     return {

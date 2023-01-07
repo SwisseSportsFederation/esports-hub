@@ -1,11 +1,12 @@
 import EditOverviewBlock from "~/components/Blocks/EditOverviewBlock";
 import { useOutletContext } from "@remix-run/react";
-import { OrganisationWithAccessRights } from "~/routes/admin/organisation/$handle";
+import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 
 export default function() {
-  const { organisation } = useOutletContext<{ organisation: OrganisationWithAccessRights }>();
+  const { organisation, accessRight } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   const navigations = ["Details", "Socials", "Teams", "Members"];
-  return <EditOverviewBlock entityId={String(organisation.organisation.id)} title={organisation.organisation.name}
-                            canDelete={organisation.accessRight === 'ADMINISTRATOR'} type='ORG'
+  return <EditOverviewBlock entityId={String(organisation.id)} title={organisation.name}
+                            canDelete={accessRight === 'ADMINISTRATOR'} type='ORG'
                             navigations={navigations}/>;
 };

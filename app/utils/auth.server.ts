@@ -68,15 +68,19 @@ export const checkHandleAccessForEntity = async (user: AuthUser, handle: string,
     }
   };
   return checkAccessForEntity(entity, query, minAccess);
-
 };
 
 const checkAccessForEntity = async (entity: Omit<EntityType, 'USER'>, query: any, minAccess: AccessRight) => {
   let membership;
-  if(entity === 'TEAM') {
-    membership = await db.teamMember.findFirstOrThrow(query);
-  } else {
-    membership = await db.organisationMember.findFirstOrThrow(query);
+  try {
+    if(entity === 'TEAM') {
+      membership = await db.teamMember.findFirstOrThrow(query);
+    } else {
+      membership = await db.organisationMember.findFirstOrThrow(query);
+    }
+  } catch(error) {
+    console.log(error);
+    throw redirect('/admin')
   }
 
   if(membership.request_status === RequestStatus.PENDING) {
@@ -90,4 +94,5 @@ const checkAccessForEntity = async (entity: Omit<EntityType, 'USER'>, query: any
     return membership.access_rights;
   }
   throw redirect('/admin');
+
 }

@@ -48,7 +48,6 @@ export default function App() {
         <Outlet/>
       </main>
       <Footer/>
-      {/*<Notification/>*/}
     </div>
     <ScrollRestoration/>
     <Scripts/>

@@ -1,12 +1,14 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import SocialSelect from "~/components/SocialSelect";
 import { useLoaderData, useOutletContext } from "@remix-run/react";
-import { json, LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { OrganisationWithAccessRights } from "~/routes/admin/organisation/$handle";
 import { zx } from "zodix";
+import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
 import { z } from "zod";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const { handle } = zx.parseParams(params, {
@@ -31,13 +33,13 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function() {
-  const { organisation } = useOutletContext<{ organisation: OrganisationWithAccessRights }>();
+  const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   const { socials } = useLoaderData();
 
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
       <H1Nav path={'..'}>Socials</H1Nav>
-      <SocialSelect id={Number(organisation.organisation.id)} entityType='ORG' socials={socials}/>
+      <SocialSelect id={Number(organisation.id)} entityType='ORG' socials={socials}/>
     </div>
   </div>;
 };

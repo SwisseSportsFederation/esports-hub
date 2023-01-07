@@ -4,10 +4,12 @@ import { searchQueries } from "~/db/queries.server";
 import type { Game } from "@prisma/client";
 import { EntityType } from "~/helpers/entityType";
 
+export type IdValue = { name: string, id: string };
+
 export type SearchParams = {
-  games: string[],
-  cantons: string[] | null,
-  languages: string[] | null
+  games: IdValue[],
+  cantons: IdValue[],
+  languages: IdValue[]
 };
 
 export type UserSearchResult = {
@@ -71,21 +73,19 @@ export async function getSearchParams(): Promise<SearchParams> {
   const searchParams = getCache().get("searchParams");
 
   if(!searchParams) {
-    const name = { select: { name: true } };
+    const name = { select: { id: true, name: true } };
     const [cantons, games, languages] = await Promise.all([
       db.canton.findMany(name),
       db.game.findMany(name),
       db.language.findMany(name)
     ]);
 
-    const mapper = (arr: { name: string | null }[]) => {
-      return arr.map(value => value.name ?? "").filter(value => value !== "");
-    };
+    const mapper = (toMap: { name: string, id: bigint }) => ({ name: toMap.name, id: String(toMap.id) });
 
     const searchParams: SearchParams = {
-      games: mapper(games),
-      cantons: mapper(cantons),
-      languages: mapper(languages)
+      games: games.map(mapper),
+      cantons: cantons.map(mapper),
+      languages: languages.map(mapper)
     };
     getCache().set("searchParams", JSON.stringify(searchParams));
     return searchParams;
