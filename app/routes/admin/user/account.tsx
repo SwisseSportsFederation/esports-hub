@@ -9,6 +9,7 @@ import { LoaderFunctionArgs } from "@remix-run/router";
 import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import { createFlashMessage } from "~/services/toast.server";
 
 export function links() {
   return [
@@ -63,7 +64,8 @@ export const action = async ({ request }: ActionArgs) => {
     console.log(error);
     return json({}, 500);
   }
-  return null;
+  const headers = await createFlashMessage(request, 'Account update is done');
+  return json({}, headers);
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
