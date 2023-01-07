@@ -1,17 +1,12 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { json, LoaderFunction, redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { AccessRight, Team } from "@prisma/client";
 import { zx } from "zodix";
+import { LoaderFunctionArgs } from "@remix-run/router";
 import { z } from "zod";
 
-export type TeamWithAccessRights = {
-  accessRight: AccessRight,
-  team: Team
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
     handle: z.string()
   });
@@ -20,16 +15,21 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const team = await db.team.findFirst({
     where: {
       handle
+    },
+    include: {
+      game: true,
+      canton: true,
+      languages: true,
     }
   });
   if(!team) {
     throw redirect('/admin');
   }
-  return json<TeamWithAccessRights>({ team, accessRight });
-};
+  return json({ team, accessRight });
+}
 
 export default function() {
-  const team  = useLoaderData();
+  const team = useLoaderData<typeof loader>();
 
-  return <Outlet context={{ team }}/>;
+  return <Outlet context={team}/>;
 }

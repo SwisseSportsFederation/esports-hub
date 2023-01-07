@@ -1,98 +1,71 @@
-import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import dateInputStyles from "~/styles/date-input.css";
-import { json, ActionArgs } from "@remix-run/node";
+import { ActionArgs, json } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
-import { Language } from "@prisma/client";
-import TextInput from "~/components/Forms/TextInput";
-import H1Nav from "~/components/Titles/H1Nav";
-import ActionButton from "~/components/Button/ActionButton";
-import LinkBlock from "~/components/Blocks/LinkBlock";
-import DateInput from "~/components/Forms/DateInput";
-import TextareaInput from "~/components/Forms/TextareaInput";
-import DropdownInput from "~/components/Forms/DropdownInput";
 import { getSearchParams } from "~/services/search.server";
-import DropDownAdder from "~/components/Forms/DropDownAdder";
 import { LoaderFunctionArgs } from "@remix-run/router";
 import { zx } from 'zodix';
 import { z } from "zod";
+import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import { createFlashMessage } from "~/services/toast.server";
 
 export function links() {
-  return [{ rel: "stylesheet", href: styles },{ rel: "stylesheet", href: dateInputStyles }];
-}
-
-const getLanguages = async (formData: FormData) => {
-  if(formData.get("languages[]") !== "All") {
-    const formLangs: string[] = formData.getAll("languages[]") || [];
-    let languages: Language[] = [];
-    if(formLangs.length > 0) {
-      languages = await db.language.findMany({ where: {
-        OR: formLangs.map(language => { 
-          return {
-            name: { equals: language }
-          }
-        })
-      }})
-    }
-    return {
-      languages: {
-        set: languages.map((language: Language) => {return {id: language.id}})
-      }
-    };
-  }
-  return undefined;
+  return [
+    { rel: "stylesheet", href: styles },
+    { rel: "stylesheet", href: dateInputStyles }
+  ];
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const { handle, name, surname, birthDate, description, canton: cantonForm } = await zx.parseForm(request, {
-    handle: z.string(),
-    name: z.string(),
-    surname: z.string(),
-    birthDate: z.string(),
-    description: z.string(),
-    canton: z.string()
+  const { handle, name, surname, birthDate, description, canton, languages } = await zx.parseForm(request, {
+    handle: z.string().min(4),
+    name: z.string().min(3),
+    surname: z.string().min(3),
+    birthDate: z.string().optional(),
+    description: z.string().min(10).optional(),
+    canton: zx.NumAsString.optional(),
+    languages: z.string()
   });
-  const formData = await request.formData();
   const user = await checkUserAuth(request);
-  let canton = undefined;
-  if(cantonForm !== "All") {
-    canton = await db.canton.findFirst({ where: {
-      name: cantonForm
-    }})
-  }
-  let languages = await getLanguages(formData);
-  const userData = await db.user.update({
-    where: {
-      id: Number(user.db.id)
-    },
-    data: {
-      handle: handle,
-      name: name,
-      surname: surname,
-      birth_date: new Date(birthDate),
-      description: description,
-      canton: {
-        connect: {
-          id: canton.id
-        }
+  try {
+    const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
+    await db.user.update({
+      where: {
+        id: Number(user.db.id)
       },
-      ...languages
-    }
-  });
-  return null;
+      data: {
+        handle,
+        name,
+        surname,
+        ...(birthDate && ({ birth_date: new Date(birthDate) })),
+        ...(!birthDate && ({ birth_date: null })),
+        description,
+        ...(canton && {
+          canton: {
 
-  /* TODO: Handle Errors */
-  /*
-  if (error) {
-    addNotification("Error", 3000);
-    console.error(error);
-    return;
+            connect: {
+              id: canton
+            }
+          }
+        }),
+        ...(!canton && {
+          canton: {
+            disconnect: true
+          }
+        }),
+        languages: {
+          set: languageIds
+        }
+      }
+    });
+  } catch(error) {
+    console.log(error);
+    return json({}, 500);
   }
-
-  addNotification("Success", 3000);
-  */
+  const headers = await createFlashMessage(request, 'Account update is done');
+  return json({}, headers);
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -106,39 +79,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
       languages: true,
       games: true
     }
-  })
+  });
 
-  return json({ 
+
+  if(!userData) {
+    throw json({}, 404);
+  }
+
+  return json({
     user: userData,
-    searchParams: await getSearchParams() 
+    searchParams: await getSearchParams()
   });
 }
 
 export default function() {
   const { user, searchParams } = useLoaderData<typeof loader>();
-  const birthDate = user.birth_date ? new Date(user.birth_date) : new Date();
-  return <div className="mx-3">
-    <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={`/admin/user`}>Account</H1Nav>
-      <form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
-        <div className="w-full max-w-sm lg:max-w-full">
-          <ImageUploadBlock entityId={Number(user.id)} entity={'USER'} imageId={user.image}/>
-        </div>
-        <TextInput id="handle" label="Nickname" defaultValue={user.handle} required={true} />
-        <TextInput id="name" label="Name" defaultValue={user.name} required={true} />
-        <TextInput id="surname" label="Surname" defaultValue={user.surname} />
-        <DateInput name="birthDate" label="Birthdate" value={birthDate} min={new Date(1900, 0, 0)} max={new Date()} />
-        <TextareaInput id="description" label="Description" value={user.description} />
-        <div className="w-full max-w-sm lg:max-w-full">
-          <label><span className={`absolute left-4 top-6 transition-all text-black`}>Canton</span></label>
-          <DropdownInput name="canton" selected={user.canton.name} inputs={searchParams.cantons || []} isBig={true} className="mt-1 block"/>
-        </div>
-        <DropDownAdder name="languages[]" label="Language" values={searchParams.languages || []} defaultValues={user.languages.map((language: Language) => language.name) || []} />
-        <div className="w-full max-w-sm lg:max-w-full">
-          <LinkBlock title="Password" path={`/admin/user/change-password`} />
-        </div>
-        <ActionButton content='Save' type='submit' />
-      </form>
-    </div>
-  </div>;
+  return <EntityDetailBlock {...user} entityId={user.id} entityType='USER' entityBirthday={user.birth_date}
+                            imageId={user.image} searchParams={searchParams}/>
 }

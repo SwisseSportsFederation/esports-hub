@@ -49,6 +49,7 @@ authenticator.use(
             data: {
               handle: '',
               name: '',
+              description: '',
               surname: '',
               auth_id: profile.id,
               email: profile.emails![0].value

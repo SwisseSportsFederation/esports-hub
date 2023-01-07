@@ -9,8 +9,22 @@ export const getAgeFromBirthdate = (birthDate: Date | undefined): number | undef
   return Math.abs(age_dt.getUTCFullYear() - 1970);
 };
 
-export const dateToFormattedString = (date: Date): string => {
-  return date.toISOString().split('T')[0];
+export const dateToFormattedString = (date: Date | null): string => {
+  if(!date) {
+    return '';
+  }
+  let day = String(date.getDate());
+  const month = date.getMonth();
+  let monthString = String(month + 1);
+
+  if(day.length == 1) {
+    day = `0${day}`;
+  }
+
+  if(monthString.length == 1) {
+    monthString = `0${monthString}`;
+  }
+  return `${day}.${monthString}.${date.getFullYear()}`;
 };
 
 export const isToday = (day: Date): boolean => {

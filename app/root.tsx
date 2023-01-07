@@ -1,14 +1,25 @@
 import type { MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useCatch } from "@remix-run/react";
+import {
+  Link,
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useCatch,
+  useLoaderData
+} from "@remix-run/react";
 import styles from "./styles/app.css";
-import dateInputStyles from "./styles/date-input.css";
 import { authenticator } from "~/services/auth.server";
 import Header from "~/components/Header/Header";
 import Footer from "~/components/Footer";
 import Icon from "~/components/Icons";
 import LinkButton from "./components/Button/LinkButton";
 import { LoaderFunctionArgs } from "@remix-run/router";
+import { commitSession, getSession } from "~/services/session.server";
+import Toast from "~/components/Notifications/Toast";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -22,8 +33,18 @@ export const meta: MetaFunction = () => ({
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
+  const session = await getSession(
+    request.headers.get("Cookie")
+  );
+  const message = session.get("globalMessage") || null;
   return json({
+    message,
     user
+  }, {
+    headers: {
+      // only necessary with cookieSessionStorage
+      "Set-Cookie": await commitSession(session),
+    },
   });
 }
 
@@ -33,6 +54,7 @@ BigInt.prototype.toJSON = function() {
 }
 
 export default function App() {
+  const { message } = useLoaderData<typeof loader>()
   return (
     <html lang="en">
     <head>
@@ -40,6 +62,11 @@ export default function App() {
       <Links/>
     </head>
     <body>
+    {
+      message ?
+        <Toast text={message}/>
+        : null
+    }
     <div id="modal-root"/>
     <div className='min-h-screen min-h-[-webkit-fill-available]
         dark:bg-gray-1 dark:text-white bg-gray-7 flex flex-col'>
@@ -48,7 +75,6 @@ export default function App() {
         <Outlet/>
       </main>
       <Footer/>
-      {/*<Notification/>*/}
     </div>
     <ScrollRestoration/>
     <Scripts/>

@@ -13,9 +13,12 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
+
+  const [searchResults, searchParams] = await Promise.all([searchForUsers(url.searchParams), getSearchParams()])
+
   return json({
-    searchResults: await searchForUsers(url.searchParams),
-    searchParams: await getSearchParams()
+    searchResults,
+    searchParams
   });
 };
 

@@ -91,17 +91,18 @@
 
   input:not(:placeholder-shown)+label,
   input:not(:placeholder-shown)+span {
-    transform: translate3d(0, -2em, 0) scale(0.7);
+    transform: translate3d(0, -2.4em, 0);
     transform-origin: left;
     opacity: 1;
-    @apply text-white;
+    @apply text-white text-xs;
   }
 
   textarea:not(:placeholder-shown)+label,
   textarea:not(:placeholder-shown)+span {
-    transform: translate3d(0, -2.4em, 0) scale(0.7);
+    transform: translate3d(0, -2.7em, 0);
     transform-origin: left;
     opacity: 1;
+    @apply text-white text-xs;
   }
 
   textarea[required]::placeholder,
@@ -198,5 +199,5 @@
       }
     }
   }
-  
+
 }

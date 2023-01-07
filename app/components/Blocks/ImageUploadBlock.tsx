@@ -68,7 +68,7 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
         <div className="flex flex-col space-y-5 sm:flex-row sm:space-x-5 sm:space-y-0">
           <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-2`}
                   onClick={() => setUploadOpen(true)}
-                  aria-label="Replace Image">{"" !== "" ? "New Image" : "Add Image"}</button>
+                  aria-label="Replace Image">{!imageId ? "New Image" : "Add Image"}</button>
           {/*{value &&*/}
           {/*  <IconButton icon="remove" size="medium" action={onRemove} type='button'/>*/}
           {/*}*/}
@@ -113,7 +113,6 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
             <ActionButton content='Submit' type='submit' disabled={!imgSrc}/>
           </div>
         </fetcher.Form>
-
       </div>
     </Modal>
   </>;

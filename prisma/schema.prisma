@@ -102,11 +102,10 @@ model Organisation {
   name               String
   handle             String               @unique
   description        String
-  website            String?
+  founded            DateTime?
   image              String?
   street             String?
   zip                String?
-  country            String?
   canton_id          BigInt?
   verification_level VerificationLevel    @default(NOT_VERIFIED)
   is_active          Boolean              @default(true)
@@ -153,8 +152,8 @@ model Team {
   name               String
   handle             String            @unique
   description        String
-  website            String?
   image              String?
+  founded            DateTime?
   canton_id          BigInt?
   game_id            BigInt
   organisation_id    BigInt?
@@ -179,7 +178,7 @@ model User {
   name               String
   surname            String
   birth_date         DateTime?            @db.Timestamptz(6)
-  description        String?
+  description        String
   image              String?
   canton_id          BigInt?
   verification_level VerificationLevel    @default(NOT_VERIFIED)

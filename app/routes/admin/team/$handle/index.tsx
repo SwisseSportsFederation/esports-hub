@@ -1,9 +1,11 @@
 import EditOverviewBlock from "~/components/Blocks/EditOverviewBlock";
 import { useOutletContext } from "@remix-run/react";
-import { TeamWithAccessRights } from "~/routes/admin/team/$handle";
+import { loader as handleLoader } from "~/routes/admin/team/$handle";
+import { SerializeFrom } from "@remix-run/server-runtime";
 
 export default function() {
-  const { team } = useOutletContext<{ team: TeamWithAccessRights }>();
+  const { team, accessRight } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   const navigations = ["Details", "Socials", "Members", "Organisation"];
-  return <EditOverviewBlock entityId={String(team.team.id)} title={team.team.name} canDelete={team.accessRight === 'ADMINISTRATOR'} type='TEAM' navigations={navigations}/>;
+  return <EditOverviewBlock entityId={String(team.id)} title={team.name} canDelete={accessRight === 'ADMINISTRATOR'}
+                            type='TEAM' navigations={navigations}/>;
 };
