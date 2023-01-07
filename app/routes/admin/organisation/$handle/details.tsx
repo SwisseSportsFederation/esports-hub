@@ -10,6 +10,7 @@ import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import { SerializeFrom } from "@remix-run/server-runtime";
 import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
+import { createFlashMessage } from "~/services/toast.server";
 
 export function links() {
   return [
@@ -35,8 +36,6 @@ export const action = async ({ request }: ActionArgs) => {
 
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user, oldHandle, 'ORG', 'MODERATOR');
-
-  console.log(founded);
 
   await db.organisation.update({
     where: {
@@ -67,18 +66,9 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
   });
-  return redirect(`/admin/organisation/${handle}/details`);
+  const headers = await createFlashMessage(request, 'Organisation update is done');
 
-  /* TODO: Handle Errors */
-  /*
-  if (error) {
-    addNotification("Error", 3000);
-    console.error(error);
-    return;
-  }
-
-  addNotification("Success", 3000);
-  */
+  return redirect(`/admin/organisation/${handle}/details`, headers);
 };
 
 export async function loader() {
@@ -90,7 +80,6 @@ export async function loader() {
 export default function() {
   const { searchParams } = useLoaderData<typeof loader>();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
-  console.log(organisation.founded);
   return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORG'
                             entityBirthday={organisation.founded} imageId={organisation.image}
                             searchParams={searchParams}/>;

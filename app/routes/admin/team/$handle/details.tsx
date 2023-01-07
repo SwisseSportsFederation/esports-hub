@@ -10,6 +10,7 @@ import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import { SerializeFrom } from "@remix-run/server-runtime";
 import dateInputStyles from "~/styles/date-input.css";
+import { createFlashMessage } from "~/services/toast.server";
 
 export function links() {
   return [
@@ -65,9 +66,8 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
   });
-  return redirect(`/admin/team/${handle}/details`, {
-    status: 301
-  });
+  const headers = await createFlashMessage(request, 'Team update is done');
+  return redirect(`/admin/team/${handle}/details`, headers);
 
   /* TODO: Handle Errors */
   /*
