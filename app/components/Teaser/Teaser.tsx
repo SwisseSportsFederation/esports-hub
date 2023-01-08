@@ -1,28 +1,19 @@
 import type { ITeaserCoreProps } from "./TeaserCore";
 import TeaserCore from "./TeaserCore";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
-import { Link } from "@remix-run/react";
-import type { EntityType } from "~/helpers/entityType";
-import { entityToPathSegment } from "~/helpers/entityType";
 import type { ReactNode } from "react";
 
 export type ITeaserProps = {
-  type: EntityType,
-  entityId: string,
-  handle: string,
   icons?: ReactNode
 } & ITeaserCoreProps;
 
-const Teaser = ({ type, handle, icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
-  const entityPathSegment = entityToPathSegment(type);
-  return <div className='flex h-22 w-full relative max-w-lg'>
-    <Link to={`/detail/${entityPathSegment}/${handle}`} className='w-full'>
-      <TeaserCore {...props}/>
-    </Link>
-    <div className="absolute h-full right-4 flex items-center">
+const Teaser = ({ icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
+  return <>
+    <TeaserCore {...props}/>
+    <div className="absolute h-full top-0 right-4 flex items-center">
       {icons}
     </div>
-  </div>;
+  </>;
 };
 
 export default Teaser;

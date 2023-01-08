@@ -25,8 +25,8 @@ export type IIconButtonProps = {
   type: 'submit',
   action?: never,
   path?: never,
-  name: string,
-  value: string
+  name?: string,
+  value?: string
 });
 
 

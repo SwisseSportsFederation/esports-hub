@@ -68,8 +68,8 @@ const Header = () => {
     setMenuActive(!menuActive);
   };
 
-  return <header className="z-50">
-    <nav className="sticky top-0 dark:bg-gray-2 bg-white">
+  return <header className="sticky top-0 z-50">
+    <nav className="dark:bg-gray-2 bg-white">
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
         <Link to={'/'} className="flex-1">

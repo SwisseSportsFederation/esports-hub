@@ -10,7 +10,7 @@ export default function getCache(): LRUCache<string, string> {
   if(!client) {
     client = global['cache'] = new Client({
       max: 50,
-      maxAge: 1000 * 60 * 60
+      ttl: 1000 * 60 * 60
     });
   }
   return client;

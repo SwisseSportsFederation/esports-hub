@@ -1,4 +1,3 @@
-import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
@@ -11,17 +10,18 @@ import type { Invitation, Membership } from "~/services/admin/index.server";
 import { getUserMemberships } from "~/services/admin/index.server";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
-import type { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import classNames from "classnames";
+import { LoaderFunctionArgs } from "@remix-run/router";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
   const memberships = await getUserMemberships(user);
   return json({
     user,
     memberships
   });
-};
+}
 
 const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[] => {
   return memberships.map((mem: Membership) => {
@@ -31,7 +31,7 @@ const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[
       <IconButton icon='edit' type='link' path={`/admin/${pathSegment}/${mem.handle}`}/> : undefined;
     return {
       type: entity,
-      entityId: String(mem.id),
+      id: String(mem.id),
       handle: mem.handle,
       avatarPath: mem.image ?? null,
       name: mem.name,
@@ -42,19 +42,19 @@ const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[
   });
 };
 
-
-const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
+const getInvitationTeaser = (invitations: Invitation[], userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.map(invitation => {
     const path = entityToPathSegment(invitation.type)
     const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`}>
-      <input type='hidden' name='entityId' value={Number(invitation.id)}/>
+      <input type='hidden' name='entityId' value={`${invitation.id}`}/>
+      <input type='hidden' name='userId' value={userId}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
       <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
     </fetcher.Form>;
 
     return {
       type: invitation.type,
-      entityId: String(invitation.id),
+      id: String(invitation.id),
       handle: invitation.handle,
       avatarPath: invitation.image ?? null,
       name: invitation.name,
@@ -65,14 +65,13 @@ const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComp
   });
 }
 
-
 export default function() {
-  const { memberships } = useLoaderData();
+  const { memberships, user } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
   const orgTeaser = getTeaser(memberships.orgs, 'ORG');
 
-  const invitationTeaser = getInvitationTeaser(memberships.invitations, fetcher)
+  const invitationTeaser = getInvitationTeaser(memberships.invitations, user.db.id, fetcher);
 
   const addOrgClassNames = classNames({
     'mb-4': invitationTeaser.length > 0,

@@ -83,7 +83,6 @@ export async function getSearchParams(): Promise<SearchParams> {
       db.game.findMany(name),
       db.language.findMany(name)
     ]);
-
     const mapper = (toMap: { name: string, id: bigint }) => ({ name: toMap.name, id: String(toMap.id) });
 
     const searchParams: SearchParams = {

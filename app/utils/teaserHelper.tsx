@@ -1,12 +1,12 @@
 import type { Game, Organisation, OrganisationMember, Team, TeamMember, User } from "@prisma/client";
 import type { EntityType } from "~/helpers/entityType";
 import { getOrganisationGames } from "./entityFilters";
-import type { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 
 export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserProps, 'icons'>[] => {
   return teams.map((team) => {
     return {
-      entityId: String(team.id),
+      id: String(team.id),
       handle: team.handle,
       type: "TEAM" as EntityType,
       name: team.name || "",
@@ -20,7 +20,7 @@ export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserPr
 type OrgWithTeamGames = Organisation & { teams: { team: { game: Game } }[] };
 export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): Omit<ITeaserProps, 'icons'>[] => {
   return organisations.map((organisation) => ({
-      entityId: String(organisation.id),
+      id: String(organisation.id),
       handle: organisation.handle,
       type: "ORG" as EntityType,
       avatarPath: organisation.image,
@@ -39,7 +39,7 @@ type TeamMemberWithUser =
 export const getTeamMemberTeasers = (teamName: string, members: TeamMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
   return members.map((member) => {
     return {
-      entityId: String(member.user.id),
+      id: String(member.user.id),
       handle: member.user.handle,
       type: "USER" as EntityType,
       name: member.user.handle,
@@ -56,7 +56,7 @@ type OrganisationMemberWithUser =
 export const getOrganisationMemberTeasers = (members: OrganisationMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
   return members.map((member) => {
     return {
-      entityId: String(member.user.id),
+      id: String(member.user.id),
       handle: member.user.handle,
       type: "USER" as EntityType,
       name: member.user.handle,
