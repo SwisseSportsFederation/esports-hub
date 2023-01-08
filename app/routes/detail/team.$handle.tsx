@@ -13,7 +13,6 @@ import { RequestStatus } from "@prisma/client";
 import { zx } from "zodix";
 import { z } from "zod";
 import { LoaderFunctionArgs } from "@remix-run/router";
-import { useEffect, useState } from "react";
 
 // const { addNotification } = useNotification(); // TODO add notification logic
 
@@ -28,7 +27,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       handle
     },
     include: {
-      organisation: true,
+      organisation: {
+        include: {
+          organisation: true
+        }
+      },
       game: true,
       members: {
         where: {
@@ -51,21 +54,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   } else {
     showApply = false;
   }
-
+  const memberTeasers = getTeamMemberTeasers(team.name, team.members);
   return json({
     team,
-    showApply
+    showApply,
+    memberTeasers
   });
 }
 
 export default function() {
-  const { team, showApply } = useLoaderData<typeof loader>();
-  const [memberTeasers, setMemberTeasers] = useState(getTeamMemberTeasers(team.name, team.members))
-
-  useEffect(() => {
-    const memberTeasers = getTeamMemberTeasers(team.name, team.members);
-    setMemberTeasers(memberTeasers);
-  }, [team.name, team.members]);
+  const { team, showApply, memberTeasers } = useLoaderData<typeof loader>();
 
   const handleActionClick = async () => {
     //addNotification("Error", 3000);
@@ -92,8 +90,8 @@ export default function() {
   };
 
   const orgHeaderProps = team.organisation ? {
-    parentLink: `/detail/${entityToPathSegment('ORG')}/${team.organisation.id}`,
-    parentName: team.organisation?.name
+    parentLink: `/detail/${entityToPathSegment('ORG')}/${team.organisation.organisation.handle}`,
+    parentName: team.organisation.organisation.name
   } : {};
 
   return <div className="mx-3">

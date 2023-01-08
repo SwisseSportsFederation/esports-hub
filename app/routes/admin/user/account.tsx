@@ -1,11 +1,12 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import dateInputStyles from "~/styles/date-input.css";
-import { ActionArgs, json } from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";

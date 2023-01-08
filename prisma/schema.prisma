@@ -8,6 +8,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// enums
+
 enum SocialPlatform {
   INSTAGRAM
   TWITCH
@@ -23,7 +25,9 @@ enum SocialPlatform {
 
 enum RequestStatus {
   ACCEPTED
-  PENDING
+  PENDING_USER
+  PENDING_TEAM
+  PENDING_ORG
 }
 
 enum VerificationLevel {
@@ -38,64 +42,7 @@ enum AccessRight {
   ADMINISTRATOR
 }
 
-model Canton {
-  id            BigInt         @id @default(autoincrement())
-  name          String
-  organisations Organisation[]
-  teams         Team[]
-  users         User[]
-
-  @@index([name], map: "idx_cantons_name")
-  @@map("canton")
-}
-
-model FormerTeam {
-  id      BigInt    @id @default(autoincrement())
-  user_id BigInt
-  name    String
-  from    DateTime? @db.Timestamptz(6)
-  to      DateTime? @db.Timestamptz(6)
-  user    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, name], map: "userID_name")
-  @@map("former_team")
-}
-
-model Game {
-  id    BigInt @id @default(autoincrement())
-  name  String
-  teams Team[]
-  users User[]
-
-  @@index([name], map: "idx_games_name")
-  @@map("game")
-}
-
-model Language {
-  id            BigInt         @id @default(autoincrement())
-  name          String
-  organisations Organisation[]
-  teams         Team[]
-  users         User[]
-
-  @@index([name], map: "idx_languages_name")
-  @@map("language")
-}
-
-model OrganisationMember {
-  user_id              BigInt
-  organisation_id      BigInt
-  is_main_organisation Boolean
-  joined_at            DateTime      @db.Timestamptz(6)
-  role                 String
-  request_status       RequestStatus @default(PENDING)
-  access_rights        AccessRight
-  organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
-  user                 User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@id([user_id, organisation_id])
-  @@map("organisation_member")
-}
+// models
 
 model Organisation {
   id                 BigInt               @id @default(autoincrement())
@@ -112,39 +59,35 @@ model Organisation {
   canton             Canton?              @relation(fields: [canton_id], references: [id])
   languages          Language[]
   members            OrganisationMember[]
+  teams              OrganisationTeam[]
   socials            Social[]
-  teams              Team[]
 
   @@map("organisation")
 }
 
-model Social {
-  id              BigInt         @id @default(autoincrement())
-  name            String
-  platform        SocialPlatform
-  organisation    Organisation?  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
-  team            Team?          @relation(fields: [team_id], references: [id], onDelete: Cascade)
-  user            User?          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  organisation_id BigInt?
-  team_id         BigInt?
-  user_id         BigInt?
+model OrganisationMember {
+  user_id              BigInt
+  organisation_id      BigInt
+  is_main_organisation Boolean
+  joined_at            DateTime      @db.Timestamptz(6)
+  role                 String
+  request_status       RequestStatus
+  access_rights        AccessRight
+  organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
+  user                 User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("social")
+  @@id([user_id, organisation_id])
+  @@map("organisation_member")
 }
 
-model TeamMember {
-  user_id        BigInt
-  team_id        BigInt
-  is_main_team   Boolean?
-  joined_at      DateTime?     @db.Timestamptz(6)
-  role           String
-  request_status RequestStatus @default(PENDING)
-  access_rights  AccessRight
-  team           Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
-  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model OrganisationTeam {
+  team_id              BigInt        @id
+  organisation_id      BigInt
+  request_status       RequestStatus
+  organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
+  team                 Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
 
-  @@id([user_id, team_id])
-  @@map("team_member")
+  @@map("organisation_team")
 }
 
 model Team {
@@ -161,13 +104,39 @@ model Team {
   is_active          Boolean           @default(true)
   canton             Canton?           @relation(fields: [canton_id], references: [id])
   game               Game              @relation(fields: [game_id], references: [id])
-  organisation       Organisation?     @relation(fields: [organisation_id], references: [id])
-  request_status     RequestStatus?    @default(PENDING)
+  organisation       OrganisationTeam?
   languages          Language[]
   members            TeamMember[]
   socials            Social[]
 
   @@map("team")
+}
+
+model TeamMember {
+  user_id        BigInt
+  team_id        BigInt
+  is_main_team   Boolean?
+  joined_at      DateTime?     @db.Timestamptz(6)
+  role           String
+  request_status RequestStatus
+  access_rights  AccessRight
+  team           Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, team_id])
+  @@map("team_member")
+}
+
+model FormerTeam {
+  id      BigInt    @id @default(autoincrement())
+  user_id BigInt
+  name    String
+  from    DateTime? @db.Timestamptz(6)
+  to      DateTime? @db.Timestamptz(6)
+  user    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, name], map: "userID_name")
+  @@map("former_team")
 }
 
 model User {
@@ -192,4 +161,50 @@ model User {
   socials            Social[]
 
   @@map("user")
+}
+
+model Canton {
+  id            BigInt         @id @default(autoincrement())
+  name          String
+  organisations Organisation[]
+  teams         Team[]
+  users         User[]
+
+  @@index([name], map: "idx_cantons_name")
+  @@map("canton")
+}
+
+model Language {
+  id            BigInt         @id @default(autoincrement())
+  name          String
+  organisations Organisation[]
+  teams         Team[]
+  users         User[]
+
+  @@index([name], map: "idx_languages_name")
+  @@map("language")
+}
+
+model Game {
+  id    BigInt @id @default(autoincrement())
+  name  String
+  teams Team[]
+  users User[]
+
+  @@index([name], map: "idx_games_name")
+  @@map("game")
+}
+
+model Social {
+  id              BigInt         @id @default(autoincrement())
+  name            String
+  platform        SocialPlatform
+  organisation    Organisation?  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
+  team            Team?          @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  user            User?          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  organisation_id BigInt?
+  team_id         BigInt?
+  user_id         BigInt?
+
+  @@map("social")
 }

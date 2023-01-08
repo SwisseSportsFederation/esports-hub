@@ -12,7 +12,6 @@ import { RequestStatus } from "@prisma/client";
 import { zx } from "zodix";
 import { z } from "zod";
 import { LoaderFunctionArgs } from "@remix-run/router";
-import { useEffect, useState } from "react";
 
 // const { addNotification } = useNotification(); // TODO add notification logic
 
@@ -29,7 +28,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
     include: {
       socials: true,
-      teams: { include: { game: true } },
+      teams: { include: { team: { include: { game: true } } } },
       members: {
         where: {
           request_status: RequestStatus.ACCEPTED
@@ -44,33 +43,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   let showApply = false;
-  if (loggedIn) {
+  if(loggedIn) {
     const user = await checkUserAuth(request);
     showApply = !isOrganisationMember(organisation.members, Number(user.db.id));
   }
 
-  const result = {
+  const teamTeasers = getTeamTeasers(organisation.teams.map(t => t.team))
+  const memberTeasers = getOrganisationMemberTeasers(organisation.members)
+  return json({
     organisation,
-    showApply
-  }
-
-  return json(result);
+    showApply,
+    teasers: {
+      teamTeasers,
+      memberTeasers
+    }
+  });
 }
 
 export default function() {
-  const { organisation, showApply } = useLoaderData<typeof loader>();
-  const [teasers, setTeasers] = useState({
-    memberTeasers: getOrganisationMemberTeasers(organisation.members),
-    teamTeasers: getTeamTeasers(organisation.teams)
-  });
-
-  useEffect(() => {
-    const memberTeasers = getOrganisationMemberTeasers(organisation.members);
-    const teamTeasers = getTeamTeasers(organisation.teams);
-    setTeasers({ teamTeasers, memberTeasers })
-  }, [organisation]);
-
-
+  const { organisation, showApply, teasers } = useLoaderData<typeof loader>();
   const handleActionClick = async () => {
     //addNotification("Error", 3000);
     /* TODO later apply button

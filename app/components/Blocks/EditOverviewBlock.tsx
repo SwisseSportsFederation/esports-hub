@@ -33,7 +33,7 @@ const EditOverviewBlock = ({ entityId, title, type, navigations = [], canDelete 
 
   return <>
     <div className="max-w-prose mx-auto w-full px-4">
-      <H1Nav path="/admin">Back</H1Nav>
+      <H1Nav path="/admin" title='Back'/>
       <IconTitle type={type}>{title}</IconTitle>
       {navigations.map((navigation: string, index: number) =>
         <div key={index} className="mb-4">

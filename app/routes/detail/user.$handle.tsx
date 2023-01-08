@@ -10,7 +10,6 @@ import TeamHistory from "~/components/Blocks/TeamHistory";
 import { zx } from "zodix";
 import { z } from "zod";
 import { LoaderFunctionArgs } from "@remix-run/router";
-import { useEffect, useState } from "react";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -30,7 +29,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
         where: {
           request_status: RequestStatus.ACCEPTED
         },
-        include: { organisation: { include: { teams: { include: { game: true } } } } }
+        include: { organisation: { include: { teams: { include: { team: { include: { game: true } } } } } } }
       },
       teams: {
         where: {
@@ -53,23 +52,18 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const organisations = user.organisations.map((mem) => mem.organisation);
   const teamMemberships = user.teams;
-
+  const organisationTeasers = getOrganisationTeasers(organisations);
   return json({
     user,
-    organisations,
     teamMemberships,
-    formerTeams
+    formerTeams,
+    organisationTeasers
   });
 }
 
 export default function() {
-  const { user, teamMemberships, organisations, formerTeams } = useLoaderData<typeof loader>();
-  const [organisationTeasers, setOrganisationTeasers] = useState(getOrganisationTeasers(organisations));
+  const { user, teamMemberships, formerTeams, organisationTeasers } = useLoaderData<typeof loader>();
 
-  useEffect(() => {
-    const organisationTeasers = getOrganisationTeasers(organisations);
-    setOrganisationTeasers(organisationTeasers);
-  }, [organisations]);
   return <div className="mx-3">
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">

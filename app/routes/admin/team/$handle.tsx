@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
-import { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 import { z } from "zod";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

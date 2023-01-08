@@ -8,9 +8,9 @@ export const isOrganisationMember = (organisationMemberships: OrganisationMember
   organisationMemberships.some((om: OrganisationMember) => Number(om.user_id) === userId);
 
 
-export const getOrganisationGames = (organisation: { teams: { game: Game }[] }): Game[] => {
+export const getOrganisationGames = (organisation: { teams: { team: { game: Game } }[] }): Game[] => {
   return organisation.teams
-    .map(team => team.game)
+    .map(team => team.team.game)
     .filter((game, index, array) => array.indexOf(game) === index)
 };
 
@@ -22,10 +22,6 @@ export const getActiveMemberships = <T extends TeamMember | OrganisationMember>(
 };
 
 /** Team */
-
-
-
-
 
 export const getMainTeam = (teamMemberships: TeamMember[]): Team => {
   return teamMemberships.filter((tm: TeamMember) => tm.is_main_team)[0]?.team;

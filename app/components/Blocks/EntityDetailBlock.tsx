@@ -47,7 +47,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
   return <>
     <div className="mx-3">
       <div className="w-full max-w-prose mx-auto">
-        <H1Nav path={path}>Details</H1Nav>
+        <H1Nav path={path} title='Details'/>
         <div className="max-w-md mx-auto mb-6">
           <ImageUploadBlock entityId={entityId} entity={entityType} imageId={imageId}/>
         </div>

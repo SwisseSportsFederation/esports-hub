@@ -18,7 +18,7 @@ export type Invitation = Membership & {
 
 function splitInvitations(array: Membership[]): [Membership[], Membership[]] {
   return array.reduce<[Membership[], Membership[]]>(([member, invitation], elem) => {
-    if(elem.request_status === RequestStatus.PENDING) {
+    if(elem.request_status !== RequestStatus.ACCEPTED) {
       return [member, [...invitation, elem]];
     }
     return [[...member, elem], invitation];
