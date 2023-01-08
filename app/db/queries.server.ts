@@ -44,10 +44,14 @@ const usersQuery = (search?: string, canton?: string, language?: string, game?: 
   take: 10,
   where: {
     AND: [
-      { canton: { name: { equals: canton } } },
-      { languages: { some: { name: language } } },
-      { games: { some: { name: game } } },
-      { handle: query(search) }
+      ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
+      ...(language ? [{ languages: { some: { name: language } } }] : []),
+      ...(game ? [{ games: { some: { name: game } } }] : []),
+      ...(search ? [
+        { handle: query(search) },
+        { name: query(search) },
+        { surname: query(search) }
+      ] : [])
     ],
   },
   select: {
