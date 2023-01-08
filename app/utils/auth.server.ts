@@ -83,7 +83,7 @@ const checkAccessForEntity = async (entity: Omit<EntityType, 'USER'>, query: any
     throw redirect('/admin')
   }
 
-  if(membership.request_status === RequestStatus.PENDING) {
+  if(membership.request_status !== RequestStatus.ACCEPTED) {
     throw redirect('/admin')
   }
 

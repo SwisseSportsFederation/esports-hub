@@ -2,13 +2,12 @@ import { Game, Organisation, OrganisationMember, Team, TeamMember, User } from "
 import { EntityType } from "~/helpers/entityType";
 import { getOrganisationGames } from "./entityFilters";
 import { ITeaserProps } from "~/components/Teaser/Teaser";
-import { SerializeFrom } from "@remix-run/server-runtime";
 
-type TeamWithGame = SerializeFrom<Team> & { game: SerializeFrom<Game> };
-export const getTeamTeasers = (teams: TeamWithGame[]): ITeaserProps[] => {
+export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserProps, 'icons'>[] => {
   return teams.map((team) => {
     return {
-      id: team.handle,
+      entityId: String(team.id),
+      handle: team.handle,
       type: "TEAM" as EntityType,
       name: team.name || "",
       games: [team.game],
@@ -18,10 +17,11 @@ export const getTeamTeasers = (teams: TeamWithGame[]): ITeaserProps[] => {
   });
 };
 
-type OrgWithTeamGames = SerializeFrom<Organisation> & { teams: { game: SerializeFrom<Game> }[] };
-export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): ITeaserProps[] => {
+type OrgWithTeamGames = Organisation & { teams: { team: { game: Game } }[] };
+export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): Omit<ITeaserProps, 'icons'>[] => {
   return organisations.map((organisation) => ({
-      id: organisation.handle,
+      entityId: String(organisation.id),
+      handle: organisation.handle,
       type: "ORG" as EntityType,
       avatarPath: organisation.image,
       name: organisation.name,
@@ -33,13 +33,14 @@ export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): ITeas
 };
 
 
-type SerializedTeamMemberWithUser =
-  SerializeFrom<TeamMember>
-  & { user: SerializeFrom<User> & { games: SerializeFrom<Game>[] } };
-export const getTeamMemberTeasers = (teamName: string, members: SerializedTeamMemberWithUser[]): ITeaserProps[] => {
+type TeamMemberWithUser =
+  TeamMember
+  & { user: User & { games: Game[] } };
+export const getTeamMemberTeasers = (teamName: string, members: TeamMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
   return members.map((member) => {
     return {
-      id: member.user.handle,
+      entityId: String(member.user.id),
+      handle: member.user.handle,
       type: "USER" as EntityType,
       name: member.user.handle,
       team: teamName,
@@ -49,13 +50,14 @@ export const getTeamMemberTeasers = (teamName: string, members: SerializedTeamMe
   });
 };
 
-type SerializedOrganisationMemberWithUser =
-  SerializeFrom<OrganisationMember>
-  & { user: SerializeFrom<User> & { games: SerializeFrom<Game>[] } };
-export const getOrganisationMemberTeasers = (members: SerializedOrganisationMemberWithUser[]): ITeaserProps[] => {
+type OrganisationMemberWithUser =
+  OrganisationMember
+  & { user: User & { games: Game[] } };
+export const getOrganisationMemberTeasers = (members: OrganisationMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
   return members.map((member) => {
     return {
-      id: member.user.handle,
+      entityId: String(member.user.id),
+      handle: member.user.handle,
       type: "USER" as EntityType,
       name: member.user.handle,
       team: member.role,

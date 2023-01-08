@@ -38,7 +38,7 @@ export default function() {
 
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={'..'}>Socials</H1Nav>
+      <H1Nav path={'..'} title='Socials'/>
       <SocialSelect id={Number(organisation.id)} entityType='ORG' socials={socials}/>
     </div>
   </div>;

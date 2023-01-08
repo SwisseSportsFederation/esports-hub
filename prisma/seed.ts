@@ -167,7 +167,7 @@ function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
       is_main_team: index === 0,
-      request_status: faker.helpers.objectValue(RequestStatus),
+      request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_USER, RequestStatus.PENDING_TEAM]),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),
       team_id: index + 1
@@ -180,7 +180,7 @@ function createOrgMember(): Prisma.OrganisationMemberCreateManyUserInput[] {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
       is_main_organisation: index === 0,
-      request_status: faker.helpers.objectValue(RequestStatus),
+      request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_ORG, RequestStatus.PENDING_USER]),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),
       organisation_id: index + 1
@@ -198,8 +198,13 @@ function createTeams(): Prisma.TeamCreateInput[] {
         }
       },
       organisation: {
-        connect: {
-          id: fakeBigInt(1, 10)
+        create: {
+          request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_ORG, RequestStatus.PENDING_TEAM]),
+          organisation: {
+            connect: {
+              id: fakeBigInt(1, 10)
+            }
+          }
         }
       }
     }

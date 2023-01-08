@@ -8,14 +8,15 @@ import { ReactNode } from "react";
 
 export type ITeaserProps = {
   type: EntityType,
-  id: string,
+  entityId: string,
+  handle: string,
   icons?: ReactNode
 } & ITeaserCoreProps;
 
-const Teaser = ({ type, id, icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
+const Teaser = ({ type, handle, icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
   const entityPathSegment = entityToPathSegment(type);
-  return <div className='flex h-22 w-full relative'>
-    <Link to={`/detail/${entityPathSegment}/${id}`} className='w-full'>
+  return <div className='flex h-22 w-full relative max-w-lg'>
+    <Link to={`/detail/${entityPathSegment}/${handle}`} className='w-full'>
       <TeaserCore {...props}/>
     </Link>
     <div className="absolute h-full right-4 flex items-center">
