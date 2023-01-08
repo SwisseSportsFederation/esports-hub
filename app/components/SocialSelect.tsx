@@ -1,8 +1,9 @@
 import TextInput from "./Forms/TextInput";
 import IconButton from "./Button/IconButton";
 import ActionButton from "./Button/ActionButton";
-import { EntityType } from "~/helpers/entityType";
-import { Social, SocialPlatform } from "@prisma/client";
+import type { EntityType } from "~/helpers/entityType";
+import type { Social } from "@prisma/client";
+import { SocialPlatform } from "@prisma/client";
 import SelectList from "~/components/SelectList";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "@remix-run/react";

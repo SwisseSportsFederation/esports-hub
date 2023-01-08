@@ -1,5 +1,6 @@
 import Icon from "../Icons";
 import type { Social } from "@prisma/client";
+
 // import useNotification from "../../hooks/useNotification";
 
 interface ISocialIconButtonProps {
@@ -24,8 +25,8 @@ const SocialIconButton = ({ entitySocial }: ISocialIconButtonProps) => {
   };
 
   return <button onClick={onClick} className="mx-3 mb-2">
-      <Icon iconName={entitySocial.platform.toLowerCase()} className="w-9 h-9"/> 
-    </button>;
+    <Icon iconName={entitySocial.platform.toLowerCase()} className="w-9 h-9"/>
+  </button>;
 };
 
 export default SocialIconButton;

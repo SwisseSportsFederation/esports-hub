@@ -34,7 +34,8 @@ const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
   return (
     <div className={`relative mt-3 z-20 w-full ${className}`}>
       <label>
-        <input type={inputType} name={id} required={required} placeholder={" "} defaultValue={defaultValue ?? ""} disabled={disabled}
+        <input type={inputType} name={id} required={required} placeholder={" "} defaultValue={defaultValue ?? ""}
+               disabled={disabled}
                className={`bg-white rounded-xl w-full h-10 px-4 text-black focus:outline-none border border-gray-6 dark:border-white ${inputIconPadding}`}/>
         <span className={`absolute left-4 top-2 transition-all text-black capitalize`}>{label.toLowerCase()}</span>
       </label>

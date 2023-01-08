@@ -1,6 +1,6 @@
-import { PropsWithChildren, useEffect, useRef } from "react";
+import type { PropsWithChildren } from "react";
+import { useEffect, useRef } from "react";
 import ReactPortal from "~/components/Notifications/ReactPortal";
-import ActionButton from "~/components/Button/ActionButton";
 import { CSSTransition } from 'react-transition-group';
 
 type ModalPropTypes = {
@@ -30,7 +30,8 @@ export default function Modal({ children, isOpen, handleClose }: PropsWithChildr
           <div className='absolute left-0 top-0 w-full h-full bg-black/80 z-[51]' onClick={handleClose}/>
           <div ref={nodeRef}
                className='fixed z-[52] flex justify-center items-center h-screen w-screen pointer-events-none'>
-            <div className="relative w-full max-w-lg max-h-[50%] m-5 p-5 rounded-3xl bg-white dark:bg-gray-2 pointer-events-auto overflow-y-auto">
+            <div
+              className="relative w-full max-w-lg max-h-[50%] m-5 p-5 rounded-3xl bg-white dark:bg-gray-2 pointer-events-auto overflow-y-auto">
               {children}
             </div>
           </div>

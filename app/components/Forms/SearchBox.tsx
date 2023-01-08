@@ -2,7 +2,7 @@ import { Form, useSearchParams } from "@remix-run/react";
 import ActionButton from "~/components/Button/ActionButton";
 import TextInput from "~/components/Forms/TextInput";
 import DropDownInput from "~/components/Forms/DropdownInput";
-import { IdValue } from "~/services/search.server";
+import type { IdValue } from "~/services/search.server";
 
 type SearchBoxProps = ({
   games: IdValue[];

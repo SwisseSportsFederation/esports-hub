@@ -1,4 +1,4 @@
-import { PropsWithClassName } from "../../utils/PropsWithClassName";
+import type { PropsWithClassName } from "../../utils/PropsWithClassName";
 import Icons from "../Icons";
 
 interface IActionBlockProps {

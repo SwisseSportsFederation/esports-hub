@@ -1,7 +1,7 @@
 import EditOverviewBlock from "~/components/Blocks/EditOverviewBlock";
 import { useOutletContext } from "@remix-run/react";
-import { loader as handleLoader } from "~/routes/admin/team/$handle";
-import { SerializeFrom } from "@remix-run/server-runtime";
+import type { loader as handleLoader } from "~/routes/admin/team/$handle";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 
 export default function() {
   const { team, accessRight } = useOutletContext<SerializeFrom<typeof handleLoader>>();

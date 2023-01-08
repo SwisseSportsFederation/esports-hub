@@ -1,10 +1,10 @@
 import IconButton from "../Button/IconButton";
 import SocialIconButton from "../Button/SocialIconButton";
 import { Link } from "@remix-run/react";
-import { Game, Social } from "@prisma/client";
+import type { Game, Social } from "@prisma/client";
 import Icons from "~/components/Icons";
 import { CDN_URL } from "~/constants";
-import { StringOrNull } from "~/db/queries.server";
+import type { StringOrNull } from "~/db/queries.server";
 
 type IDetailHeaderProps = {
   imagePath: StringOrNull,
@@ -30,11 +30,12 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         <div className="flex justify-center relative">
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
             {!imagePath && <Icons iconName='user' className={`absolute text-black p-2 bg-white rounded-full`}/>}
-            {imagePath && <img src={`${CDN_URL}/${imagePath}/public`} alt="Profile Picture" className={`absolute object-fill h-full w-full`}/>}
+            {imagePath && <img src={`${CDN_URL}/${imagePath}/public`} alt="Profile Picture"
+                               className={`absolute object-fill h-full w-full`}/>}
           </div>
           {onApply && showApply &&
             <div className="absolute right-0 top-2">
-              <IconButton icon={"apply"} action={onApply} size="large" type="button" />
+              <IconButton icon={"apply"} action={onApply} size="large" type="button"/>
             </div>
           }
         </div>
@@ -63,8 +64,8 @@ const DetailHeader = (props: IDetailHeaderProps) => {
             entitySocials
               .filter((entitySocials: Social) => entitySocials.name !== "")
               .map((entitySocial: Social, index: number) =>
-                <SocialIconButton key={index.toString()} entitySocial={entitySocial} />
-            )
+                <SocialIconButton key={index.toString()} entitySocial={entitySocial}/>
+              )
           }
         </div>
       </div>

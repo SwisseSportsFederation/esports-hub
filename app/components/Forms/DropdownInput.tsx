@@ -2,8 +2,8 @@ import { Fragment, useState } from "react";
 import { Listbox, Transition } from '@headlessui/react';
 import Icon from "~/components/Icons";
 import classNames from "classnames";
-import { PropsWithClassName } from "~/utils/PropsWithClassName";
-import { IdValue } from "~/services/search.server";
+import type { PropsWithClassName } from "~/utils/PropsWithClassName";
+import type { IdValue } from "~/services/search.server";
 
 type DropdownInputProps = {
   inputs: IdValue[],

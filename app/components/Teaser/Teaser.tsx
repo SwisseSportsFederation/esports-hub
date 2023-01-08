@@ -4,7 +4,7 @@ import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import { Link } from "@remix-run/react";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export type ITeaserProps = {
   type: EntityType,

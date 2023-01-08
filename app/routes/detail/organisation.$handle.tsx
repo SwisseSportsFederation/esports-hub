@@ -11,7 +11,7 @@ import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilter
 import { RequestStatus } from "@prisma/client";
 import { zx } from "zodix";
 import { z } from "zod";
-import { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 
 // const { addNotification } = useNotification(); // TODO add notification logic
 

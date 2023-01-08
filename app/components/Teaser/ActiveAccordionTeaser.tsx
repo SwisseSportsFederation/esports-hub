@@ -1,6 +1,6 @@
 import AccordionTeaser from "./AccordionTeaser";
 import Icon from "../Icons";
-import type { MouseEvent} from "react";
+import type { MouseEvent } from "react";
 import { useState } from "react";
 // import DateInput from "../Form/DateInput";
 import ActionButton from "../Button/ActionButton";

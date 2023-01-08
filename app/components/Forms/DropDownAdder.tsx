@@ -1,7 +1,7 @@
 import DropDownInput from "./DropdownInput";
 import ActionBlock from "../Blocks/ActionBlock";
 import { useState } from "react";
-import { IdValue } from "~/services/search.server";
+import type { IdValue } from "~/services/search.server";
 
 interface IDropDownAdderProps {
   name: string,

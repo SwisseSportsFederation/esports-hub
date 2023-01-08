@@ -1,12 +1,14 @@
-import { ChangeEvent, SyntheticEvent, useEffect, useRef, useState } from "react";
+import type { ChangeEvent, SyntheticEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
 import H1 from "~/components/Titles/H1";
-import ReactCrop, { centerCrop, Crop, makeAspectCrop } from "react-image-crop";
+import type { Crop } from "react-image-crop";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import { useFetcher } from "@remix-run/react";
 import ActionButton from "~/components/Button/ActionButton";
-import { EntityType } from "~/helpers/entityType";
-import { StringOrNull } from "~/db/queries.server";
+import type { EntityType } from "~/helpers/entityType";
+import type { StringOrNull } from "~/db/queries.server";
 import { CDN_URL } from "~/constants";
 
 type ImageUploadBlockPropTypes = {

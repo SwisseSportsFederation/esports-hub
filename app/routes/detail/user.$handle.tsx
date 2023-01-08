@@ -9,7 +9,7 @@ import { RequestStatus } from "@prisma/client";
 import TeamHistory from "~/components/Blocks/TeamHistory";
 import { zx } from "zodix";
 import { z } from "zod";
-import { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {

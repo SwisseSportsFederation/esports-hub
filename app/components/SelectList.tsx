@@ -1,8 +1,9 @@
-import Icons, { IconType } from "./Icons";
+import type { IconType } from "./Icons";
+import Icons from "./Icons";
 import IconButton from "./Button/IconButton";
 import { useRef, useState } from "react";
 import { CSSTransition } from "react-transition-group";
-import { SocialPlatform } from "@prisma/client";
+import type { SocialPlatform } from "@prisma/client";
 
 type ISelectListItemProps = {
   onClick: () => void

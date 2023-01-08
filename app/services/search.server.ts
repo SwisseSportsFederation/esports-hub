@@ -2,7 +2,7 @@ import getCache from "~/services/cache.server";
 import { db } from "~/services/db.server";
 import { searchQueries } from "~/db/queries.server";
 import type { Game } from "@prisma/client";
-import { EntityType } from "~/helpers/entityType";
+import type { EntityType } from "~/helpers/entityType";
 
 export type IdValue = { name: string, id: string };
 
@@ -13,6 +13,7 @@ export type SearchParams = {
 };
 
 export type UserSearchResult = {
+  id: string,
   handle: string,
   image: string | null,
   name: string,
@@ -41,6 +42,7 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const [usersResult, teamsResult, orgsResult] = await Promise.all(queries);
 
   const users = usersResult.map(user => ({
+    id: String(user.id),
     handle: user.handle,
     name: user.handle,
     image: user.image,
@@ -50,6 +52,7 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   }));
 
   const teams = teamsResult.map(team => ({
+    id: String(team.id),
     handle: team.handle,
     image: team.image,
     name: team.name,
@@ -59,6 +62,7 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   }));
 
   const orgs = orgsResult.map(org => ({
+    id: String(org.id),
     handle: org.handle,
     image: org.image,
     name: org.name,

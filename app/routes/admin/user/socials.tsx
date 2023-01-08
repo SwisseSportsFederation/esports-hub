@@ -4,7 +4,7 @@ import { useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);

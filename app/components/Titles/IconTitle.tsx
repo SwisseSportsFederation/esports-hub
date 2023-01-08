@@ -1,7 +1,8 @@
 import type { PropsWithChildren } from "react";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
-import Icon, { IconType } from "../Icons";
-import { EntityType } from "~/helpers/entityType";
+import type { IconType } from "../Icons";
+import Icon from "../Icons";
+import type { EntityType } from "~/helpers/entityType";
 
 interface IIconTitleProps {
   type: EntityType

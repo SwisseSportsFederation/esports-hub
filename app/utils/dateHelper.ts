@@ -1,5 +1,5 @@
 export const getAgeFromBirthdate = (birthDate: Date | undefined): number | undefined => {
-  if (!birthDate) {
+  if(!birthDate) {
     return undefined;
   }
 

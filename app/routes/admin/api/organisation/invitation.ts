@@ -18,27 +18,27 @@ export const action: ActionFunction = async ({ request }) => {
   const user_id = Number(user.db.id);
   try {
     if(action === 'ACCEPT') {
-        await db.organisationMember.update({
-          where: {
-            user_id_organisation_id: {
-              user_id,
-              organisation_id
-            }
-          },
-          data: {
-            request_status: 'ACCEPTED'
+      await db.organisationMember.update({
+        where: {
+          user_id_organisation_id: {
+            user_id,
+            organisation_id
           }
-        });
+        },
+        data: {
+          request_status: 'ACCEPTED'
+        }
+      });
 
     } else {
-        await db.organisationMember.delete({
-          where: {
-            user_id_organisation_id: {
-              user_id,
-              organisation_id
-            }
+      await db.organisationMember.delete({
+        where: {
+          user_id_organisation_id: {
+            user_id,
+            organisation_id
           }
-        });
+        }
+      });
     }
   } catch(error) {
     throw json({}, 400);

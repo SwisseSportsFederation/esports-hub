@@ -1,7 +1,7 @@
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import classNames from "classnames";
 import type { Game } from "@prisma/client";
-import { StringOrNull } from "~/db/queries.server";
+import type { StringOrNull } from "~/db/queries.server";
 import Icons from "~/components/Icons";
 import { CDN_URL } from "~/constants";
 

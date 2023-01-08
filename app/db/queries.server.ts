@@ -9,6 +9,7 @@ const query = (search?: string): Prisma.StringFilter => ({
 export type StringOrNull = string | null;
 
 type TeamsQuery = {
+  id: bigint,
   image: StringOrNull,
   name: string,
   handle: string,
@@ -16,12 +17,14 @@ type TeamsQuery = {
 }[]
 
 type OrgsQuery = {
+  id: bigint,
   image: StringOrNull,
   name: string,
   handle: string
 }[]
 
 type UsersQuery = {
+  id: bigint,
   image: StringOrNull,
   handle: string,
   games: { name: string }[],
@@ -48,6 +51,7 @@ const usersQuery = (search?: string, canton?: string, language?: string, game?: 
     ],
   },
   select: {
+    id: true,
     image: true,
     handle: true,
     games: { select: { name: true } },
@@ -71,6 +75,7 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
     ]
   },
   select: {
+    id: true,
     image: true,
     name: true,
     handle: true,
@@ -97,6 +102,7 @@ const orgsQuery = (search?: string, canton?: string, language?: string) => db.or
     ]
   },
   select: {
+    id: true,
     image: true,
     name: true,
     handle: true

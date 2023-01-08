@@ -60,7 +60,8 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
             entityType === 'USER' &&
             <TextInput id="surname" label="Surname" defaultValue={surname ?? ""} required={true}/>
           }
-          <DateInput name={entityType === 'USER' ? "birthDate" : 'founded'} label={entityType === 'USER' ? "Birthdate" : 'Founded'} value={date}
+          <DateInput name={entityType === 'USER' ? "birthDate" : 'founded'}
+                     label={entityType === 'USER' ? "Birthdate" : 'Founded'} value={date}
                      min={new Date(1900, 0, 0)} max={new Date()}/>
           {
             entityType === 'TEAM' &&

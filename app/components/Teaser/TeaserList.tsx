@@ -1,6 +1,7 @@
 import H1 from "../Titles/H1";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
-import Teaser, { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/Teaser";
+import Teaser from "~/components/Teaser/Teaser";
 
 interface ITeaserListProps {
   title: string;

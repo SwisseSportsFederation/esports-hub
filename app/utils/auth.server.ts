@@ -1,8 +1,9 @@
 import type { AuthUser } from "~/services/auth.server";
 import { authenticator } from "~/services/auth.server";
 import { db } from "~/services/db.server";
-import { EntityType } from "~/helpers/entityType";
-import { AccessRight, RequestStatus } from "@prisma/client";
+import type { EntityType } from "~/helpers/entityType";
+import type { AccessRight } from "@prisma/client";
+import { RequestStatus } from "@prisma/client";
 import { redirect } from "@remix-run/node";
 
 export function logout(request: Request, path: string = ''): Promise<void> {
@@ -14,12 +15,12 @@ export function logout(request: Request, path: string = ''): Promise<void> {
   return authenticator.logout(request, { redirectTo: logout });
 }
 
-export async function isLoggedIn (request: Request): Promise<Boolean> {
+export async function isLoggedIn(request: Request): Promise<Boolean> {
   let user = await authenticator.isAuthenticated(request);
   return !!user;
 }
 
-export async function checkUserAuth (request: Request): Promise<AuthUser> {
+export async function checkUserAuth(request: Request): Promise<AuthUser> {
   let user = await authenticator.isAuthenticated(request);
   if(!user) {
     // logged out -> log in

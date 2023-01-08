@@ -1,4 +1,5 @@
-import { AccessRight, Game, Organisation, OrganisationMember, RequestStatus, Team, TeamMember } from "@prisma/client";
+import type { Game, Organisation, OrganisationMember, Team, TeamMember } from "@prisma/client";
+import { AccessRight, RequestStatus } from "@prisma/client";
 
 /** filters that work */
 export const isTeamMember = (teamMemberships: TeamMember[], userId: number) =>
@@ -27,31 +28,31 @@ export const getMainTeam = (teamMemberships: TeamMember[]): Team => {
   return teamMemberships.filter((tm: TeamMember) => tm.is_main_team)[0]?.team;
 };
 
-export const getOwnTeams = (teamMemberships: TeamMember[]) : Team[] => {
+export const getOwnTeams = (teamMemberships: TeamMember[]): Team[] => {
   return teamMemberships?.filter((t: TeamMember) => t.access_rights_id === AccessRight.MODERATOR || t.access_rights_id == AccessRight.ADMIN).map((t: TeamMember) => t.team) ?? [];
 };
 // TODO: Pending is currently only on all sides not a specific one. Fix this.
-export const getTeamInvitations = (teamMemberships: TeamMember[]) : Team[] => {
+export const getTeamInvitations = (teamMemberships: TeamMember[]): Team[] => {
   return teamMemberships?.filter((t: TeamMember) => t.request_status_id == RequestStatusEnum.PendingUserAccount).map((t: TeamMember) => t.team) ?? [];
 };
-export const getTeamMemberInvitations = (teamMemberships: TeamMember[]) : TeamMember[] => {
+export const getTeamMemberInvitations = (teamMemberships: TeamMember[]): TeamMember[] => {
   return teamMemberships?.filter((t: TeamMember) => t.request_status_id == RequestStatusEnum.PendingUserAccount) ?? [];
 };
-export const getTeamRequests = (teamMemberships: TeamMember[]) : TeamMember[] => {
+export const getTeamRequests = (teamMemberships: TeamMember[]): TeamMember[] => {
   return teamMemberships?.filter((t: TeamMember) => t.request_status_id == RequestStatusEnum.PendingTeamAccount) ?? [];
 };
 
 /** Organisation */
-export const getOwnOrganisations = (organisationMemberships: OrganisationMember[]) : Organisation[] => {
+export const getOwnOrganisations = (organisationMemberships: OrganisationMember[]): Organisation[] => {
   return organisationMemberships?.filter((o: OrganisationMember) => o.access_rights_id === AccessRight.MODERATOR || o.access_rights_id == AccessRight.ADMIN).map((o: OrganisationMember) => o.organisation) ?? [];
 };
-export const getOrganisationInvitations = (organisationMemberships: OrganisationMember[]) : Organisation[] => {
+export const getOrganisationInvitations = (organisationMemberships: OrganisationMember[]): Organisation[] => {
   return organisationMemberships?.filter((o: OrganisationMember) => o.request_status_id == RequestStatusEnum.PendingUserAccount).map((o: OrganisationMember) => o.organisation) ?? [];
 };
-export const getOrganisationMemberInvitations = (organisationMemberships: OrganisationMember[]) : OrganisationMember[] => {
+export const getOrganisationMemberInvitations = (organisationMemberships: OrganisationMember[]): OrganisationMember[] => {
   return organisationMemberships?.filter((om: OrganisationMember) => om.request_status_id == RequestStatusEnum.PendingUserAccount) ?? [];
 };
-export const getOrganisationRequests = (organisationMemberships: OrganisationMember[]) : OrganisationMember[] => {
+export const getOrganisationRequests = (organisationMemberships: OrganisationMember[]): OrganisationMember[] => {
   return organisationMemberships?.filter((om: OrganisationMember) => om.request_status_id == RequestStatusEnum.PendingOrganisationAccount) ?? [];
 };
 

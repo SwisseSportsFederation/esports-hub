@@ -1,6 +1,7 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { FetcherWithComponents, useFetcher, useLoaderData } from "@remix-run/react";
+import type { FetcherWithComponents } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
@@ -10,7 +11,7 @@ import type { Invitation, Membership } from "~/services/admin/index.server";
 import { getUserMemberships } from "~/services/admin/index.server";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
-import { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/Teaser";
 import classNames from "classnames";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -30,7 +31,8 @@ const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[
       <IconButton icon='edit' type='link' path={`/admin/${pathSegment}/${mem.handle}`}/> : undefined;
     return {
       type: entity,
-      id: mem.handle,
+      entityId: String(mem.id),
+      handle: mem.handle,
       avatarPath: mem.image ?? null,
       name: mem.name,
       team: mem.handle,
@@ -52,7 +54,8 @@ const getInvitationTeaser = (invitations: Invitation[], fetcher: FetcherWithComp
 
     return {
       type: invitation.type,
-      id: invitation.handle,
+      entityId: String(invitation.id),
+      handle: invitation.handle,
       avatarPath: invitation.image ?? null,
       name: invitation.name,
       team: invitation.handle,
@@ -79,7 +82,7 @@ export default function() {
   return <div className="max-w-prose	mx-auto">
     <H1 className="mx-2 px-2">Personal</H1>
     <div className="flex w-full relative justify-center flex-wrap mb-2">
-      <BlockTeaser text="Profile" icon='user'  path={`user`}/>
+      <BlockTeaser text="Profile" icon='user' path={`user`}/>
       <BlockTeaser text="Teams" icon="team" path={`teams`}/>
       <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
     </div>
@@ -91,8 +94,8 @@ export default function() {
     <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
       <IconButton icon={"add"} type='link' path="/admin/organisations/0/details"/>
     </div>
-    { invitationTeaser.length > 0 &&
-      <TeaserList title="Your invitations" teasers={invitationTeaser} />
+    {invitationTeaser.length > 0 &&
+      <TeaserList title="Your invitations" teasers={invitationTeaser}/>
     }
   </div>;
 };

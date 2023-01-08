@@ -7,13 +7,13 @@ function hydrate() {
     hydrateRoot(
       document,
       <StrictMode>
-        <RemixBrowser />
+        <RemixBrowser/>
       </StrictMode>
     );
   });
 }
 
-if (window.requestIdleCallback) {
+if(window.requestIdleCallback) {
   window.requestIdleCallback(hydrate);
 } else {
   // Safari doesn't support requestIdleCallback

@@ -1,7 +1,7 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import { useLoaderData, useOutletContext } from "@remix-run/react";
 import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
-import type { ActionArgs} from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
@@ -21,7 +21,18 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  const { id, oldHandle, founded, handle, name, description, street, zip, canton, languages } = await zx.parseForm(request, {
+  const {
+    id,
+    oldHandle,
+    founded,
+    handle,
+    name,
+    description,
+    street,
+    zip,
+    canton,
+    languages
+  } = await zx.parseForm(request, {
     id: z.string(),
     oldHandle: z.string(),
     handle: z.string().min(3),

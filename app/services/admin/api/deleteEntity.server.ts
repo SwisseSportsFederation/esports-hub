@@ -3,7 +3,7 @@ import { zx } from "zodix";
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { EntityType } from "~/helpers/entityType";
+import type { EntityType } from "~/helpers/entityType";
 
 export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'USER'>) => {
   if(request.method !== "DELETE") {

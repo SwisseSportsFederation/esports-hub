@@ -17,7 +17,7 @@ import Header from "~/components/Header/Header";
 import Footer from "~/components/Footer";
 import Icon from "~/components/Icons";
 import LinkButton from "./components/Button/LinkButton";
-import { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
 
@@ -88,34 +88,34 @@ export function CatchBoundary() {
   const caught = useCatch();
   return (
     <html lang="en">
-      <head>
-        <title>Error!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <div id="modal-root"/>
-        <div className='min-h-screen min-h-[-webkit-fill-available]
+    <head>
+      <title>Error!</title>
+      <Meta/>
+      <Links/>
+    </head>
+    <body>
+    <div id="modal-root"/>
+    <div className='min-h-screen min-h-[-webkit-fill-available]
             dark:bg-gray-1 dark:text-white bg-gray-7 flex flex-col'>
-          <div className="flex items-center p-4 md:px-8">
-            <Link to={'/'} className="w-full flex justify-center">
-              <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
-            </Link>
+      <div className="flex items-center p-4 md:px-8">
+        <Link to={'/'} className="w-full flex justify-center">
+          <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
+        </Link>
+      </div>
+      <main className='pt-5 min-h-[calc(100vh-13.5rem)] flex flex-col'>
+        <div className="pt-10 w-full text-center">
+          {caught.status} {caught.statusText} <br/>
+          <div className="max-w-lg mt-10 ml-auto mr-auto">
+            <LinkButton title="Back to home" path={'/'}/>
           </div>
-          <main className='pt-5 min-h-[calc(100vh-13.5rem)] flex flex-col'>
-            <div className="pt-10 w-full text-center">
-              {caught.status} {caught.statusText} <br/>
-              <div className="max-w-lg mt-10 ml-auto mr-auto">
-                <LinkButton title="Back to home" path={'/'}/>
-              </div>
-            </div>
-          </main>
-          <Footer/>
         </div>
-      <ScrollRestoration/>
-      <Scripts/>
-      <LiveReload/>
-      </body>
+      </main>
+      <Footer/>
+    </div>
+    <ScrollRestoration/>
+    <Scripts/>
+    <LiveReload/>
+    </body>
     </html>
   );
 }

@@ -1,4 +1,5 @@
-import Icon, { IconType } from "../Icons";
+import type { IconType } from "../Icons";
+import Icon from "../Icons";
 import { Link } from "@remix-run/react";
 
 export interface IBlockTeaserProps {

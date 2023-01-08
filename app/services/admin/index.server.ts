@@ -1,7 +1,8 @@
 import { db } from "~/services/db.server";
 import type { AuthUser } from "~/services/auth.server";
 import type { StringOrNull } from "~/db/queries.server";
-import { AccessRight, RequestStatus } from "@prisma/client";
+import type { AccessRight } from "@prisma/client";
+import { RequestStatus } from "@prisma/client";
 
 export type Membership = {
   request_status: RequestStatus,

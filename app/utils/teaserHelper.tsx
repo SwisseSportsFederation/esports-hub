@@ -1,7 +1,7 @@
-import { Game, Organisation, OrganisationMember, Team, TeamMember, User } from "@prisma/client";
-import { EntityType } from "~/helpers/entityType";
+import type { Game, Organisation, OrganisationMember, Team, TeamMember, User } from "@prisma/client";
+import type { EntityType } from "~/helpers/entityType";
 import { getOrganisationGames } from "./entityFilters";
-import { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/Teaser";
 
 export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserProps, 'icons'>[] => {
   return teams.map((team) => {

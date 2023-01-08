@@ -1,6 +1,6 @@
-import { FormerTeam, Team, TeamMember } from "@prisma/client";
+import type { FormerTeam, Team, TeamMember } from "@prisma/client";
 import { Link } from "@remix-run/react";
-import { SerializeFrom } from "@remix-run/server-runtime";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 
 
 interface ITeamHistoryProps {

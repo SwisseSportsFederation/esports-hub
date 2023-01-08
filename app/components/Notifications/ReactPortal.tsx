@@ -1,11 +1,15 @@
-import { PropsWithChildren, useEffect, useLayoutEffect, useState } from "react";
+import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 type ReactPortalPropTypes = {
   wrapperId: string
 }
 
-export default function ReactPortal({ children, wrapperId = "react-portal-wrapper" }: PropsWithChildren<ReactPortalPropTypes>) {
+export default function ReactPortal({
+                                      children,
+                                      wrapperId = "react-portal-wrapper"
+                                    }: PropsWithChildren<ReactPortalPropTypes>) {
   const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -17,7 +21,7 @@ export default function ReactPortal({ children, wrapperId = "react-portal-wrappe
   }, [wrapperId]);
 
   // wrapperElement state will be null on very first render.
-  if (wrapperElement === null) return null;
+  if(wrapperElement === null) return null;
 
   return createPortal(children, wrapperElement);
 }

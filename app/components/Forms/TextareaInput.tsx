@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import classNames from "classnames";
 
 interface ITextareaInputProps {

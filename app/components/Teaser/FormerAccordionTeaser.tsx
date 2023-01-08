@@ -3,6 +3,7 @@ import { useState } from "react";
 // import DateInput from "../Form/DateInput";
 import ActionButton from "../Button/ActionButton";
 import type { FormerTeam } from "@prisma/client";
+
 // import AutocompleteInput from "../Form/AutocompleteInput";
 
 interface IFormerAccordionTeaserProps {

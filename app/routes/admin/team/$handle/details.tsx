@@ -69,17 +69,6 @@ export const action = async ({ request }: ActionArgs) => {
   });
   const headers = await createFlashMessage(request, 'Team update is done');
   return redirect(`/admin/team/${handle}/details`, headers);
-
-  /* TODO: Handle Errors */
-  /*
-  if (error) {
-    addNotification("Error", 3000);
-    console.error(error);
-    return;
-  }
-
-  addNotification("Success", 3000);
-  */
 };
 
 export async function loader() {

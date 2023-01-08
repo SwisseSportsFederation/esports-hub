@@ -86,10 +86,10 @@ const Header = () => {
             {/*  <div className='hidden md:flex items-center justify-center'>*/}
             {/*    /!*<ThemeToggle/>*!/*/}
             {/*  </div>*/}
-            <a onClick={toggleMenu}
-              className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
+            <button onClick={toggleMenu}
+                    className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
               <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''}`}/>
-            </a>
+            </button>
           </div>
         </div>
       </div>

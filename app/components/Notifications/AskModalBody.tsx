@@ -17,10 +17,10 @@ export default function({ message, primaryButton, secondaryButton }: AskModalBod
       {message}
     </div>
     <div className='flex justify-between gap-2'>
-    <ActionButton content={primaryButton.text} action={() => primaryButton.onClick?.()}/>
-    {secondaryButton &&
-      <ActionButton className='bg-gray-3' content={secondaryButton.text} action={() => secondaryButton.onClick?.()}/>
-    }
+      <ActionButton content={primaryButton.text} action={() => primaryButton.onClick?.()}/>
+      {secondaryButton &&
+        <ActionButton className='bg-gray-3' content={secondaryButton.text} action={() => secondaryButton.onClick?.()}/>
+      }
     </div>
   </>
 }

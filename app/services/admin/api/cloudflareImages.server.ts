@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { Crop } from "react-image-crop";
+import type { Crop } from "react-image-crop";
 import sizeOf from 'buffer-image-size';
 
 export const resize = async (file: File, cropData: Crop): Promise<File> => {

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
 import { zx } from "zodix";
 import { z } from "zod";
 import { checkUserAuth } from "~/utils/auth.server";
@@ -8,17 +8,18 @@ import { Form, useActionData, useLoaderData, useOutletContext } from "@remix-run
 import H1Nav from "~/components/Titles/H1Nav";
 import TeaserList from "~/components/Teaser/TeaserList";
 import { getTeamTeasers } from "~/utils/teaserHelper";
-import { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/Teaser";
 import IconButton from "~/components/Button/IconButton";
 import Icons from "~/components/Icons";
 import ActionButton from "~/components/Button/ActionButton";
 import Modal from "~/components/Notifications/Modal";
 import { useState } from "react";
 import TextInput from "~/components/Forms/TextInput";
-import { Prisma, RequestStatus } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+import { RequestStatus } from "@prisma/client";
 import H1 from "~/components/Titles/H1";
-import { SerializeFrom } from "@remix-run/server-runtime";
-import { loader as handleLoader } from '../$handle';
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { loader as handleLoader } from '../$handle';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
