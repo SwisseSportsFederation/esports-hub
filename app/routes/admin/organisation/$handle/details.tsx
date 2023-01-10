@@ -12,6 +12,8 @@ import type { SerializeFrom } from "@remix-run/server-runtime";
 import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
+import { AccessRight, RequestStatus } from '@prisma/client';
+import { AuthUser } from '~/services/auth.server';
 
 export function links() {
   return [
@@ -20,8 +22,30 @@ export function links() {
   ];
 }
 
+const createOrganisation = async (handle: string, name: string, description: string, user: AuthUser) => {
+  const organisation = await db.organisation.create({
+    data: {
+      handle,
+      name,
+      description
+    }
+  });
+  await db.organisationMember.create({
+    data: {
+      access_rights: AccessRight.ADMINISTRATOR,
+      is_main_organisation: false,
+      request_status: RequestStatus.ACCEPTED,
+      joined_at: new Date(),
+      role: "Admin",
+      user: { connect: { id: BigInt(user.db.id) }},
+      organisation: { connect: { id: organisation.id }}
+    }
+  })
+  return organisation.id.toString();
+}
+
 export const action = async ({ request }: ActionArgs) => {
-  const {
+  let {
     id,
     oldHandle,
     founded,
@@ -40,14 +64,21 @@ export const action = async ({ request }: ActionArgs) => {
     founded: z.string().optional(),
     street: z.string().optional(),
     zip: z.string().optional(),
-    description: z.string().optional(),
+    description: z.string(),
     canton: zx.NumAsString.optional(),
     languages: z.string()
   });
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
 
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user, oldHandle, 'ORG', 'MODERATOR');
+
+  let toastMessage = 'Organisation update is done';
+  if(id === "0") {
+    id = await createOrganisation(handle, name, description, user);
+    toastMessage = 'Organisation created';
+  } else {
+    await checkHandleAccessForEntity(user, oldHandle, 'ORG', 'MODERATOR');
+  }
 
   await db.organisation.update({
     where: {
@@ -78,7 +109,8 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
   });
-  const headers = await createFlashMessage(request, 'Organisation update is done');
+
+  const headers = await createFlashMessage(request, toastMessage);
 
   return redirect(`/admin/organisation/${handle}/details`, headers);
 };
