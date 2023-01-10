@@ -20,6 +20,6 @@ export default function Index() {
                    languages={searchParams.languages ?? []}/>
       </div>
     </section>
-    <img src={backgroundImage} className="fixed top-0 left-0 w-full min-h-full z-0 opacity-20"></img>
+    <img src={backgroundImage} className="fixed top-0 left-0 min-w-full min-h-full z-0 opacity-20 object-cover"></img>
   </>;
 }
