@@ -1,27 +1,17 @@
-import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
-import { checkUserAuth } from "~/utils/auth.server";
 import type { Invitation, Membership } from "~/services/admin/index.server";
-import { getUserMemberships } from "~/services/admin/index.server";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import classNames from "classnames";
-import { LoaderFunctionArgs } from "@remix-run/router";
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await checkUserAuth(request);
-  const memberships = await getUserMemberships(user);
-  return json({
-    user,
-    memberships
-  });
-}
+import { useOutletContext } from "@remix-run/react";
+import { SerializeFrom } from "@remix-run/server-runtime";
+import type { loader as adminLoader } from "~/routes/admin";
 
 const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[] => {
   return memberships.map((mem: Membership) => {
@@ -66,7 +56,7 @@ const getInvitationTeaser = (invitations: Invitation[], userId: string, fetcher:
 }
 
 export default function() {
-  const { memberships, user } = useLoaderData<typeof loader>();
+  const { memberships, user } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const fetcher = useFetcher();
   const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
   const orgTeaser = getTeaser(memberships.orgs, 'ORG');
@@ -78,23 +68,23 @@ export default function() {
     'mb-0': invitationTeaser.length === 0
   })
 
-  return <div className="max-w-prose	mx-auto">
-    <H1 className="mx-2 px-2">Personal</H1>
-    <div className="flex w-full relative justify-center flex-wrap mb-2">
-      <BlockTeaser text="Profile" icon='user' path={`user`}/>
-      <BlockTeaser text="Teams" icon="team" path={`teams`}/>
-      <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
-    </div>
-    <TeaserList title="Your Teams" teasers={teamsTeaser}/>
-    <div className="flex justify-center mt-4 mb-8">
-      <IconButton icon={"add"} type='link' path="/admin/teams/0/details"/>
-    </div>
-    <TeaserList title="Your Organisations" teasers={orgTeaser}/>
-    <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
-      <IconButton icon={"add"} type='link' path="/admin/organisations/0/details"/>
-    </div>
-    {invitationTeaser.length > 0 &&
-      <TeaserList title="Your invitations" teasers={invitationTeaser}/>
-    }
-  </div>;
+  return <div className="max-w-prose mx-auto">
+      <H1 className="mx-2 px-2">Personal</H1>
+      <div className="flex w-full relative justify-center flex-wrap mb-2">
+        <BlockTeaser text="Profile" icon='user' path={`user`}/>
+        <BlockTeaser text="Teams" icon="team" path={`teams`}/>
+        <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
+      </div>
+      <TeaserList title="Your Teams" teasers={teamsTeaser}/>
+      <div className="flex justify-center mt-4 mb-8">
+        <IconButton icon={"add"} type='link' path="/admin/teams/0/details"/>
+      </div>
+      <TeaserList title="Your Organisations" teasers={orgTeaser}/>
+      <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
+        <IconButton icon={"add"} type='link' path="/admin/organisations/0/details"/>
+      </div>
+      {invitationTeaser.length > 0 &&
+        <TeaserList title="Your invitations" teasers={invitationTeaser}/>
+      }
+    </div>;
 };
