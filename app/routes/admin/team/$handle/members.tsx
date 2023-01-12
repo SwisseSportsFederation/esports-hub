@@ -143,8 +143,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       team: {
         handle
       }
-    },
-    include: { user: { include: { games: true, teams: { include: { team: true } } } } }
+    }
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
   const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_TEAM);
@@ -152,8 +151,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return json({
     members: members,
-    invited: getTeamMemberTeasers("", invited),
-    pending: getTeamMemberTeasers("", pending)
+    invited: getTeamMemberTeasers(handle, invited),
+    pending: getTeamMemberTeasers(handle, pending)
   });
 }
 
@@ -199,7 +198,7 @@ export default function() {
         {
           members.map(member => {
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
-                                     team={member.user.teams[0].team.handle}
+                                     team={team.handle}
                                      games={member.user.games}>
               <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                 <input type='hidden' name='intent' value='UPDATE_USER'/>
