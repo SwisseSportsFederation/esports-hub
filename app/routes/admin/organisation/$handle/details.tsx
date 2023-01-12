@@ -21,7 +21,7 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  let {
+  const {
     id,
     oldHandle,
     founded,
