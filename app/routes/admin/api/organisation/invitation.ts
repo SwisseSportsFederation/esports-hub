@@ -14,7 +14,19 @@ export const action: ActionFunction = async ({ request }) => {
     userId: zx.NumAsString
   });
   const user = await checkUserAuth(request);
-  await checkIdAccessForEntity(user, organisation_id, 'ORG', 'MODERATOR');
+
+  const currentRequestStatus = await db.organisationMember.findFirst({
+    where: {
+      user_id,
+      organisation_id
+    },
+    select: {
+      request_status: true
+    }
+  });
+  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
+    await checkIdAccessForEntity(user, organisation_id, 'ORG', 'MODERATOR');
+  }
   try {
     if(action === 'ACCEPT') {
       await db.organisationMember.update({

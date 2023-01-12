@@ -50,7 +50,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             access_rights: AccessRight.MEMBER,
             user_id: userId,
             team_id: teamId,
-            request_status: RequestStatus.PENDING,
+            request_status: RequestStatus.PENDING_USER,
             role: '',
             is_main_team: false
           }

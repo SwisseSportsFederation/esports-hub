@@ -12,6 +12,7 @@ import classNames from "classnames";
 import { useOutletContext } from "@remix-run/react";
 import { SerializeFrom } from "@remix-run/server-runtime";
 import type { loader as adminLoader } from "~/routes/admin";
+import { RequestStatus } from "@prisma/client";
 
 const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[] => {
   return memberships.map((mem: Membership) => {
@@ -33,7 +34,8 @@ const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[
 };
 
 const getInvitationTeaser = (invitations: Invitation[], userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
-  return invitations.map(invitation => {
+  return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER)
+  .map(invitation => {
     const path = entityToPathSegment(invitation.type)
     const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`}>
       <input type='hidden' name='entityId' value={`${invitation.id}`}/>
