@@ -3,18 +3,18 @@ import { json, redirect } from "@remix-run/node";
 import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
-import { checkUserAuth } from "~/utils/auth.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
 export const action: ActionFunction = async ({ request }) => {
-  const { action, entityId } = await zx.parseForm(request, {
+  const { action, entityId: team_id, userId: user_id } = await zx.parseForm(request, {
     action: z.enum(['ACCEPT', 'DECLINE']),
-    entityId: z.string()
+    entityId: zx.NumAsString,
+    userId: zx.NumAsString
   });
   const user = await checkUserAuth(request);
-  const team_id = Number(entityId);
-  const user_id = Number(user.db.id);
+  await checkIdAccessForEntity(user, team_id, 'TEAM', 'MODERATOR');
 
   try {
     if(action === 'ACCEPT') {

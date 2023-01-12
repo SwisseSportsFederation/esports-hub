@@ -53,7 +53,10 @@ export const checkIdAccessForEntity = async (user: AuthUser, id: number, entity:
   return checkAccessForEntity(entity, query, minAccess);
 };
 
-export const checkHandleAccessForEntity = async (user: AuthUser, handle: string, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
+export const checkHandleAccessForEntity = async (user: AuthUser, handle: string | undefined, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
+  if(!handle) {
+    throw redirect('/admin');
+  }
   const entityName = entity === 'TEAM' ? 'team' : 'organisation';
 
   const query = {

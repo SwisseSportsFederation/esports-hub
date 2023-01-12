@@ -23,10 +23,10 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
   return <div className={`flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl ${background} ${className}`}>
     <div className='rounded-full h-10 w-10 min-w-[2.5rem] m-1 bg-white relative overflow-hidden'>
       {!avatarPath && <Icons iconName='user' className={`absolute m-1 text-black`}/>}
-      {avatarPath && <img src={`${CDN_URL}/${avatarPath}/public`} className={`absolute object-fill h-full w-full`}/>}
+      {avatarPath && <img src={`${CDN_URL}/${avatarPath}/public`} className={`absolute object-fill h-full w-full`} alt='profile picture'/>}
     </div>
     <div className="flex-grow overflow-hidden">
-      <div className="mx-1">
+      <div className="mx-1 flex items-center gap-3">
         <span className="font-bold break-all block">{name}</span>
         {team &&
           <span className="text-sm"> ({team})</span>

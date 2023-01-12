@@ -17,8 +17,8 @@ type IActionButtonProps = {
 } | {
   action?: never,
   type: 'submit',
-  name: string,
-  value: string
+  name?: string,
+  value?: string
 });
 
 const ActionButton = (props: PropsWithClassName<IActionButtonProps>) => {

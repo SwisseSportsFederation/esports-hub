@@ -25,7 +25,7 @@ export const action = async ({ request }: ActionArgs) => {
     name: z.string().min(3),
     surname: z.string().min(3),
     birthDate: z.string().optional(),
-    description: z.string().min(10).optional(),
+    description: z.string().optional(),
     canton: zx.NumAsString.optional(),
     languages: z.string()
   });

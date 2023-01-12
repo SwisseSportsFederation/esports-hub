@@ -1,24 +1,18 @@
-export interface RadioButtonValue {
-  name: string;
-  id: number;
-}
-
 interface IRadioButtonGroupProps {
-  values: RadioButtonValue[];
-  onChange: ((value: RadioButtonValue) => void);
+  values: string[];
   id: string;
-  selected: number;
+  selected: string;
 }
 
-function RadioButtonGroup({ values, onChange, id, selected }: IRadioButtonGroupProps) {
+function RadioButtonGroup({ values, id, selected }: IRadioButtonGroupProps) {
   return <ul className='flex flex-row w-full justify-around'>
     {
-      values.map((value: RadioButtonValue, index: number) => {
-        return <li key={index}>
+      values.map((value: string) => {
+        return <li key={value}>
           <label>
-            <input type={'radio'} name={`radioButtonGroup${id}`} value={value.name}
-                   onChange={() => onChange(value)} checked={value.id === selected} className='h-4 w-4'/>
-            <span className='ml-2'>{value.name}</span>
+            <input type={'radio'} name={id} defaultChecked={value.toUpperCase() === selected.toUpperCase()}
+                   className='h-4 w-4 checked:bg-red-700' value={value}/>
+            <span className='ml-2'>{value}</span>
           </label>
         </li>;
       })

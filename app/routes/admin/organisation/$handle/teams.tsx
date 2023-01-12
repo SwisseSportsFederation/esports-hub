@@ -8,7 +8,7 @@ import { Form, useActionData, useLoaderData, useOutletContext } from "@remix-run
 import H1Nav from "~/components/Titles/H1Nav";
 import TeaserList from "~/components/Teaser/TeaserList";
 import { getTeamTeasers } from "~/utils/teaserHelper";
-import type { ITeaserProps } from "~/components/Teaser/Teaser";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import IconButton from "~/components/Button/IconButton";
 import Icons from "~/components/Icons";
 import ActionButton from "~/components/Button/ActionButton";
@@ -105,7 +105,6 @@ export async function action({ request }: ActionFunctionArgs) {
     case 'inviteTeam':
       const { entityId: team_id, organisationId: organisation_id } = data;
       try {
-        console.log(team_id, organisation_id);
         await db.organisationTeam.create({
           data: {
             team_id,
@@ -134,19 +133,15 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-const addIconsToInvitations = (invitations: Omit<ITeaserProps, "icons">[]): ITeaserProps[] => invitations.map(team => {
-  const icons = <Form method='post'>
+
+const addInvitationIcons = (teaser: ITeaserProps) => {
+  return <Form method='post'>
     <input type='hidden' name='intent' value='invitation'/>
-    <input type='hidden' name='entityId' value={team.entityId}/>
+    <input type='hidden' name='entityId' value={teaser.id}/>
     <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
     <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
   </Form>;
-
-  return {
-    ...team,
-    icons
-  }
-});
+};
 
 export default function() {
   let {
@@ -155,32 +150,24 @@ export default function() {
     pending
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>()
-
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
-  const acceptedWithIcons: ITeaserProps[] = accepted.map(team => ({
-    ...team,
-    icons: <IconButton icon='decline' type='button' action={() => setDeleteModalOpen(team.entityId)}/>
-  }));
+  const addAcceptedIcons = (teaser: ITeaserProps) => {
+    return <IconButton icon='decline' type='button' action={() => setDeleteModalOpen(teaser.id)}/>
+  };
 
-  const pendingWithIcons: ITeaserProps[] = pending.map(team => ({
-    ...team,
-    icons: <Icons iconName='clock' className='h-8 w-8'/>
-  }));
-  const invitationsWithIcons = addIconsToInvitations(invitations);
+  const searchTeaser = (actionData?.searchResult ?? []).filter(team => ![...invitations, ...pending, ...accepted].some(t => t.id === team.id));
 
-  const searchTeaser: ITeaserProps[] = (actionData?.searchResult ?? []).filter(team => !accepted.concat(invitations).concat(pending).some(t => t.entityId === team.entityId)).map(team => ({
-    ...team,
-    icons: <Form method='put' onSubmit={() => setInviteModalOpen(false)}>
+  const addSearchIcons = (teaser: ITeaserProps) => {
+    return <Form method='put' onSubmit={() => setInviteModalOpen(false)}>
       <input type='hidden' name='organisationId' value={organisation.id}/>
-      <input type='hidden' name='entityId' value={team.entityId}/>
+      <input type='hidden' name='entityId' value={teaser.id}/>
       <input type='hidden' name='intent' value='inviteTeam'/>
-      <IconButton icon='add' type='submit' name='' value=''/>
+      <IconButton icon='add' type='submit'/>
     </Form>
-  }));
+  }
 
   return <>
     <div className="mx-3">
@@ -188,9 +175,10 @@ export default function() {
         <H1Nav path={'..'} title='Teams'>
           <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5'/>
         </H1Nav>
-        {acceptedWithIcons.length > 0 && <TeaserList title={'Teams in Organisation'} teasers={acceptedWithIcons}/>}
-        {invitationsWithIcons.length > 0 && <TeaserList title={'Invitations'} teasers={invitationsWithIcons}/>}
-        {pendingWithIcons.length > 0 && <TeaserList title={'Invitation Pending'} teasers={pendingWithIcons}/>}
+        <TeaserList title={'Teams in Organisation'} teasers={accepted} iconFactory={addAcceptedIcons}/>
+        <TeaserList title={'Invitations'} teasers={invitations} iconFactory={addInvitationIcons}/>
+        <TeaserList title={'Invitation Requests'} teasers={pending}
+                    staticIcon={<Icons iconName='clock' className='h-8 w-8'/>}/>
       </div>
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
@@ -211,8 +199,8 @@ export default function() {
                      buttonType="submit" defaultValue={""}/>
         </div>
       </Form>
-      {searchTeaser.length > 0 &&
-        <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-white'/>}
+      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-white'
+                  iconFactory={addSearchIcons}/>
       {searchTeaser.length === 0 &&
         <div className='w-full h-40 flex flex-col justify-center items-center'>
           <Icons iconName='search' className='w-20 h-20 fill-white'/>
