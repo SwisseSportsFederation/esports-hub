@@ -44,7 +44,7 @@ const createTeam = async (handle: string, name: string, description: string, gam
       team: { connect: { id: team.id }}
     }
   })
-  return team.id.toString();
+  return String(team.id);
 }
 
 export const action = async ({ request }: ActionArgs) => {

@@ -21,7 +21,7 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  let { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
+  const { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
     id: z.string(),
     oldHandle: z.string(),
     handle: z.string().min(3),
