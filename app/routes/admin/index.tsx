@@ -69,8 +69,8 @@ export default function() {
   })
 
   return <div className="max-w-prose mx-auto">
-      <H1 className="mx-2 px-2">Personal</H1>
-      <div className="flex w-full relative justify-center flex-wrap mb-2">
+      <H1 className="mx-2 px-2 lg:hidden">Personal</H1>
+      <div className="flex w-full relative justify-center flex-wrap mb-2 lg:hidden">
         <BlockTeaser text="Profile" icon='user' path={`user`}/>
         <BlockTeaser text="Teams" icon="team" path={`teams`}/>
         <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
