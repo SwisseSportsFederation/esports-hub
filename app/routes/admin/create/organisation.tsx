@@ -1,17 +1,17 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
-import { useLoaderData, useOutletContext } from "@remix-run/react";
-import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
+import { useLoaderData } from "@remix-run/react";
 import type { ActionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
-import type { SerializeFrom } from "@remix-run/server-runtime";
 import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
+import { AccessRight, RequestStatus, Organisation, VerificationLevel } from '@prisma/client';
+import { AuthUser } from '~/services/auth.server';
 
 export function links() {
   return [
@@ -20,10 +20,31 @@ export function links() {
   ];
 }
 
+const createOrganisation = async (handle: string, name: string, description: string, user: AuthUser) => {
+  const organisation = await db.organisation.create({
+    data: {
+      handle,
+      name,
+      description
+    }
+  });
+  await db.organisationMember.create({
+    data: {
+      access_rights: AccessRight.ADMINISTRATOR,
+      is_main_organisation: false,
+      request_status: RequestStatus.ACCEPTED,
+      joined_at: new Date(),
+      role: "Admin",
+      user: { connect: { id: BigInt(user.db.id) }},
+      organisation: { connect: { id: organisation.id }}
+    }
+  })
+  return organisation.id.toString();
+}
+
 export const action = async ({ request }: ActionArgs) => {
   let {
     id,
-    oldHandle,
     founded,
     handle,
     name,
@@ -34,7 +55,6 @@ export const action = async ({ request }: ActionArgs) => {
     languages
   } = await zx.parseForm(request, {
     id: z.string(),
-    oldHandle: z.string(),
     handle: z.string().min(3),
     name: z.string().min(3),
     founded: z.string().optional(),
@@ -48,7 +68,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const user = await checkUserAuth(request);
 
-  await checkHandleAccessForEntity(user, oldHandle, 'ORG', 'MODERATOR');
+  id = await createOrganisation(handle, name, description, user);
 
   await db.organisation.update({
     where: {
@@ -80,20 +100,35 @@ export const action = async ({ request }: ActionArgs) => {
     }
   });
 
-  const headers = await createFlashMessage(request, 'Organisation update is done');
+  const headers = await createFlashMessage(request, 'Organisation created');
 
   return redirect(`/admin/organisation/${handle}/details`, headers);
 };
 
 export async function loader() {
+  const accessRight = AccessRight.ADMINISTRATOR;
+  const organisation: Organisation = {
+    id: BigInt(0),
+    name: "",
+    handle: "",
+    description: "",
+    founded: new Date(),
+    image: null,
+    street: null,
+    zip: null,
+    canton_id: null,
+    verification_level: VerificationLevel.NOT_VERIFIED,
+    is_active: true
+  };
   return json({
-    searchParams: await getSearchParams()
+    searchParams: await getSearchParams(),
+    organisation,
+    accessRight
   });
 }
 
 export default function() {
-  const { searchParams } = useLoaderData<typeof loader>();
-  const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
+  const { searchParams, organisation } = useLoaderData<typeof loader>();
   return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORG'
                             entityBirthday={organisation.founded} imageId={organisation.image}
                             searchParams={searchParams}/>;

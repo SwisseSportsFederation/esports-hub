@@ -74,7 +74,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
             </div>
           }
 
-          <TextareaInput id="description" label="Description" value={description}/>
+          <TextareaInput id="description" label="Description" value={description} required={true}/>
           {
             entityType === 'ORG' &&
             <TextInput id="street" label="Street" defaultValue={street ?? ""}/>

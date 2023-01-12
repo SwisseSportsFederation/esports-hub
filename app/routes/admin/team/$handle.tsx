@@ -11,6 +11,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   });
   const user = await checkUserAuth(request);
+
   const accessRight = await checkHandleAccessForEntity(user, handle, 'TEAM', 'MODERATOR')
   const team = await db.team.findFirst({
     where: {
