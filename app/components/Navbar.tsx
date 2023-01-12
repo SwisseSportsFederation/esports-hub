@@ -43,8 +43,8 @@ export default function Navbar() {
       <NavbarLink path={`/admin/user/account`} title="Account"/>
       <NavbarLink path={`/admin/user/games`} title="Games"/>
       <NavbarLink path={`/admin/user/socials`} title="Socials"/>
-      <NavbarLink path={`/admin/user/teams`} title="My Teams"/>
-      <NavbarLink path={`/admin/user/organisations`} title="My Organisations"/>
+      <NavbarLink path={`/admin/teams`} title="My Teams"/>
+      <NavbarLink path={`/admin/organisations`} title="My Organisations"/>
     </div>
     <div className="mb-16">
       <div className="text-xl font-bold mb-4 flex">
