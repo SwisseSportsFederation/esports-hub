@@ -77,11 +77,11 @@ export default function() {
       </div>
       <TeaserList title="Your Teams" teasers={teamsTeaser}/>
       <div className="flex justify-center mt-4 mb-8">
-        <IconButton icon={"add"} type='link' path="/admin/team/0/details"/>
+        <IconButton icon={"add"} type='link' path="/admin/create/team"/>
       </div>
       <TeaserList title="Your Organisations" teasers={orgTeaser}/>
       <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
-        <IconButton icon={"add"} type='link' path="/admin/organisation/0/details"/>
+        <IconButton icon={"add"} type='link' path="/admin/create/organisation"/>
       </div>
       {invitationTeaser.length > 0 &&
         <TeaserList title="Your invitations" teasers={invitationTeaser}/>

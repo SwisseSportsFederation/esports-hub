@@ -50,7 +50,7 @@ export default function Navbar() {
       <div className="text-xl font-bold mb-4 flex">
         <span>Teams</span> 
         <div className="ml-3">
-          <IconButton icon={"add"} type='link' path="/admin/team/0/details" size="small"/>
+          <IconButton icon={"add"} type='link' path="/admin/create/team" size="small"/>
         </div>
       </div>
       {  memberships.teams.map((team: Membership) => membershipLinkBlock(team, "team")) }
@@ -59,7 +59,7 @@ export default function Navbar() {
       <div className="text-xl font-bold mb-4 flex">
         <span>Organisations</span>
         <div className="ml-3">
-          <IconButton icon={"add"} type='link' path="/admin/organisation/0/details" size="small"/>
+          <IconButton icon={"add"} type='link' path="/admin/create/organisation" size="small"/>
         </div>
       </div>
       { memberships.orgs.map((organisation: Membership) => membershipLinkBlock(organisation, "organisation"))}

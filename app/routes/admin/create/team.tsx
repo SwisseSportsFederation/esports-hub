@@ -1,17 +1,17 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
-import { useLoaderData, useOutletContext } from "@remix-run/react";
-import type { loader as handleLoader } from "~/routes/admin/team/$handle";
+import { useLoaderData } from "@remix-run/react";
 import type { ActionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
 import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
-import type { SerializeFrom } from "@remix-run/server-runtime";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
+import { AccessRight, Team, RequestStatus, VerificationLevel } from "@prisma/client";
+import { AuthUser } from '~/services/auth.server';
 
 export function links() {
   return [
@@ -20,10 +20,36 @@ export function links() {
   ];
 }
 
+const createTeam = async (handle: string, name: string, description: string, game: number, user: AuthUser) => {
+  const team = await db.team.create({
+    data: {
+      handle,
+      name,
+      description,
+      game: {
+        connect: {
+          id: game
+        }
+      },
+    }
+  });
+  await db.teamMember.create({
+    data: {
+      access_rights: AccessRight.ADMINISTRATOR,
+      is_main_team: false,
+      request_status: RequestStatus.ACCEPTED,
+      joined_at: new Date(),
+      role: "Admin",
+      user: { connect: { id: BigInt(user.db.id) }},
+      team: { connect: { id: team.id }}
+    }
+  })
+  return team.id.toString();
+}
+
 export const action = async ({ request }: ActionArgs) => {
-  let { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
+  let { id, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
     id: z.string(),
-    oldHandle: z.string(),
     handle: z.string().min(3),
     name: z.string().min(3),
     founded: z.string().optional(),
@@ -34,7 +60,8 @@ export const action = async ({ request }: ActionArgs) => {
   });
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user, oldHandle, 'TEAM', 'MODERATOR');
+
+  id = await createTeam(handle, name, description, game, user);
 
   await db.team.update({
     where: {
@@ -69,19 +96,35 @@ export const action = async ({ request }: ActionArgs) => {
     }
   });
   
-  const headers = await createFlashMessage(request, 'Team update is done');
+  const headers = await createFlashMessage(request, 'Team created');
   return redirect(`/admin/team/${handle}/details`, headers);
 };
 
 export async function loader() {
+  const accessRight = AccessRight.ADMINISTRATOR;
+  const team: Team = {
+    id: BigInt(0),
+    name: "",
+    handle: "",
+    description: "",
+    founded: new Date(),
+    image: null,
+    canton_id: null,
+    game_id: BigInt(0),
+    organisation_id: null,
+    request_status: null,
+    verification_level: VerificationLevel.NOT_VERIFIED,
+    is_active: true
+  };
   return json({
-    searchParams: await getSearchParams()
+    searchParams: await getSearchParams(),
+    team, 
+    accessRight
   });
 }
 
 export default function() {
-  const { searchParams } = useLoaderData<typeof loader>();
-  const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
+  const { searchParams, team } = useLoaderData<typeof loader>();
 
   return <EntityDetailBlock {...team} entityId={team.id} entityType='TEAM' entityBirthday={team.founded}
                             imageId={team.image} searchParams={searchParams}/>
