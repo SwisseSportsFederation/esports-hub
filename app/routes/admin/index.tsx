@@ -37,7 +37,7 @@ const getInvitationTeaser = (invitations: Invitation[], userId: string, fetcher:
   return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER)
   .map(invitation => {
     const path = entityToPathSegment(invitation.type)
-    const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`}>
+    const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`} className="flex space-x-2">
       <input type='hidden' name='entityId' value={`${invitation.id}`}/>
       <input type='hidden' name='userId' value={userId}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
