@@ -54,6 +54,7 @@ export async function getUserMemberships(user: AuthUser) {
     select: {
       request_status: true,
       access_rights: true,
+      joined_at: true,
       team: {
         select: {
           id: true,
@@ -71,6 +72,7 @@ export async function getUserMemberships(user: AuthUser) {
     select: {
       request_status: true,
       access_rights: true,
+      joined_at: true,
       organisation: {
         select: {
           id: true,
