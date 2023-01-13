@@ -1,16 +1,15 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { Form, useActionData, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import { Form, useActionData, useFetcher, useOutletContext } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
+import type { ActionFunctionArgs } from "@remix-run/router";
 import type { Game, Prisma, User } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
-import { getTeamMemberTeasersWithTeam } from "~/utils/teaserHelper";
 import ActionButton from "~/components/Button/ActionButton";
 import H1 from "~/components/Titles/H1";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
@@ -22,11 +21,11 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
 import TextInput from "~/components/Forms/TextInput";
-import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
 import DateInput from "~/components/Forms/DateInput";
 import { Invitation } from "~/services/admin/index.server";
 import { entityToPathSegment } from "~/helpers/entityType";
 
+// TODO make correct actions
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user, params.handle, 'TEAM', 'MODERATOR');
@@ -185,6 +184,8 @@ export default function() {
       <IconButton icon='add' type='submit'/>
     </Form>
   }
+
+  // TODO load former teams and add them
 
   return <>
     <div className="mx-3">
