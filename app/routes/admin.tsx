@@ -1,4 +1,3 @@
-import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
