@@ -3,6 +3,7 @@ import Calendar from 'react-calendar';
 import Modal from "~/components/Notifications/Modal";
 import IconButton from "~/components/Button/IconButton";
 import { dateToFormattedString } from "~/utils/dateHelper";
+import { PropsWithClassName } from '~/utils/PropsWithClassName';
 
 interface IDateInputProps {
   label: string;
@@ -12,11 +13,11 @@ interface IDateInputProps {
   max?: Date;
 }
 
-const DateInput = ({ label, name, value: defaultValue, min, max }: IDateInputProps) => {
+const DateInput = ({ label, name, value: defaultValue, min, max, className }: PropsWithClassName<IDateInputProps>) => {
   const [value, onChange] = useState<Date | null>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
   return <>
-    <div className="relative mt-3 z-20 w-full">
+    <div className={`relative mt-3 z-20 w-full ${className}`}>
       <label className={`absolute text-xs -top-5 left-4 text-black dark:text-white`}>{label}</label>
       <div className={`text-black h-10 text-md px-4 cursor-pointer 
                        relative inline-flex items-center justify-between
