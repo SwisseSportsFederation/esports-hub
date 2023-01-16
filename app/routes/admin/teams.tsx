@@ -3,7 +3,7 @@ import type { FetcherWithComponents } from "@remix-run/react";
 import { Form, useActionData, useFetcher, useOutletContext, useLoaderData } from "@remix-run/react";
 import dateInputStyles from "~/styles/date-input.css";
 import { json } from "@remix-run/node";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
@@ -38,14 +38,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
     z.object({
-      intent: z.literal('UPDATE_USER'),
-      'user-rights': z.enum(['MODERATOR', 'MEMBER', 'ADMINISTRATOR']),
+      intent: z.literal('UPDATE_TEAM'),
       userId: zx.NumAsString,
       teamId: zx.NumAsString,
-      role: z.string()
+      joinedAt: z.string()
     }),
     z.object({ intent: z.literal('SEARCH'), search: z.string() }),
-    z.object({ intent: z.literal('LEAVE_TEAM'), teamId: zx.NumAsString, userId: zx.NumAsString })
+    z.object({ intent: z.literal('LEAVE_TEAM'), teamId: zx.NumAsString, userId: zx.NumAsString }),
+    z.object({
+      intent: z.literal('UPDATE_FORMER_TEAM'),
+      userId: zx.NumAsString,
+      formerTeamName: z.string(),
+      from: z.string(),
+      to: z.string(),
+      name: z.string()
+    }),
   ]));
 
   switch(data.intent) {
@@ -86,7 +93,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     case "LEAVE_TEAM": {
       const { teamId, userId } = data;
-      await checkHandleAccessForEntity(user, String(teamId), 'TEAM', 'MEMBER');
+      await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
       if(userId !== Number(user.db.id)) {
         throw json({}, 403);
       }
@@ -102,9 +109,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       // TODO add to team to former teams.
       return json({ searchResult: [] });
     }
-    case "UPDATE_USER": {
-      const { role, 'user-rights': userRights, teamId, userId } = data;
-      await checkHandleAccessForEntity(user, String(teamId), 'TEAM', 'MEMBER');
+    case "UPDATE_TEAM": {
+      const { joinedAt, teamId, userId } = data;
+      console.log("userid: " + userId);
+      console.log("teamid: " + teamId);
+      await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
       if(userId !== Number(user.db.id)) {
         throw json({}, 403);
       }
@@ -116,8 +125,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
           }
         },
         data: {
-          role,
-          access_rights: userRights,
+          ...(joinedAt && ({ joined_at: new Date(joinedAt) })),
+        }
+      });
+      return json({ searchResult: [] });
+    }
+    case "UPDATE_FORMER_TEAM": {
+      const { name, from, to, formerTeamName, userId } = data;
+      if(userId !== Number(user.db.id)) {
+        throw json({}, 403);
+      }
+      await db.formerTeam.update({
+        where: {
+          user_id_name: {
+            user_id: userId,
+            name: formerTeamName
+          }
+        },
+        data: {
+          name,
+          ...(from && ({ from: new Date(from) })),
+          ...(to && ({ to: new Date(to) })),
         }
       });
       return json({ searchResult: [] });
@@ -160,9 +188,16 @@ async function getFormerTeams(user: AuthUser) {
   return formerTeams;
 }
 
+function sortAsc(dateA: Date | null, dateB: Date | null) {
+  dateA = dateA || new Date();
+  dateB = dateB || new Date();
+  return dateA.getTime() - dateB.getTime();
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
-  const formerTeams = await getFormerTeams(user);
+  let formerTeams = await getFormerTeams(user);
+  formerTeams = formerTeams.sort((objA, objB) => sortAsc(objA.from, objB.from));
   return json({
     formerTeams
   });
@@ -183,8 +218,6 @@ export default function() {
     .filter(team => ![...pending, ...invited].some(t => t.id === team.id))
     .filter(team => !members.some(mem => mem.team_id === team.id));
 
-  // TODO load former teams and add them
-
   return <>
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
@@ -193,7 +226,8 @@ export default function() {
         <TeaserList title={'Invitation Pending'} teasers={pending}/>
         <H1 className='px-2 mb-1 w-full'>Active</H1>
         {
-          members.map(member => {
+          members.sort((objA, objB) => sortAsc(new Date(objA.joined_at), new Date(objB.joined_at)))
+          .map(member => {
             return <ExpandableTeaser key={member.team.id} avatarPath={member.team.image} name={member.team.name}
                                      team={member.team.handle}
                                      games={member.team.game}>
@@ -222,7 +256,7 @@ export default function() {
                 <DateInput name='from' label='From' value={new Date(formerTeam.from || "")}/>
                 <DateInput name='to' label='To' value={new Date(formerTeam.to || "")}/>
                 <div className='w-full flex flex-row space-x-4 justify-center'>
-                  <ActionButton content='Save' type='submit' name='formerTeamId' value={formerTeam.id}/>
+                  <ActionButton content='Save' type='submit' name='formerTeamName' value={formerTeam.name}/>
                   <ActionButton content='Leave' action={() => setDeleteModalOpen(formerTeam.id)}/>
                 </div>
               </Form>
