@@ -228,6 +228,7 @@ export default function() {
         {
           members.sort((objA, objB) => sortAsc(new Date(objA.joined_at), new Date(objB.joined_at)))
           .map(member => {
+            // Add main team button
             return <ExpandableTeaser key={member.team.id} avatarPath={member.team.image} name={member.team.name}
                                      team={member.team.handle}
                                      games={member.team.game}>
@@ -245,6 +246,8 @@ export default function() {
         }
         <H1 className='px-2 mb-1 w-full'>Former</H1>
         {
+          // Add Former Team Add
+          // Add Former Team name search
           formerTeams.map(formerTeam => {
             return <ExpandableTeaser key={formerTeam.id} avatarPath={null} name={formerTeam.name}
                                      team={""}
