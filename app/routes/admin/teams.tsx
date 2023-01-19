@@ -97,7 +97,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if(userId !== Number(user.db.id)) {
         throw json({}, 403);
       }
-      await db.teamMember.delete({
+      const team = await db.team.findFirst({
+        where: {
+          id: teamId
+        }
+      });
+      const teamMember = await db.teamMember.delete({
         where: {
           user_id_team_id: {
             user_id: userId,
@@ -105,8 +110,49 @@ export async function action({ request, params }: ActionFunctionArgs) {
           }
         }
       });
-      // TODO handle Admin leaving team to give other person admin.
-      // TODO add to team to former teams.
+      // TODO TEST IF THIS ALL WORKS
+      if(teamMember.access_rights === AccessRight.ADMINISTRATOR) {
+        // Set oldest teammember admin if the only admin leaves the team.
+        const allTeamMembers = await db.teamMember.findMany({
+          where: {
+            team_id: teamId
+          }
+        });
+        if(!allTeamMembers.find(tm => tm.access_rights === AccessRight.ADMINISTRATOR)) {
+          const oldestMember = allTeamMembers.sort((tm1, tm2) => sortAsc(tm1.joined_at, tm2.joined_at))[0]
+          await db.teamMember.update({
+            where: {
+              user_id_team_id: {
+                user_id: oldestMember.user_id,
+                team_id: teamId
+              }
+            },
+            data: {
+              access_rights: AccessRight.ADMINISTRATOR
+            }
+          });
+        }
+        if(allTeamMembers.length === 0) {
+          // Set team inactive if no teammember is left.
+          const team = await db.team.update({
+            where: {
+              id: teamId
+            },
+            data: {
+              is_active: false
+            }
+          });
+        }
+      }
+      // Put team to former team
+      await db.formerTeam.create({
+        data: {
+          user_id: userId,
+          name: team?.name || 'Team',
+          from: teamMember.joined_at,
+          to: new Date(),
+        }
+      });
       return json({ searchResult: [] });
     }
     case "UPDATE_TEAM": {
@@ -246,8 +292,8 @@ export default function() {
         }
         <H1 className='px-2 mb-1 w-full'>Former</H1>
         {
-          // Add Former Team Add
-          // Add Former Team name search
+          // TODO Add Former Team Add
+          // TODO Add Former Team name search
           formerTeams.map(formerTeam => {
             return <ExpandableTeaser key={formerTeam.id} avatarPath={null} name={formerTeam.name}
                                      team={""}
