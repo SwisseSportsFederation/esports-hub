@@ -143,7 +143,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       team: {
         handle
       }
-    }
+    },
+    include: { user: { include: { games: true } } }
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
   const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_TEAM);
