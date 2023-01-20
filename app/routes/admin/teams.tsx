@@ -33,7 +33,7 @@ export function links() {
   ];
 }
 
-// TODO check search, add main team action
+// TODO add main team action
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
@@ -43,7 +43,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
       teamId: zx.NumAsString,
       joinedAt: z.string()
     }),
-    z.object({ intent: z.literal('SEARCH'), search: z.string() }),
     z.object({ intent: z.literal('LEAVE_TEAM'), teamId: zx.NumAsString, userId: zx.NumAsString }),
     z.object({
       intent: z.literal('UPDATE_FORMER_TEAM'),
@@ -68,41 +67,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   ]));
 
   switch(data.intent) {
-    case "SEARCH": {
-      const { search } = data;
-      const query = (): Prisma.StringFilter => ({
-        contains: search,
-        mode: 'insensitive'
-      });
-      try {
-        const users = await db.user.findMany({
-          where: {
-            OR: [
-              { name: query() },
-              { surname: query() },
-              { handle: query() }
-            ]
-          },
-          include: { games: true }
-        });
-        const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
-          return users.map(user => ({
-            id: String(user.id),
-            team: '',
-            name: user.handle,
-            type: 'USER',
-            handle: user.handle,
-            games: user.games,
-            avatarPath: user.image
-          }));
-        };
-        return json({ searchResult: convert(users) });
-      } catch(error) {
-        console.log(error);
-        throw json({}, 500);
-      }
-
-    }
     case "LEAVE_TEAM": {
       const { teamId, userId } = data;
       await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
@@ -305,10 +269,19 @@ export default function() {
   const [deleteFormerModalOpen, setDeleteFormerModalOpen] = useState<string | null>(null);
   const [formerTeamCreateOpen, setFormerTeamCreateOpen] = useState<boolean | null>(null);
 
-
-  const searchTeaser = (actionData?.searchResult ?? [])
-    .filter(team => ![...pending, ...invited].some(t => t.id === team.id))
-    .filter(team => !members.some(mem => mem.team_id === team.id));
+  const deleteModal = (isOpen: string | null, activeFunction: Function, text: string, intent: string, submitName: string) => <>
+    <Modal isOpen={!!isOpen} handleClose={() => activeFunction(null)}>
+      <div className="flex justify-center text-center text-2xl mb-8 text-white">
+        {text}
+      </div>
+      <Form className='flex justify-between gap-2' method="post" onSubmit={() => activeFunction(null)}>
+        <input type='hidden' name='intent' value={intent}/>
+        <input type='hidden' name='userId' value={user.db.id}/>
+        {isOpen && <ActionButton content='Yes' type='submit' name={submitName} value={isOpen}/>}
+        <ActionButton className='bg-gray-3' content='No' action={() => activeFunction(null)}/>
+      </Form>
+    </Modal>
+  </>
 
   return <>
     <div className="mx-3">
@@ -336,12 +309,12 @@ export default function() {
             </ExpandableTeaser>
           })
         }
-        <H1 className='px-2 mb-1 w-full'>Former <IconButton icon={"add"} type='button' action={() => setFormerTeamCreateOpen(true)} size="small"/></H1>
+        <H1 className='px-2 mb-1 w-full'>Former <IconButton icon={"add"} type='button' action={() => setFormerTeamCreateOpen(true)} size="small" className="ml-2"/></H1>
         {
           formerTeamCreateOpen &&
             <ExpandableTeaser key={-1} avatarPath={null} name={"New Team"}
                                      team={""}
-                                     games={[]}>
+                                     games={[]} defaultExpanded={true}>
               <Form id="createFormerTeamForm" method='post' className='p-5 flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
                 <input type='hidden' name='intent' value='CREATE_FORMER_TEAM'/>
                 <input type='hidden' name='userId' value={user.db.id}/>
@@ -360,7 +333,6 @@ export default function() {
             </ExpandableTeaser>
         }
         {
-          // TODO Add Former Team name search
           formerTeams.map(formerTeam => {
             return <ExpandableTeaser key={formerTeam.id} avatarPath={null} name={formerTeam.name}
                                      team={""}
@@ -381,27 +353,7 @@ export default function() {
         }
       </div>
     </div>
-    <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
-      <div className="flex justify-center text-center text-2xl mb-8 text-white">
-        Do you want to leave the team?
-      </div>
-      <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='intent' value='LEAVE_TEAM'/>
-        <input type='hidden' name='userId' value={user.db.id}/>
-        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='teamId' value={deleteModalOpen}/>}
-        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
-      </Form>
-    </Modal>
-    <Modal isOpen={!!deleteFormerModalOpen} handleClose={() => setDeleteFormerModalOpen(null)}>
-      <div className="flex justify-center text-center text-2xl mb-8 text-white">
-        Do you want to delete the former team?
-      </div>
-      <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteFormerModalOpen(null)}>
-        <input type='hidden' name='intent' value='LEAVE_FORMER_TEAM'/>
-        <input type='hidden' name='userId' value={user.db.id}/>
-        {deleteFormerModalOpen && <ActionButton content='Yes' type='submit' name='formerTeamName' value={deleteFormerModalOpen}/>}
-        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteFormerModalOpen(null)}/>
-      </Form>
-    </Modal>
+    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the team?', 'LEAVE_TEAM', 'teamId')}
+    {deleteModal(deleteFormerModalOpen, setDeleteFormerModalOpen, 'Do you want to delete the former team?', 'LEAVE_FORMER_TEAM', 'formerTeamName')}
   </>;
 };
