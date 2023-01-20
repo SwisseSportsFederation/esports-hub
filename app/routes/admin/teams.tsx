@@ -1,6 +1,6 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { Form, useActionData, useFetcher, useOutletContext, useLoaderData } from "@remix-run/react";
+import { Form, useFetcher, useOutletContext, useLoaderData } from "@remix-run/react";
 import dateInputStyles from "~/styles/date-input.css";
 import { json } from "@remix-run/node";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
@@ -9,7 +9,6 @@ import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import type { Game, Prisma, User } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
 import ActionButton from "~/components/Button/ActionButton";
 import H1 from "~/components/Titles/H1";
@@ -286,7 +285,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 };
 
 export default function() {
-  const actionData = useActionData<typeof action>();
   const { formerTeams } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher();
@@ -330,7 +328,6 @@ export default function() {
         {
           members.sort((objA, objB) => sortAsc(new Date(objA.joined_at), new Date(objB.joined_at)))
           .map(member => {
-            // TODO Add main team button
             return <ExpandableTeaser key={member.team.id} avatarPath={member.team.image} name={member.team.name}
                                      team={member.team.handle}
                                      games={member.team.game}
