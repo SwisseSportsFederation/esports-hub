@@ -55,6 +55,7 @@ export async function getUserMemberships(user: AuthUser) {
       request_status: true,
       access_rights: true,
       joined_at: true,
+      is_main_team: true,
       team: {
         select: {
           id: true,

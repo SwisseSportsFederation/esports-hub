@@ -33,7 +33,6 @@ export function links() {
   ];
 }
 
-// TODO add main team action
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
@@ -44,6 +43,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       joinedAt: z.string()
     }),
     z.object({ intent: z.literal('LEAVE_TEAM'), teamId: zx.NumAsString, userId: zx.NumAsString }),
+    z.object({
+      intent: z.literal('CHANGE_MAIN_TEAM'),
+      userId: zx.NumAsString,
+      teamId: zx.NumAsString
+    }),
     z.object({
       intent: z.literal('UPDATE_FORMER_TEAM'),
       userId: zx.NumAsString,
@@ -134,8 +138,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     case "UPDATE_TEAM": {
       const { joinedAt, teamId, userId } = data;
-      console.log("userid: " + userId);
-      console.log("teamid: " + teamId);
       await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
       if(userId !== Number(user.db.id)) {
         throw json({}, 403);
@@ -149,6 +151,33 @@ export async function action({ request, params }: ActionFunctionArgs) {
         },
         data: {
           ...(joinedAt && ({ joined_at: new Date(joinedAt) })),
+        }
+      });
+      return json({ searchResult: [] });
+    }
+    case "CHANGE_MAIN_TEAM": {
+      const { teamId, userId } = data;
+      await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
+      if(userId !== Number(user.db.id)) {
+        throw json({}, 403);
+      }
+      await db.teamMember.updateMany({
+        where: {
+          user_id: userId
+        },
+        data: {
+          is_main_team: false
+        }
+      });
+      await db.teamMember.update({
+        where: {
+          user_id_team_id: {
+            user_id: userId,
+            team_id: teamId
+          }
+        },
+        data: {
+          is_main_team: true
         }
       });
       return json({ searchResult: [] });
@@ -283,6 +312,14 @@ export default function() {
     </Modal>
   </>
 
+  const mainTeamIcon = (teamId: string, isMainTeam: string) => <>
+    <Form method='post' className={isMainTeam ? 'text-yellow-400' : 'text-gray-3'}>
+      <input type='hidden' name='intent' value='CHANGE_MAIN_TEAM'/>
+      <input type='hidden' name='userId' value={user.db.id}/>
+      <IconButton icon='star' type='submit' name='teamId' value={teamId} className="rounded-none mx-1"/>
+    </Form>
+  </>
+
   return <>
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
@@ -296,7 +333,8 @@ export default function() {
             // TODO Add main team button
             return <ExpandableTeaser key={member.team.id} avatarPath={member.team.image} name={member.team.name}
                                      team={member.team.handle}
-                                     games={member.team.game}>
+                                     games={member.team.game}
+                                     additionalIcons={mainTeamIcon(member.team.id, member.is_main_team)}>
               <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                 <input type='hidden' name='intent' value='UPDATE_TEAM'/>
                 <input type='hidden' name='userId' value={user.db.id}/>
