@@ -69,13 +69,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }),
   ]));
 
+  const { userId } = data;
+  if(userId !== Number(user.db.id)) {
+    throw json({}, 403);
+  }
+
   switch(data.intent) {
     case "LEAVE_TEAM": {
-      const { teamId, userId } = data;
+      const { teamId } = data;
       await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
-      if(userId !== Number(user.db.id)) {
-        throw json({}, 403);
-      }
       const team = await db.team.findFirst({
         where: {
           id: teamId
@@ -136,11 +138,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] });
     }
     case "UPDATE_TEAM": {
-      const { joinedAt, teamId, userId } = data;
+      const { joinedAt, teamId } = data;
       await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
-      if(userId !== Number(user.db.id)) {
-        throw json({}, 403);
-      }
       await db.teamMember.update({
         where: {
           user_id_team_id: {
@@ -155,11 +154,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] });
     }
     case "CHANGE_MAIN_TEAM": {
-      const { teamId, userId } = data;
+      const { teamId } = data;
       await checkIdAccessForEntity(user, teamId, 'TEAM', 'MEMBER');
-      if(userId !== Number(user.db.id)) {
-        throw json({}, 403);
-      }
       await db.teamMember.updateMany({
         where: {
           user_id: userId
@@ -182,10 +178,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] });
     }
     case "UPDATE_FORMER_TEAM": {
-      const { name, from, to, formerTeamName, userId } = data;
-      if(userId !== Number(user.db.id)) {
-        throw json({}, 403);
-      }
+      const { name, from, to, formerTeamName } = data;
       await db.formerTeam.update({
         where: {
           user_id_name: {
@@ -202,10 +195,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] });
     }
     case "CREATE_FORMER_TEAM": {
-      const { name, from, to, userId } = data;
-      if(userId !== Number(user.db.id)) {
-        throw json({}, 403);
-      }
+      const { name, from, to } = data;
       await db.formerTeam.create({
         data: {
           user_id: userId,
@@ -217,10 +207,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] });
     }
     case "LEAVE_FORMER_TEAM": {
-      const { formerTeamName, userId } = data;
-      if(userId !== Number(user.db.id)) {
-        throw json({}, 403);
-      }
+      const { formerTeamName } = data;
       await db.formerTeam.delete({
         where: {
           user_id_name: {
