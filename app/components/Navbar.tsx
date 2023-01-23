@@ -2,7 +2,7 @@ import { useLoaderData } from "@remix-run/react";
 import { Membership } from "~/services/admin/index.server";
 import { AccessRight } from "@prisma/client";
 import IconButton from "./Button/IconButton";
-import { Link } from "@remix-run/react";
+import { NavLink } from "@remix-run/react";
 import Icon from "./Icons";
 import { IconType } from "./Icons";
 import classNames from "classnames";
@@ -17,13 +17,13 @@ const NavbarLink = ({path, title, icon = 'arrowDown'}: ILinkBlockProps) => {
   const iconClassNames = classNames({
     'transform -rotate-90': icon === 'arrowDown'
   }, "p-0 m-0")
-  return <Link to={path} className={'text-black dark:text-white rounded-2xl bg-white' +
-    ' hover:bg-gray-6 dark:bg-gray-2 dark:hover:bg-gray-3 flex items-center justify-between px-4 py-1 mb-1'}>
+  return <NavLink to={path} className={({isActive}) => 'text-black dark:text-white rounded-2xl hover:bg-gray-6 dark:hover:bg-gray-3' +
+    ' flex items-center justify-between px-4 py-1 mb-1 transition' + (isActive ? ' bg-gray-6 dark:bg-gray-3' : ' bg-white dark:bg-gray-2')}>
     {title}
     <div className={iconClassNames}>
       <Icon iconName={icon} className='w-7 h-7'/>
     </div>
-  </Link>;
+  </NavLink>;
 }
 
 const membershipLinkBlock = (membership: Membership, type: string) => {
