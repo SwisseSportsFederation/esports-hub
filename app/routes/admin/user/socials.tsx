@@ -31,7 +31,7 @@ export default function() {
 
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={'/admin/user'} title='Socials'/>
+      <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Socials'/>
       <SocialSelect id={Number(user.db.id)} entityType='USER' socials={socials}/>
     </div>
   </div>;

@@ -3,6 +3,14 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'sm:hidden',
+    'sm:flex',
+    'md:hidden',
+    'md:flex',
+    'lg:hidden',
+    'lg:flex'
+  ],
   theme: {
     extend: {
       colors: {

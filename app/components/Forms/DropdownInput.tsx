@@ -58,7 +58,7 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0">
           <Listbox.Options
-            className="origin-top-right absolute right-0 mt-2 w-56 max-h-56 rounded-md shadow-lg bg-white dark:bg-gray-2 ring-1 overflow-y-scroll
+            className="origin-top-right absolute mt-2 w-56 max-h-56 rounded-md shadow-lg bg-white dark:bg-gray-2 ring-1 overflow-y-scroll
             ring-black ring-opacity-5 divide-y divide-gray-3 focus:outline-none z-20">
             {inputs.length > 0 &&
               <>

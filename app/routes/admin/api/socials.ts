@@ -32,7 +32,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const user = await checkUserAuth(request);
   if(entity !== 'USER') {
-    await checkIdAccessForEntity(user, entityId, entity, 'MODERATOR');
+    await checkIdAccessForEntity(user.db.id, entityId, entity, 'MODERATOR');
   }
 
   const entityIdName = entity === 'USER' ? 'user_id' : entity === 'TEAM' ? 'team_id' : 'organisation_id';

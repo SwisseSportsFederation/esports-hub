@@ -14,7 +14,7 @@ export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'U
   });
   const user = await checkUserAuth(request);
   const entity_id = Number(entityId);
-  await checkIdAccessForEntity(user, entity_id, entity, 'ADMINISTRATOR');
+  await checkIdAccessForEntity(user.db.id, entity_id, entity, 'ADMINISTRATOR');
   try {
     const query = { where: { id: entity_id } };
 

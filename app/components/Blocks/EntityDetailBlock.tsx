@@ -35,8 +35,20 @@ type EntityDetailBlockProps = {
 
 const EntityDetailBlock = (props: EntityDetailBlockProps) => {
   const {
-    handle, entityId, imageId, name, description, street, zip, canton,
-    searchParams, languages, entityType, entityBirthday, surname, game
+    handle,
+    entityId,
+    imageId,
+    name,
+    description,
+    street,
+    zip,
+    canton,
+    searchParams,
+    languages,
+    entityType,
+    entityBirthday,
+    surname,
+    game
   } = props;
 
   let path = `/admin/${entityToPathSegment(entityType)}`;

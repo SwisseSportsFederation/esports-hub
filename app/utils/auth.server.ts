@@ -37,12 +37,12 @@ export async function checkUserAuth(request: Request): Promise<AuthUser> {
 
 }
 
-export const checkIdAccessForEntity = async (user: AuthUser, id: number, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
+export const checkIdAccessForEntity = async (userId: string | bigint, id: number, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
   const entityName = entity === 'TEAM' ? 'team_id' : 'organisation_id';
 
   const query = {
     where: {
-      user_id: Number(user.db.id),
+      user_id: Number(userId),
       [entityName]: id
     },
     select: {
@@ -53,7 +53,7 @@ export const checkIdAccessForEntity = async (user: AuthUser, id: number, entity:
   return checkAccessForEntity(entity, query, minAccess);
 };
 
-export const checkHandleAccessForEntity = async (user: AuthUser, handle: string | undefined, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
+export const checkHandleAccessForEntity = async (userId: string | bigint, handle: string | undefined, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
   if(!handle) {
     throw redirect('/admin');
   }
@@ -61,7 +61,7 @@ export const checkHandleAccessForEntity = async (user: AuthUser, handle: string 
 
   const query = {
     where: {
-      user_id: Number(user.db.id),
+      user_id: Number(userId),
       [entityName]: {
         handle
       }

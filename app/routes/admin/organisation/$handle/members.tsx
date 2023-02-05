@@ -26,7 +26,7 @@ import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user, params.handle, 'ORG', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'ORG', 'MODERATOR');
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
     z.object({
       intent: z.literal('UPDATE_USER'),

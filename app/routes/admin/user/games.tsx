@@ -61,7 +61,7 @@ export default function() {
 
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
-      <H1Nav path={'/admin/user'} title='Games'/>
+      <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Games'/>
 
       <Form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
         <DropDownAdder name="games" label="Games" values={searchParams.games}

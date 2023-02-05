@@ -6,6 +6,7 @@ import MobileMenu from "./MobileMenu";
 import Menu from "./Menu";
 
 import { Login, Logout } from '~/utils/AuthComponents';
+import classNames from "classnames";
 
 const UserState = () => {
   const data = useLoaderData();
@@ -68,13 +69,19 @@ const Header = () => {
     setMenuActive(!menuActive);
   };
 
+  const bg = classNames({
+    'bg-transparent': location.pathname === '/',
+    'dark:bg-gray-2 bg-white': location.pathname !== "/"
+  });
+
   return <header className="sticky top-0 z-50">
-    <nav className="dark:bg-gray-2 bg-white">
+    <nav className={bg}>
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
-        <Link to={'/'} className="flex-1">
+        <Link to={'/'}>
           <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
         </Link>
+        <div className='flex-1'/>
         {/*desktop menu*/}
         <div className="hidden md:flex flex-row space-x-4">
           <Menu/>

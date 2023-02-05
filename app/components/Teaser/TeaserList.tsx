@@ -3,11 +3,13 @@ import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import LinkTeaser from "~/components/Teaser/LinkTeaser";
 import { ReactNode } from "react";
+import Teaser from "~/components/Teaser/Teaser";
 
 type ITeaserListProps = {
   title: string;
   teasers: ITeaserProps[];
   teaserClassName?: string;
+  type?: 'Link' | 'Static'
 } & ({
   staticIcon?: never;
   iconFactory?: (teaser: ITeaserProps) => ReactNode;
@@ -18,6 +20,7 @@ type ITeaserListProps = {
 
 const TeaserList = ({
                       title,
+                      type = 'Link',
                       teasers,
                       className = '',
                       teaserClassName = '',
@@ -34,7 +37,10 @@ const TeaserList = ({
     {!!teasers && teasers.length > 0 &&
       teasers.map((teaser: ITeaserProps, index: number) => {
         const icons = staticIcon ?? iconFactory?.(teaser);
-        return <LinkTeaser key={`${teaser.name}-${index}`} icons={icons} {...teaser} className={teaserClassName}/>
+        if(type === 'Link') {
+          return <LinkTeaser key={`${teaser.name}-${index}`} icons={icons} {...teaser} className={teaserClassName}/>
+        }
+        return <Teaser key={`${teaser.name}-${index}`} {...teaser} icons={icons} className={teaserClassName}/>
       })
     }
   </div>;

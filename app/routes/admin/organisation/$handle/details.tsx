@@ -48,7 +48,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const user = await checkUserAuth(request);
 
-  await checkHandleAccessForEntity(user, oldHandle, 'ORG', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, oldHandle, 'ORG', 'MODERATOR');
 
   await db.organisation.update({
     where: {

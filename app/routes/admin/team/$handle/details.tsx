@@ -34,7 +34,7 @@ export const action = async ({ request }: ActionArgs) => {
   });
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user, oldHandle, 'TEAM', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, oldHandle, 'TEAM', 'MODERATOR');
 
   await db.team.update({
     where: {
@@ -68,7 +68,7 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
   });
-  
+
   const headers = await createFlashMessage(request, 'Team update is done');
   return redirect(`/admin/team/${handle}/details`, headers);
 };
