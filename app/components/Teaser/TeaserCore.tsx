@@ -20,7 +20,7 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
     'dark:bg-gray-2': !className?.includes("dark:bg-")
   });
 
-  return <div className={`flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl ${background} ${className}`}>
+  return <div className={`w-full flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl ${background} ${className}`}>
     <div className='rounded-full h-10 w-10 min-w-[2.5rem] m-1 bg-white relative overflow-hidden'>
       {!avatarPath && <Icons iconName='user' className={`absolute m-1 text-black`}/>}
       {avatarPath && <img src={`${CDN_URL}/${avatarPath}/public`} className={`absolute object-fill h-full w-full`} alt='profile picture'/>}

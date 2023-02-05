@@ -2,7 +2,7 @@ import { db } from "~/services/db.server";
 import type { AuthUser } from "~/services/auth.server";
 import type { StringOrNull } from "~/db/queries.server";
 import type { AccessRight } from "@prisma/client";
-import { RequestStatus } from "@prisma/client";
+import { Game, RequestStatus } from "@prisma/client";
 
 export type Membership = {
   request_status: RequestStatus,
@@ -11,13 +11,12 @@ export type Membership = {
   handle: string,
   name: string,
   image: StringOrNull,
+  joined_at: Date,
+  game: Game | null,
+  is_main_team: boolean | null
 }
 
-export type Invitation = Membership & {
-  type: 'TEAM' | 'ORG'
-};
-
-function splitInvitations(array: Membership[]): [Membership[], Membership[]] {
+function splitInvitations(array: Membership[]) {
   return array.reduce<[Membership[], Membership[]]>(([member, invitation], elem) => {
     if(elem.request_status !== RequestStatus.ACCEPTED) {
       return [member, [...invitation, elem]];
@@ -26,40 +25,26 @@ function splitInvitations(array: Membership[]): [Membership[], Membership[]] {
   }, [[], []]);
 }
 
-
-const getMemberships = (teams: Membership[], orgs: Membership[]): { invitations: Invitation[], teams: Membership[], orgs: Membership[] } => {
-  let [myTeams, teamInvitations] = splitInvitations(teams);
-  let [myOrgs, orgsInvitations] = splitInvitations(orgs);
-  const typedTeamInvitations: Invitation[] = teamInvitations.map(invitation => ({
-    ...invitation,
-    type: 'TEAM'
-  }));
-
-  const typedOrgInvitations: Invitation[] = orgsInvitations.map(invitation => ({
-    ...invitation,
-    type: 'ORG'
-  }));
-  return {
-    invitations: typedTeamInvitations.concat(typedOrgInvitations),
-    teams: myTeams,
-    orgs: myOrgs
-  };
-};
-
 export async function getUserMemberships(user: AuthUser) {
   const teamQuery = db.teamMember.findMany({
     where: {
       user_id: Number(user.db.id),
     },
+    orderBy: {
+      joined_at: 'desc'
+    },
     select: {
       request_status: true,
       access_rights: true,
+      joined_at: true,
+      is_main_team: true,
       team: {
         select: {
           id: true,
           handle: true,
           name: true,
-          image: true
+          image: true,
+          game: true
         }
       }
     }
@@ -68,9 +53,13 @@ export async function getUserMemberships(user: AuthUser) {
     where: {
       user_id: Number(user.db.id),
     },
+    orderBy: {
+      joined_at: 'desc'
+    },
     select: {
       request_status: true,
       access_rights: true,
+      joined_at: true,
       organisation: {
         select: {
           id: true,
@@ -82,14 +71,31 @@ export async function getUserMemberships(user: AuthUser) {
     }
   });
   const [teams, orgs] = await Promise.all([teamQuery, orgQuery]);
-  const membershipTeam: Membership[] = teams.map(team => ({
-    ...team,
-    ...team.team
-  }));
-  const membershipOrg: Membership[] = orgs.map(org => ({
-    ...org,
-    ...org.organisation
-  }))
-  return getMemberships(membershipTeam, membershipOrg);
+  const myTeamsAndInvitations = teams.map(team => {
+    const { request_status, joined_at, access_rights, is_main_team } = team;
+
+    return {
+      request_status,
+      joined_at,
+      access_rights,
+      is_main_team,
+      ...team.team
+    }
+  });
+
+  const myOrgsAndInvitations = orgs.map(org => {
+    const { request_status, joined_at, access_rights } = org;
+    return {
+      request_status,
+      joined_at,
+      access_rights,
+      game: null,
+      is_main_team: null,
+      ...org.organisation
+    }
+  });
+  const [myTeams, teamInvitations] = splitInvitations(myTeamsAndInvitations);
+  const [myOrgs, orgInvitations] = splitInvitations(myOrgsAndInvitations);
+  return { teams: myTeams, teamInvitations, orgs: myOrgs, orgInvitations };
 }
 

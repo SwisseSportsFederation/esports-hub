@@ -10,7 +10,7 @@ import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
-import { AccessRight, Team, RequestStatus, VerificationLevel } from "@prisma/client";
+import { AccessRight, RequestStatus, Team, VerificationLevel } from "@prisma/client";
 import { AuthUser } from '~/services/auth.server';
 
 export function links() {
@@ -40,8 +40,8 @@ const createTeam = async (handle: string, name: string, description: string, gam
       request_status: RequestStatus.ACCEPTED,
       joined_at: new Date(),
       role: "Admin",
-      user: { connect: { id: BigInt(user.db.id) }},
-      team: { connect: { id: team.id }}
+      user: { connect: { id: BigInt(user.db.id) } },
+      team: { connect: { id: team.id } }
     }
   })
   return String(team.id);
@@ -95,7 +95,7 @@ export const action = async ({ request }: ActionArgs) => {
       }
     }
   });
-  
+
   const headers = await createFlashMessage(request, 'Team created');
   return redirect(`/admin/team/${handle}/details`, headers);
 };
@@ -112,20 +112,19 @@ export async function loader() {
     canton_id: null,
     game_id: BigInt(0),
     organisation_id: null,
-    request_status: null,
     verification_level: VerificationLevel.NOT_VERIFIED,
     is_active: true
   };
   return json({
     searchParams: await getSearchParams(),
-    team, 
+    team,
     accessRight
   });
 }
 
 export default function() {
   const { searchParams, team } = useLoaderData<typeof loader>();
-
-  return <EntityDetailBlock {...team} entityId={team.id} entityType='TEAM' entityBirthday={team.founded}
+  return <EntityDetailBlock {...team} canton={null} languages={[]} entityId={team.id} entityType='TEAM'
+                            entityBirthday={team.founded}
                             imageId={team.image} searchParams={searchParams}/>
 }

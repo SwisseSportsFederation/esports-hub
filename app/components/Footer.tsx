@@ -1,4 +1,5 @@
-import { Link } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
+import classNames from "classnames";
 
 interface IFooterPage {
   name: string,
@@ -13,8 +14,14 @@ const pages: IFooterPage[] = [
 ];
 
 const Footer = () => {
+  const location = useLocation();
+  const bg = classNames({
+    'bg-transparent': location.pathname === '/',
+    'bg-gray-7 dark:bg-gray-1': location.pathname !== "/"
+  });
+
   return (
-    <footer className="px-5 pt-4 pb-8 mt-8 bg-gray-7 dark:bg-gray-1">
+    <footer className={`px-5 pt-4 pb-8 mt-8 ${bg} z-0`}>
       <ul className="flex justify-center w-full">
         {
           pages.map((page: IFooterPage) =>

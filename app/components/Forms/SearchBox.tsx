@@ -53,7 +53,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
         {!small &&
           <div className="relative">
             <div className="my-4">
-              <div className="flex gap-2 overflow-x-scroll">
+              <div className="flex gap-2 overflow-x-auto pb-2">
                 <DropDownInput inputs={games} name="game" selected={game} search={true}/>
                 <DropDownInput inputs={cantons} name="canton" selected={canton} search={true}/>
                 <DropDownInput inputs={languages} name="language" selected={language} search={true}/>

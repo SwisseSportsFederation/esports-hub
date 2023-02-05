@@ -4,6 +4,7 @@ import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { RequestStatus } from "@prisma/client";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -25,7 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   });
   if(currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
-    await checkIdAccessForEntity(user, organisation_id, 'ORG', 'MODERATOR');
+    await checkIdAccessForEntity(user.db.id, organisation_id, 'ORG', 'MODERATOR');
   }
   try {
     if(action === 'ACCEPT') {

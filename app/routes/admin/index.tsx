@@ -1,21 +1,20 @@
 import type { FetcherWithComponents } from "@remix-run/react";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useOutletContext } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
-import type { Invitation, Membership } from "~/services/admin/index.server";
+import type { Membership } from "~/services/admin/index.server";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import classNames from "classnames";
-import { useOutletContext } from "@remix-run/react";
 import { SerializeFrom } from "@remix-run/server-runtime";
 import type { loader as adminLoader } from "~/routes/admin";
 import { RequestStatus } from "@prisma/client";
 
-const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[] => {
-  return memberships.map((mem: Membership) => {
+const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType): ITeaserProps[] => {
+  return memberships.map((mem: SerializeFrom<Membership>) => {
     const pathSegment = entityToPathSegment(entity);
     const canEdit = ['MODERATOR', 'ADMINISTRATOR'].includes(mem.access_rights)
     const icons = canEdit ?
@@ -33,28 +32,28 @@ const getTeaser = (memberships: Membership[], entity: EntityType): ITeaserProps[
   });
 };
 
-const getInvitationTeaser = (invitations: Invitation[], userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
+const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], type: EntityType, userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER)
-  .map(invitation => {
-    const path = entityToPathSegment(invitation.type)
-    const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`}>
-      <input type='hidden' name='entityId' value={`${invitation.id}`}/>
-      <input type='hidden' name='userId' value={userId}/>
-      <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
-      <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
-    </fetcher.Form>;
+    .map(invitation => {
+      const path = entityToPathSegment(type)
+      const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`} className="flex space-x-2">
+        <input type='hidden' name='entityId' value={`${invitation.id}`}/>
+        <input type='hidden' name='userId' value={userId}/>
+        <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
+        <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
+      </fetcher.Form>;
 
-    return {
-      type: invitation.type,
-      id: String(invitation.id),
-      handle: invitation.handle,
-      avatarPath: invitation.image ?? null,
-      name: invitation.name,
-      team: invitation.handle,
-      games: [],
-      icons
-    }
-  });
+      return {
+        type,
+        id: String(invitation.id),
+        handle: invitation.handle,
+        avatarPath: invitation.image ?? null,
+        name: invitation.name,
+        team: invitation.handle,
+        games: [],
+        icons
+      }
+    });
 }
 
 export default function() {
@@ -63,30 +62,34 @@ export default function() {
   const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
   const orgTeaser = getTeaser(memberships.orgs, 'ORG');
 
-  const invitationTeaser = getInvitationTeaser(memberships.invitations, user.db.id, fetcher);
-
+  const teamInvitationTeaser = getInvitationTeaser(memberships.teamInvitations, 'TEAM', user.db.id, fetcher);
+  const orgInvitationTeaser = getInvitationTeaser(memberships.orgInvitations, 'ORG', user.db.id, fetcher);
+  const invitationsLength = teamInvitationTeaser.length + orgInvitationTeaser.length;
   const addOrgClassNames = classNames({
-    'mb-4': invitationTeaser.length > 0,
-    'mb-0': invitationTeaser.length === 0
+    'mb-4': invitationsLength > 0,
+    'mb-0': invitationsLength === 0
   })
 
   return <div className="max-w-prose mx-auto">
-      <H1 className="mx-2 px-2 lg:hidden">Personal</H1>
-      <div className="flex w-full relative justify-center flex-wrap mb-2 lg:hidden">
-        <BlockTeaser text="Profile" icon='user' path={`user`}/>
-        <BlockTeaser text="Teams" icon="team" path={`teams`}/>
-        <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
-      </div>
-      <TeaserList title="Your Teams" teasers={teamsTeaser}/>
-      <div className="flex justify-center mt-4 mb-8">
-        <IconButton icon={"add"} type='link' path="/admin/create/team"/>
-      </div>
-      <TeaserList title="Your Organisations" teasers={orgTeaser}/>
-      <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
-        <IconButton icon={"add"} type='link' path="/admin/create/organisation"/>
-      </div>
-      {invitationTeaser.length > 0 &&
-        <TeaserList title="Your invitations" teasers={invitationTeaser}/>
-      }
-    </div>;
+    <H1 className="mx-2 px-2 lg:hidden">Personal</H1>
+    <div className="flex w-full relative justify-center flex-wrap mb-2 lg:hidden">
+      <BlockTeaser text="Profile" icon='user' path={`user`}/>
+      <BlockTeaser text="Teams" icon="team" path={`teams`}/>
+      <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
+    </div>
+    <TeaserList title="Your Teams" teasers={teamsTeaser}/>
+    <div className="flex justify-center mt-4 mb-8">
+      <IconButton icon={"add"} type='link' path="/admin/create/team"/>
+    </div>
+    <TeaserList title="Your Organisations" teasers={orgTeaser}/>
+    <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
+      <IconButton icon={"add"} type='link' path="/admin/create/organisation"/>
+    </div>
+    {teamInvitationTeaser.length > 0 &&
+      <TeaserList title="Team Invitations" teasers={teamInvitationTeaser}/>
+    }
+    {orgInvitationTeaser.length > 0 &&
+      <TeaserList title="Organisation Invitations" teasers={orgInvitationTeaser}/>
+    }
+  </div>;
 };

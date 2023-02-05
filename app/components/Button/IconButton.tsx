@@ -4,7 +4,7 @@ import { Link } from "@remix-run/react";
 import Icon from "~/components/Icons";
 
 export type IIconButtonProps = {
-  icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove",
+  icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove" | "star",
   size?: "small" | "medium" | "large",
   type: "submit" | 'link' | 'button'
 } & ({

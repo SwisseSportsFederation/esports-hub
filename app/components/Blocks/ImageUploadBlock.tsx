@@ -19,6 +19,7 @@ type ImageUploadBlockPropTypes = {
 
 const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTypes) => {
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [deleteImageOpen, setDeleteImageOpen] = useState(false);
   const [crop, setCrop] = useState<Crop>();
   const [imgSrc, setImgSrc] = useState<string | undefined>(undefined)
   const fetcher = useFetcher();
@@ -70,15 +71,28 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
         <div className="flex flex-col space-y-5 sm:flex-row sm:space-x-5 sm:space-y-0">
           <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-2`}
                   onClick={() => setUploadOpen(true)}
-                  aria-label="Replace Image">{!imageId ? "New Image" : "Add Image"}</button>
-          {/*{value &&*/}
-          {/*  <IconButton icon="remove" size="medium" action={onRemove} type='button'/>*/}
-          {/*}*/}
+                  aria-label="Replace Image">{!imageId ? "New Image" : "Change Image"}</button>
+          {imageId && <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-2`}
+                              onClick={() => setDeleteImageOpen(true)}
+                              aria-label="Delete Image">Delete Image</button>}
         </div>
       </div>
     </div>
+    <Modal isOpen={deleteImageOpen} handleClose={() => setDeleteImageOpen(false)}>
+      <div className="flex justify-center text-center text-2xl mb-8 text-white">
+        Do you want to delete your profile picture?
+      </div>
+      <fetcher.Form action={'/admin/api/image'} encType='multipart/form-data' method='delete'
+                    className='flex justify-between gap-2' onSubmit={() => setDeleteImageOpen(false)}>
+        <input type='hidden' name='entityId' value={entityId}/>
+        <input type='hidden' name='entity' value={entity}/>
+        <input type='hidden' name='imageId' value={imageId ?? undefined}/>
+        <ActionButton content='Yes' type='submit' value="Delete"/>
+        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteImageOpen(false)}/>
+      </fetcher.Form>
+    </Modal>
     <Modal isOpen={uploadOpen} handleClose={() => setUploadOpen(false)}>
-      <div className='flex flex-col gap-4'>
+      <div className='flex flex-col gap-4 w-full'>
         <H1 className='text-white'>Upload Profile Image</H1>
         <fetcher.Form action={'/admin/api/image'} method='put' onSubmit={() => {
           setUploadOpen(false);

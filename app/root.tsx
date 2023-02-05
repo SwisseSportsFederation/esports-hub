@@ -71,7 +71,7 @@ export default function App() {
     <div className='min-h-screen min-h-[-webkit-fill-available]
         dark:bg-gray-1 dark:text-white bg-gray-7 flex flex-col'>
       <Header/>
-      <main className='pt-5 min-h-[calc(100vh-13.5rem)] flex flex-col'>
+      <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
         <Outlet/>
       </main>
       <Footer/>

@@ -26,7 +26,7 @@ import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user, params.handle, 'ORG', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'ORG', 'MODERATOR');
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
     z.object({
       intent: z.literal('UPDATE_USER'),
@@ -158,7 +158,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 const addInvitationIcons = (teaser: ITeaserProps, orgId: string, fetcher: FetcherWithComponents<any>) => {
-  return <fetcher.Form method='post' action={'/admin/api/organisation/invitation'} encType='multipart/form-data'>
+  return <fetcher.Form method='post' action={'/admin/api/organisation/invitation'} encType='multipart/form-data' className="flex space-x-2">
     <input type='hidden' name='entityId' value={orgId}/>
     <input type='hidden' name='userId' value={teaser.id}/>
     <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
