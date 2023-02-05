@@ -77,11 +77,13 @@ export default function() {
       <BlockTeaser text="Teams" icon="team" path={`teams`}/>
       <BlockTeaser text="Organisations" icon="organisation" path={`organisations`}/>
     </div>
-    <TeaserList title="Your Teams" teasers={teamsTeaser}/>
+    <H1 className={`mx-2 px-2 mb-1`}>Your Teams</H1>
+    <TeaserList title="" teasers={teamsTeaser}/>
     <div className="flex justify-center mt-4 mb-8">
       <IconButton icon={"add"} type='link' path="/admin/create/team"/>
     </div>
-    <TeaserList title="Your Organisations" teasers={orgTeaser}/>
+    <H1 className={`mx-2 px-2 mb-1`}>Your Organisations</H1>
+    <TeaserList title="" teasers={orgTeaser}/>
     <div className={`flex justify-center mt-4 ${addOrgClassNames}`}>
       <IconButton icon={"add"} type='link' path="/admin/create/organisation"/>
     </div>
