@@ -1,4 +1,4 @@
-import type { Game, Organisation, OrganisationMember, Team, TeamMember, User } from "@prisma/client";
+import type { Game, Organisation, OrganisationMember, Team, TeamMember, User, OrganisationTeam } from "@prisma/client";
 import type { EntityType } from "~/helpers/entityType";
 import { getOrganisationGames } from "./entityFilters";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
@@ -63,6 +63,21 @@ export const getOrganisationMemberTeasers = (members: OrganisationMemberWithUser
       team: member.role,
       games: member.user.games || [],
       avatarPath: member.user.image,
+    };
+  });
+};
+
+export const getOrganisationTeamTeasers = (organisationTeams: OrganisationTeam[]): Omit<ITeaserProps, 'icons'>[] => {
+  return organisationTeams.map((organisationTeam) => {
+    return {
+      id: String(organisationTeam.organisation_id),
+      handle: organisationTeam.organisation.handle,
+      type: "ORG" as EntityType,
+      avatarPath: organisationTeam.organisation.image,
+      name: organisationTeam.organisation.name,
+      games: getOrganisationGames(organisationTeam.organisation),
+      team: null,
+      icons: undefined
     };
   });
 };

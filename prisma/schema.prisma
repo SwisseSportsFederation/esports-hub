@@ -81,12 +81,13 @@ model OrganisationMember {
 }
 
 model OrganisationTeam {
-  team_id              BigInt        @id
+  team_id              BigInt
   organisation_id      BigInt
   request_status       RequestStatus
   organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
   team                 Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
 
+  @@id([team_id, organisation_id])
   @@map("organisation_team")
 }
 
@@ -104,7 +105,7 @@ model Team {
   is_active          Boolean           @default(true)
   canton             Canton?           @relation(fields: [canton_id], references: [id])
   game               Game              @relation(fields: [game_id], references: [id])
-  organisation       OrganisationTeam?
+  organisation       OrganisationTeam[]
   languages          Language[]
   members            TeamMember[]
   socials            Social[]

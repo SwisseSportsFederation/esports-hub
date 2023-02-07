@@ -1,7 +1,123 @@
+import H1Nav from "~/components/Titles/H1Nav";
+import type { FetcherWithComponents } from "@remix-run/react";
+import { Form, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { db } from "~/services/db.server";
+import { zx } from "zodix";
+import { z } from "zod";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
+import { RequestStatus } from "@prisma/client";
+import { getOrganisationTeamTeasers } from "~/utils/teaserHelper";
+import ActionButton from "~/components/Button/ActionButton";
+import H1 from "~/components/Titles/H1";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
+import IconButton from "~/components/Button/IconButton";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { loader as handleLoader } from "~/routes/admin/team/$handle";
+import { useState } from "react";
+import TeaserList from "~/components/Teaser/TeaserList";
+import Icons from "~/components/Icons";
+import Modal from "~/components/Notifications/Modal";
+import Teaser from "~/components/Teaser/Teaser";
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const user = await checkUserAuth(request);
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'ADMINISTRATOR');
+  const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
+    z.object({ intent: z.literal('LEAVE_ORG'), teamId: zx.NumAsString, orgId: zx.NumAsString })
+  ]));
+
+  switch(data.intent) {
+    case "LEAVE_ORG": {
+      const { teamId, orgId } = data;
+      await db.organisationTeam.delete({
+        where: {
+          team_id_organisation_id: {
+            team_id: teamId,
+            organisation_id: orgId
+          }
+        }
+      });
+      return json({});
+    }
+  }
+}
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { handle } = await zx.parseParams(params, {
+    handle: z.string()
+  })
+  const user = await checkUserAuth(request);
+
+  const allOrgs = await db.organisationTeam.findMany({
+    where: {
+      team: {
+        handle
+      }
+    },
+    include: {
+      organisation: { include: { teams: { include: { team: { include: { game: true }} }} }},
+      team: true
+    }
+  });
+  const orgTeams = allOrgs.filter(org => org.request_status === RequestStatus.ACCEPTED);
+  const invited = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_TEAM);
+  const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_ORG);
+
+  return json({
+    orgTeams: orgTeams,
+    invited: getOrganisationTeamTeasers(invited),
+    pending: getOrganisationTeamTeasers(pending)
+  });
+}
+
+const addInvitationIcons = (teaser: ITeaserProps, teamId: string, fetcher: FetcherWithComponents<any>) => {
+  return <fetcher.Form method='post' action={'/admin/api/team/organisation/invitation'} encType='multipart/form-data'>
+    <input type='hidden' name='entityId' value={teamId}/>
+    <input type='hidden' name='orgId' value={teaser.id}/>
+    <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
+    <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
+  </fetcher.Form>;
+};
+
 export default function() {
-  return (
+  const { orgTeams, invited, pending } = useLoaderData<typeof loader>();
+
+  const fetcher = useFetcher();
+  const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>()
+  const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
+
+  return <>
     <div className="mx-3">
-      hello
+      <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
+        <H1Nav path={'..'} title='Organisation' />
+        <H1 className='px-4 mb-1 w-full'>Current</H1>
+        {
+          orgTeams.map(orgTeam => {
+            return <Teaser key={orgTeam.organisation_id} avatarPath={orgTeam.organisation.image} name={orgTeam.organisation.handle}
+                                     team={team.handle}
+                                     games={[team.game]} 
+                                     icons={<ActionButton content='LEAVE' action={() => setDeleteModalOpen(orgTeam.organisation_id)}/>}/>
+          })
+        }
+        <TeaserList title={'Invitation Requests'} teasers={invited}
+                    iconFactory={(teaser) => addInvitationIcons(teaser, team.id, fetcher)}/>
+        <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
+          <Icons iconName='clock' className='h-8 w-8'/>
+        }/>
+      </div>
     </div>
-  );
+    <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
+      <div className="flex justify-center text-center text-2xl mb-8 text-white">
+        Leave Organisation as Team?
+      </div>
+      <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
+        <input type='hidden' name='intent' value='LEAVE_ORG'/>
+        <input type='hidden' name='teamId' value={team.id}/>
+        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='orgId' value={deleteModalOpen}/>}
+        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
+      </Form>
+    </Modal>
+  </>;
 };
