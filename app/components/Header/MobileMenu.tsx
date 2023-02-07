@@ -1,6 +1,7 @@
 import Menu from "./Menu";
 import PostFormButton from "~/components/Button/FormButton";
 import { useLoaderData } from "@remix-run/react";
+import classNames from "classnames";
 
 interface IMobileMenu {
   menuActive: boolean;
@@ -17,11 +18,15 @@ const AuthButtons = () => {
   </>;
 };
 
+
 const MobileMenu = ({ menuActive }: IMobileMenu) => {
+  const classes = classNames({
+    'translate-x-0': menuActive
+  });
   // todo: use CSSTransitions
   return <div className={`absolute w-full min-h-screen overflow-hidden flex flex-col md:hidden
-    left-0 top-0 bottom-0 mt-16 dark:bg-gray-2 bg-white transform -translate-x-full
-    transition-transform p-2 pt-4 ${menuActive ? 'translate-x-0' : ''}`}>
+    left-0 top-0 bottom-0 mt-16 transform -translate-x-full dark:bg-gray-2 bg-white
+    transition-transform p-2 pt-4 ${classes}`}>
     <div className="ml-[20px]">
       <Menu/>
     </div>
