@@ -105,17 +105,27 @@ export async function action({ request }: ActionFunctionArgs) {
           id: teamId
         },
         include: {
-          members: {
-            where: {
-              request_status: RequestStatus.ACCEPTED,
-              access_rights: AccessRight.ADMINISTRATOR
-            }
-          }
+          members: true
         }
       });
-      if(team?.members.length === 1 && team?.members[0].user_id === BigInt(userId)) {
-        return json({ selectAdminTeamId: teamId })
+      // Set Team inactive if there is no more members
+      if(team?.members.length === 1) {
+        await db.team.update({
+          where: {
+            id: teamId
+          },
+          data: {
+            is_active: false
+          }
+        });
+      } else {
+        // Set new admin if member is last admin
+        const admins = team?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
+        if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
+          return json({ selectAdminTeamId: teamId })
+        }
       }
+      // delete member from team
       const teamMember = await db.teamMember.delete({
         where: {
           user_id_team_id: {

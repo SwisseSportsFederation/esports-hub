@@ -85,18 +85,28 @@ export async function action({ request }: ActionFunctionArgs) {
           id: organisationId
         },
         include: {
-          members: {
-            where: {
-              request_status: RequestStatus.ACCEPTED,
-              access_rights: AccessRight.ADMINISTRATOR
-            }
-          }
+          members: true
         }
       });
-      if(organisation?.members.length === 1 && organisation?.members[0].user_id === BigInt(userId)) {
-        return json({ selectAdminOrgId: organisationId })
+      // Set Organisation inactive if there is no more members
+      if(organisation?.members.length === 1) {
+        await db.organisation.update({
+          where: {
+            id: organisationId
+          },
+          data: {
+            is_active: false
+          }
+        });
+      } else {
+        // Set new admin if member is last admin
+        const admins = organisation?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
+        if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
+          return json({ selectAdminOrgId: organisationId })
+        }
       }
-      const organisationMember = await db.organisationMember.delete({
+      // delete member from organisation
+      await db.organisationMember.delete({
         where: {
           user_id_organisation_id: {
             user_id: userId,
