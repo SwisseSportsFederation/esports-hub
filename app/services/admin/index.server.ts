@@ -60,6 +60,7 @@ export async function getUserMemberships(user: AuthUser) {
       request_status: true,
       access_rights: true,
       joined_at: true,
+      is_main_organisation: true,
       organisation: {
         select: {
           id: true,
@@ -90,7 +91,7 @@ export async function getUserMemberships(user: AuthUser) {
       joined_at,
       access_rights,
       game: null,
-      is_main_team: null,
+      is_main_team: org.is_main_organisation,
       ...org.organisation
     }
   });
