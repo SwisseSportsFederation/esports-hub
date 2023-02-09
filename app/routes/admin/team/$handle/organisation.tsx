@@ -24,24 +24,20 @@ import Teaser from "~/components/Teaser/Teaser";
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'ADMINISTRATOR');
-  const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
-    z.object({ intent: z.literal('LEAVE_ORG'), teamId: zx.NumAsString, orgId: zx.NumAsString })
-  ]));
+  const data = await zx.parseForm(request, 
+    z.object({ teamId: zx.NumAsString, orgId: zx.NumAsString })
+  );
 
-  switch(data.intent) {
-    case "LEAVE_ORG": {
-      const { teamId, orgId } = data;
-      await db.organisationTeam.delete({
-        where: {
-          team_id_organisation_id: {
-            team_id: teamId,
-            organisation_id: orgId
-          }
-        }
-      });
-      return json({});
+  const { teamId, orgId } = data;
+  await db.organisationTeam.delete({
+    where: {
+      team_id_organisation_id: {
+        team_id: teamId,
+        organisation_id: orgId
+      }
     }
-  }
+  });
+  return json({});
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -57,7 +53,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     },
     include: {
-      organisation: { include: { teams: { include: { team: { include: { game: true }} }} }},
+      organisation: { include: { teams: { include: { team: { include: { game: true }}}}}},
       team: true
     }
   });
@@ -66,13 +62,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_ORG);
 
   return json({
-    orgTeams: orgTeams,
+    orgTeams,
     invited: getOrganisationTeamTeasers(invited),
     pending: getOrganisationTeamTeasers(pending)
   });
 }
 
-const addInvitationIcons = (teaser: ITeaserProps, teamId: string, fetcher: FetcherWithComponents<any>) => {
+const addInvitationIcons = (teaser: ITeaserProps, teamId: string) => {
+  const fetcher = useFetcher();
   return <fetcher.Form method='post' action={'/admin/api/team/organisation/invitation'} encType='multipart/form-data'>
     <input type='hidden' name='entityId' value={teamId}/>
     <input type='hidden' name='orgId' value={teaser.id}/>
@@ -84,7 +81,6 @@ const addInvitationIcons = (teaser: ITeaserProps, teamId: string, fetcher: Fetch
 export default function() {
   const { orgTeams, invited, pending } = useLoaderData<typeof loader>();
 
-  const fetcher = useFetcher();
   const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>()
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
@@ -106,7 +102,7 @@ export default function() {
           })
         }
         <TeaserList title={'Invitation Requests'} teasers={invited}
-                    iconFactory={(teaser) => addInvitationIcons(teaser, team.id, fetcher)}/>
+                    iconFactory={(teaser) => addInvitationIcons(teaser, team.id)}/>
         <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
           <Icons iconName='clock' className='h-8 w-8'/>
         }/>
@@ -117,7 +113,6 @@ export default function() {
         Leave Organisation as Team?
       </div>
       <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='intent' value='LEAVE_ORG'/>
         <input type='hidden' name='teamId' value={team.id}/>
         {deleteModalOpen && <ActionButton content='Yes' type='submit' name='orgId' value={deleteModalOpen}/>}
         <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
