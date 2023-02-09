@@ -33,24 +33,24 @@ type UsersQuery = {
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
 
-const searchQueries = (search?: string, canton?: string, game?: string, language?: string, type?: string): [Promise<UsersQuery>, Promise<TeamsQuery>, Promise<OrgsQuery>] => {
-  const u = typeFilter("User", type) ? usersQuery(search, canton, game, language) : Promise.resolve<UsersQuery>([]);
-  const t = typeFilter("Team", type) ? teamsQuery(search, canton, game, language) : Promise.resolve<TeamsQuery>([]);
-  const o = typeFilter("Organisation", type) ? orgsQuery(search, canton, language) : Promise.resolve<OrgsQuery>([]);
+const searchQueries = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset: number = 0): [Promise<UsersQuery>, Promise<TeamsQuery>, Promise<OrgsQuery>] => {
+  const u = typeFilter("User", type) ? usersQuery(search, canton, game, language, offset) : Promise.resolve<UsersQuery>([]);
+  const t = typeFilter("Team", type) ? teamsQuery(search, canton, game, language, offset) : Promise.resolve<TeamsQuery>([]);
+  const o = typeFilter("Organisation", type) ? orgsQuery(search, canton, language, offset) : Promise.resolve<OrgsQuery>([]);
   return [u, t, o];
 };
 
-const usersQuery = (search?: string, canton?: string, language?: string, game?: string) => db.user.findMany({
-  take: 10,
+const usersQuery = (search?: string, canton?: string, language?: string, game?: string, offset: number = 0) => db.user.findMany({
   where: {
     AND: [
       ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
       ...(language ? [{ languages: { some: { name: language } } }] : []),
       ...(game ? [{ games: { some: { name: game } } }] : []),
-      ...(search ? [
+      ...(search ? [{ OR: [
         { handle: query(search) },
         { name: query(search) },
         { surname: query(search) }
+      ]}
       ] : [])
     ],
   },
@@ -60,22 +60,22 @@ const usersQuery = (search?: string, canton?: string, language?: string, game?: 
     handle: true,
     games: { select: { name: true } },
     teams: { select: { team: { select: { name: true } } } }
-  }
+  },
+  take: 20,
+  skip: offset
 });
 
-const teamsQuery = (search?: string, canton?: string, game?: string, language?: string) => db.team.findMany({
-  take: 10,
+const teamsQuery = (search?: string, canton?: string, game?: string, language?: string, offset: number = 0) => db.team.findMany({
   where: {
     AND: [
-      { canton: { name: { equals: canton } } },
-      { game: { name: { equals: game } } },
-      { languages: { some: { name: language } } },
-      {
-        OR: [
-          { name: query(search) },
-          { handle: query(search) }
-        ]
-      }
+      ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
+      ...(language ? [{ languages: { some: { name: language } } }] : []),
+      ...(game ? [{ game: { name: game } }] : []),
+      ...(search ? [{ OR: [
+        { handle: query(search) },
+        { name: query(search) },
+      ]}
+      ] : [])
     ]
   },
   select: {
@@ -88,21 +88,20 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
         name: true
       }
     }
-  }
+  },
+  take: 20
 });
 
-const orgsQuery = (search?: string, canton?: string, language?: string) => db.organisation.findMany({
-  take: 10,
+const orgsQuery = (search?: string, canton?: string, language?: string, offset: number = 0) => db.organisation.findMany({
   where: {
     AND: [
-      { canton: { name: { equals: canton } } },
-      { languages: { some: { name: language } } },
-      {
-        OR: [
-          { name: query(search) },
-          { handle: query(search) }
-        ]
-      }
+      ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
+      ...(language ? [{ languages: { some: { name: language } } }] : []),
+      ...(search ? [{ OR: [
+        { handle: query(search) },
+        { name: query(search) },
+      ]}
+      ] : [])
     ]
   },
   select: {
@@ -110,7 +109,8 @@ const orgsQuery = (search?: string, canton?: string, language?: string) => db.or
     image: true,
     name: true,
     handle: true
-  }
+  },
+  take: 20
 });
 
 
