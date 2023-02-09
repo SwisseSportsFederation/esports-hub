@@ -69,9 +69,9 @@ const Header = () => {
     setMenuActive(!menuActive);
   };
 
-  const bg = classNames({
+  const bg = classNames('transition-all', {
     'bg-transparent': location.pathname === '/',
-    'dark:bg-gray-2 bg-white': location.pathname !== "/"
+    'dark:bg-gray-2 bg-white': location.pathname !== "/" || (menuActiveRef.current && location.pathname === '/'),
   });
 
   return <header className="sticky top-0 z-50">

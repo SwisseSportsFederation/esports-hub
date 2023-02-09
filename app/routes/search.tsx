@@ -28,7 +28,7 @@ export default function() {
                   avatarPath={teaser.image} type={teaser.type} handle={teaser.handle}/>
     );
   }
-  return <div className="max-w-md w-full mx-auto px-4">
+  return <div className="max-w-md w-full mx-auto px-4 pt-8">
     <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
                languages={searchParams.languages ?? []}/>
 
