@@ -7,7 +7,7 @@ import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import { RequestStatus } from "@prisma/client";
+import { AccessRight, OrganisationTeam, RequestStatus } from "@prisma/client";
 import { getOrganisationTeamTeasers } from "~/utils/teaserHelper";
 import ActionButton from "~/components/Button/ActionButton";
 import H1 from "~/components/Titles/H1";
@@ -45,6 +45,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   })
   const user = await checkUserAuth(request);
+  const access = await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'MODERATOR');
 
   const allOrgs = await db.organisationTeam.findMany({
     where: {
@@ -62,24 +63,35 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_ORG);
 
   return json({
+    access,
     orgTeams,
     invited: getOrganisationTeamTeasers(invited),
     pending: getOrganisationTeamTeasers(pending)
   });
 }
 
-const addInvitationIcons = (teaser: ITeaserProps, teamId: string) => {
-  const fetcher = useFetcher();
-  return <fetcher.Form method='post' action={'/admin/api/team/organisation/invitation'} encType='multipart/form-data'>
-    <input type='hidden' name='entityId' value={teamId}/>
-    <input type='hidden' name='orgId' value={teaser.id}/>
-    <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
-    <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
-  </fetcher.Form>;
+const addInvitationIcons = (access: AccessRight, teaser: ITeaserProps, teamId: string, isInOrg: boolean) => {
+  if(access === "ADMINISTRATOR") {
+    const fetcher = useFetcher();
+    return <fetcher.Form method='post' action={'/admin/api/team/organisation/invitation'} encType='multipart/form-data' className="flex space-x-2">
+      <input type='hidden' name='entityId' value={teamId}/>
+      <input type='hidden' name='orgId' value={teaser.id}/>
+      <IconButton icon='accept' type='submit' name='action' value='ACCEPT' disabled={isInOrg}/>
+      <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
+    </fetcher.Form>;
+  }
+  return null;
 };
 
+const addDeleteIcon = (access: AccessRight, orgTeam: OrganisationTeam, setDeleteModalOpen: Function) => {
+  if(access === "ADMINISTRATOR") {
+    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.organisation_id)}/>;
+  }
+  return null;
+}
+
 export default function() {
-  const { orgTeams, invited, pending } = useLoaderData<typeof loader>();
+  const { access, orgTeams, invited, pending } = useLoaderData<typeof loader>();
 
   const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>()
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
@@ -98,11 +110,11 @@ export default function() {
             return <Teaser key={orgTeam.organisation_id} avatarPath={orgTeam.organisation.image} name={orgTeam.organisation.name}
                                      team={orgTeam.organisation.handle}
                                      games={[team.game]} 
-                                     icons={<IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.organisation_id)}/>}/>
+                                     icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)}/>
           })
         }
         <TeaserList title={'Invitation Requests'} teasers={invited}
-                    iconFactory={(teaser) => addInvitationIcons(teaser, team.id)}/>
+                    iconFactory={(teaser) => addInvitationIcons(access, teaser, team.id, (orgTeams.length > 0))}/>
         <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
           <Icons iconName='clock' className='h-8 w-8'/>
         }/>
