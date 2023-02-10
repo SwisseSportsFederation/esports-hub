@@ -31,6 +31,155 @@ export function links() {
   ];
 }
 
+const promoteUser = async (userId: number, newAdminUserId: string, teamId: number) => {
+  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+  await checkIdAccessForEntity(newAdminUserId, teamId, 'TEAM', 'MEMBER');
+
+  await db.teamMember.update({
+    where: {
+      user_id_team_id: {
+        user_id: Number(newAdminUserId),
+        team_id: teamId
+      }
+    },
+    data: {
+      access_rights: AccessRight.ADMINISTRATOR
+    }
+  });
+  // potentially send email
+}
+const leaveTeam = async (userId: number, teamId: number) => {
+  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+
+  const team = await db.team.findFirst({
+    where: {
+      id: teamId
+    },
+    include: {
+      members: true
+    }
+  });
+  // Set Team inactive if there is no more members
+  if(team?.members.length === 1) {
+    await db.team.update({
+      where: {
+        id: teamId
+      },
+      data: {
+        is_active: false
+      }
+    });
+  } else {
+    // Set new admin if member is last admin
+    const admins = team?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
+    if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
+      return json({ selectAdminTeamId: teamId })
+    }
+  }
+  // delete member from team
+  const teamMember = await db.teamMember.delete({
+    where: {
+      user_id_team_id: {
+        user_id: userId,
+        team_id: teamId
+      }
+    }
+  });
+  if(team) {
+    await db.formerTeam.create({
+      data: {
+        user_id: userId,
+        name: team.name,
+        from: teamMember.joined_at,
+        to: new Date(),
+      }
+    });
+  }
+  return json({});
+}
+
+const updateTeam = async (userId: number, teamId: number, joinedAt: string) => {
+  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+  await db.teamMember.update({
+    where: {
+      user_id_team_id: {
+        user_id: userId,
+        team_id: teamId
+      }
+    },
+    data: {
+      ...(joinedAt && ({ joined_at: new Date(joinedAt) })),
+    }
+  });
+  return json({});
+}
+
+const changeMainTeam = async (userId: number, teamId: number) => {
+  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+  await db.teamMember.updateMany({
+    where: {
+      user_id: userId
+    },
+    data: {
+      is_main_team: false
+    }
+  });
+  await db.teamMember.update({
+    where: {
+      user_id_team_id: {
+        user_id: userId,
+        team_id: teamId
+      }
+    },
+    data: {
+      is_main_team: true
+    }
+  });
+  return json({});
+}
+
+const updateFormerTeam = async (userId: number, name: string, from: string, to: string, formerTeamName: string) => {
+  await db.formerTeam.update({
+    where: {
+      user_id_name: {
+        user_id: userId,
+        name: formerTeamName
+      }
+    },
+    data: {
+      name,
+      from: new Date(from),
+      to: new Date(to)
+    }
+  });
+  return json({});
+}
+
+const createFormerTeam = async (userId: number, name: string, from: string, to: string) => {
+  await db.formerTeam.create({
+    data: {
+      user_id: userId,
+      name,
+      from: new Date(from),
+      to: new Date(to)
+    }
+  });
+  return json({});
+}
+
+
+const leaveFormerTeam = async (userId: number, formerTeamName: string) => {
+  await db.formerTeam.delete({
+    where: {
+      user_id_name: {
+        user_id: userId,
+        name: formerTeamName
+      }
+    }
+  });
+  return json({});
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
@@ -79,153 +228,32 @@ export async function action({ request }: ActionFunctionArgs) {
   switch(data.intent) {
     case "PROMOTE_USER": {
       const { newAdminUserId, teamId } = data;
-      await checkIdAccessForEntity(user.db.id, teamId, 'TEAM', 'MEMBER');
-      await checkIdAccessForEntity(newAdminUserId, teamId, 'TEAM', 'MEMBER');
-
-      await db.teamMember.update({
-        where: {
-          user_id_team_id: {
-            user_id: Number(newAdminUserId),
-            team_id: teamId
-          }
-        },
-        data: {
-          access_rights: AccessRight.ADMINISTRATOR
-        }
-      });
-      // potentially send email
+      promoteUser(userId, newAdminUserId, teamId);
       // purpose fallthrough
     }
     case "LEAVE_TEAM": {
       const { teamId } = data;
-      await checkIdAccessForEntity(user.db.id, teamId, 'TEAM', 'MEMBER');
-
-      const team = await db.team.findFirst({
-        where: {
-          id: teamId
-        },
-        include: {
-          members: true
-        }
-      });
-      // Set Team inactive if there is no more members
-      if(team?.members.length === 1) {
-        await db.team.update({
-          where: {
-            id: teamId
-          },
-          data: {
-            is_active: false
-          }
-        });
-      } else {
-        // Set new admin if member is last admin
-        const admins = team?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
-        if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
-          return json({ selectAdminTeamId: teamId })
-        }
-      }
-      // delete member from team
-      const teamMember = await db.teamMember.delete({
-        where: {
-          user_id_team_id: {
-            user_id: userId,
-            team_id: teamId
-          }
-        }
-      });
-      if(team) {
-        await db.formerTeam.create({
-          data: {
-            user_id: userId,
-            name: team.name,
-            from: teamMember.joined_at,
-            to: new Date(),
-          }
-        });
-      }
-      return json({});
+      return leaveTeam(userId, teamId);
     }
     case "UPDATE_TEAM": {
       const { joinedAt, teamId } = data;
-      await checkIdAccessForEntity(user.db.id, teamId, 'TEAM', 'MEMBER');
-      await db.teamMember.update({
-        where: {
-          user_id_team_id: {
-            user_id: userId,
-            team_id: teamId
-          }
-        },
-        data: {
-          ...(joinedAt && ({ joined_at: new Date(joinedAt) })),
-        }
-      });
-      return json({});
+      return updateTeam(userId, teamId, joinedAt);
     }
     case "CHANGE_MAIN_TEAM": {
       const { teamId } = data;
-      await checkIdAccessForEntity(user.db.id, teamId, 'TEAM', 'MEMBER');
-      await db.teamMember.updateMany({
-        where: {
-          user_id: userId
-        },
-        data: {
-          is_main_team: false
-        }
-      });
-      await db.teamMember.update({
-        where: {
-          user_id_team_id: {
-            user_id: userId,
-            team_id: teamId
-          }
-        },
-        data: {
-          is_main_team: true
-        }
-      });
-      return json({});
+      return changeMainTeam(userId, teamId);
     }
     case "UPDATE_FORMER_TEAM": {
       const { name, from, to, formerTeamName } = data;
-      await db.formerTeam.update({
-        where: {
-          user_id_name: {
-            user_id: userId,
-            name: formerTeamName
-          }
-        },
-        data: {
-          name,
-          from: new Date(from),
-          to: new Date(to)
-        }
-      });
-      return json({});
+      return updateFormerTeam(userId, name, from, to, formerTeamName);
     }
     case "CREATE_FORMER_TEAM": {
       const { name, from, to } = data;
-      await db.formerTeam.create({
-        data: {
-          user_id: userId,
-          name,
-          from: new Date(from),
-          to: new Date(to)
-        }
-      });
-      return json({});
+      return createFormerTeam(userId, name, from, to);
     }
     case "LEAVE_FORMER_TEAM": {
       const { formerTeamName } = data;
-      await db.formerTeam.delete({
-        where: {
-          user_id_name: {
-            user_id: userId,
-            name: formerTeamName
-          }
-        }
-      });
-      return json({});
+      return leaveFormerTeam(userId, formerTeamName);
     }
   }
 }

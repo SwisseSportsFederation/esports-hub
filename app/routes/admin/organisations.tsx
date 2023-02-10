@@ -31,6 +31,104 @@ export function links() {
   ];
 }
 
+const promoteUser = async (userId: number, newAdminUserId: string, organisationId: number) => {
+  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
+  await checkIdAccessForEntity(newAdminUserId, organisationId, 'ORGANISATION', 'MEMBER');
+
+  await db.organisationMember.update({
+    where: {
+      user_id_organisation_id: {
+        user_id: Number(newAdminUserId),
+        organisation_id: organisationId
+      }
+    },
+    data: {
+      access_rights: AccessRight.ADMINISTRATOR
+    }
+  });
+  // potentially send email
+}
+
+const leaveOrganisation = async (userId: number, organisationId: number) => {
+  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
+
+  const organisation = await db.organisation.findFirst({
+    where: {
+      id: organisationId
+    },
+    include: {
+      members: true
+    }
+  });
+  // Set Organisation inactive if there is no more members
+  if(organisation?.members.length === 1) {
+    await db.organisation.update({
+      where: {
+        id: organisationId
+      },
+      data: {
+        is_active: false
+      }
+    });
+  } else {
+    // Set new admin if member is last admin
+    const admins = organisation?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
+    if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
+      return json({ selectAdminOrgId: organisationId })
+    }
+  }
+  // delete member from organisation
+  await db.organisationMember.delete({
+    where: {
+      user_id_organisation_id: {
+        user_id: userId,
+        organisation_id: organisationId
+      }
+    }
+  });
+  return json({});
+}
+
+const updateOrganisation = async (userId: number, organisationId: number, joinedAt: string) => {
+  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
+  await db.organisationMember.update({
+    where: {
+      user_id_organisation_id: {
+        user_id: userId,
+        organisation_id: organisationId
+      }
+    },
+    data: {
+      joined_at: new Date(joinedAt)
+    }
+  });
+  return json({});
+}
+
+const changeMainOrganisation = async (userId: number, organisationId: number) => {
+  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
+  await db.organisationMember.updateMany({
+    where: {
+      user_id: userId
+    },
+    data: {
+      is_main_organisation: false
+    }
+  });
+  await db.organisationMember.update({
+    where: {
+      user_id_organisation_id: {
+        user_id: userId,
+        organisation_id: organisationId
+      }
+    },
+    data: {
+      is_main_organisation: true
+    }
+  });
+  return json({});
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
@@ -59,102 +157,24 @@ export async function action({ request }: ActionFunctionArgs) {
   switch(data.intent) {
     case "PROMOTE_USER": {
       const { newAdminUserId, organisationId } = data;
-      await checkIdAccessForEntity(user.db.id, organisationId, 'ORGANISATION', 'MEMBER');
-      await checkIdAccessForEntity(newAdminUserId, organisationId, 'ORGANISATION', 'MEMBER');
-
-      await db.organisationMember.update({
-        where: {
-          user_id_organisation_id: {
-            user_id: Number(newAdminUserId),
-            organisation_id: organisationId
-          }
-        },
-        data: {
-          access_rights: AccessRight.ADMINISTRATOR
-        }
-      });
-      // potentially send email
+      promoteUser(userId, newAdminUserId, organisationId);
       // purpose fallthrough
     }
     case "LEAVE_ORGANISATION": {
       const { organisationId } = data;
-      await checkIdAccessForEntity(user.db.id, organisationId, 'ORGANISATION', 'MEMBER');
-
-      const organisation = await db.organisation.findFirst({
-        where: {
-          id: organisationId
-        },
-        include: {
-          members: true
-        }
-      });
-      // Set Organisation inactive if there is no more members
-      if(organisation?.members.length === 1) {
-        await db.organisation.update({
-          where: {
-            id: organisationId
-          },
-          data: {
-            is_active: false
-          }
-        });
-      } else {
-        // Set new admin if member is last admin
-        const admins = organisation?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
-        if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
-          return json({ selectAdminOrgId: organisationId })
-        }
-      }
-      // delete member from organisation
-      await db.organisationMember.delete({
-        where: {
-          user_id_organisation_id: {
-            user_id: userId,
-            organisation_id: organisationId
-          }
-        }
-      });
-      return json({});
+      return leaveOrganisation(userId, organisationId);
     }
     case "UPDATE_ORGANISATION": {
       const { joinedAt, organisationId } = data;
-      await checkIdAccessForEntity(user.db.id, organisationId, 'ORGANISATION', 'MEMBER');
-      await db.organisationMember.update({
-        where: {
-          user_id_organisation_id: {
-            user_id: userId,
-            organisation_id: organisationId
-          }
-        },
-        data: {
-          ...(joinedAt && ({ joined_at: new Date(joinedAt) })),
-        }
-      });
-      return json({});
+      if(joinedAt) {
+        return updateOrganisation(userId, organisationId, joinedAt);
+      } else {
+        throw json({}, 400);
+      }
     }
     case "CHANGE_MAIN_ORGANISATION": {
       const { organisationId } = data;
-      await checkIdAccessForEntity(user.db.id, organisationId, 'ORGANISATION', 'MEMBER');
-      await db.organisationMember.updateMany({
-        where: {
-          user_id: userId
-        },
-        data: {
-          is_main_organisation: false
-        }
-      });
-      await db.organisationMember.update({
-        where: {
-          user_id_organisation_id: {
-            user_id: userId,
-            organisation_id: organisationId
-          }
-        },
-        data: {
-          is_main_organisation: true
-        }
-      });
-      return json({});
+      return changeMainOrganisation(userId, organisationId);
     }
   }
 }
