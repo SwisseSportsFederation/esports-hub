@@ -14,7 +14,7 @@ export default function Index() {
   const { searchParams } = useLoaderData<typeof loader>();
   return <>
     <section className="flex items-center justify-center flex-col px-3 h-full z-10 flex-1">
-      <h2 className="text-xl lg:text-3xl font-bold mb-4">Search for Swiss Esports Actors</h2>
+      <h2 className="text-xl lg:text-3xl font-bold mb-4 text-white">Search for Swiss Esports Actors</h2>
       <div className="max-w-full">
         <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
                    languages={searchParams.languages ?? []}/>
