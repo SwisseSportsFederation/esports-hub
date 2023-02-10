@@ -9,7 +9,8 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-  useLoaderData, useLocation
+  useLoaderData,
+  useLocation
 } from "@remix-run/react";
 import styles from "./styles/app.css";
 import { authenticator } from "~/services/auth.server";
