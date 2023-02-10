@@ -17,7 +17,7 @@ const BlockTeaser = (props: IBlockTeaserProps) => {
         <div className="rounded-xl px-3 pb-4 pt-5 transition-colors bg-white hover:bg-gray-6 dark:bg-gray-2
         dark:hover:bg-gray-3">
           <div className="flex justify-center">
-            <Icon iconName={icon} className={`h-8 w-12 mb-2 text-black dark:text-white`}/>
+            <Icon iconName={icon} className={`h-8 w-12 mb-2 text-black text-color`}/>
           </div>
           <div className="hidden md:flex justify-center items-center mt-1">
             <span className="text-sm font-bold">{text}</span>

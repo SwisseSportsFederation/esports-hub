@@ -69,17 +69,17 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
       </div>
       <div className="flex flex-col">
         <div className="flex flex-col space-y-5 sm:flex-row sm:space-x-5 sm:space-y-0">
-          <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-2`}
+          <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-color hover:bg-red-2`}
                   onClick={() => setUploadOpen(true)}
                   aria-label="Replace Image">{!imageId ? "New Image" : "Change Image"}</button>
-          {imageId && <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-2`}
+          {imageId && <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-color hover:bg-red-2`}
                               onClick={() => setDeleteImageOpen(true)}
                               aria-label="Delete Image">Delete Image</button>}
         </div>
       </div>
     </div>
     <Modal isOpen={deleteImageOpen} handleClose={() => setDeleteImageOpen(false)}>
-      <div className="flex justify-center text-center text-2xl mb-8 text-white">
+      <div className="flex justify-center text-center text-2xl mb-8 text-color">
         Do you want to delete your profile picture?
       </div>
       <fetcher.Form action={'/admin/api/image'} encType='multipart/form-data' method='delete'
@@ -93,7 +93,7 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
     </Modal>
     <Modal isOpen={uploadOpen} handleClose={() => setUploadOpen(false)}>
       <div className='flex flex-col gap-4 w-full'>
-        <H1 className='text-white'>Upload Profile Image</H1>
+        <H1 className='text-color'>Upload Profile Image</H1>
         <fetcher.Form action={'/admin/api/image'} method='put' onSubmit={() => {
           setUploadOpen(false);
         }} encType='multipart/form-data' ref={ref} className='flex flex-col gap-4 justify-between items-start'>
@@ -114,7 +114,7 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
               </ReactCrop>
             </div>}
             {!imgSrc && <label htmlFor='image-upload'
-                               className='hover:bg-gray-3/80 hover:text-gray-7 cursor-pointer h-full w-full bg-gray-3 text-white flex flex-col items-center justify-center'>
+                               className='hover:bg-gray-3/80 hover:text-gray-7 cursor-pointer h-full w-full bg-gray-3 text-color flex flex-col items-center justify-center'>
               <Icons iconName='upload' className='w-1/3 aspect-square'/>
               <H1>Upload your new profile image</H1>
             </label>}

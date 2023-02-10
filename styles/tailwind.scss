@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.text-color {
+  @apply text-black dark:text-white;
+}
+
 /* Slide down/up */
 @layer components {
 
@@ -95,7 +99,8 @@
     transform: translate3d(0, -2.4em, 0);
     transform-origin: left;
     opacity: 1;
-    @apply text-white text-xs;
+    @include text-color;
+    @apply text-xs;
   }
 
   textarea:not(:placeholder-shown)+label,
@@ -103,7 +108,8 @@
     transform: translate3d(0, -2.7em, 0);
     transform-origin: left;
     opacity: 1;
-    @apply text-white text-xs;
+    @include text-color;
+    @apply text-xs;
   }
 
   textarea[required]::placeholder,

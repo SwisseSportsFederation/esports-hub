@@ -26,7 +26,7 @@ const Footer = () => {
         {
           pages.map((page: IFooterPage) =>
             <li key={page.name} className="mx-4">
-              <Link to={`${page.url}`} className="hover:text-red-1 transition-colors dark:text-white">
+              <Link to={`${page.url}`} className="hover:text-red-1 transition-colors text-color">
                 {page.name}
               </Link>
             </li>)

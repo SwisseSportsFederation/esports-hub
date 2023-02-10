@@ -69,7 +69,7 @@ export default function App() {
     }
     <div id="modal-root"/>
     <div className='min-h-screen min-h-[-webkit-fill-available]
-        dark:bg-gray-1 dark:text-white bg-gray-7 flex flex-col'>
+        dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
       <Header/>
       <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
         <Outlet/>
@@ -96,10 +96,10 @@ export function CatchBoundary() {
     <body>
     <div id="modal-root"/>
     <div className='min-h-screen min-h-[-webkit-fill-available]
-            dark:bg-gray-1 dark:text-white bg-gray-7 flex flex-col'>
+            dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
       <div className="flex items-center p-4 md:px-8">
         <Link to={'/'} className="w-full flex justify-center">
-          <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
+          <Icon iconName='logo' className="text-black text-color w-24 h-8 max-h-[40px]"/>
         </Link>
       </div>
       <main className='pt-5 min-h-[calc(100vh-13.5rem)] flex flex-col'>

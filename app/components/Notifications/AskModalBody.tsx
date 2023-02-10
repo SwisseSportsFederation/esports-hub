@@ -13,7 +13,7 @@ type AskModalBodyPropTypes = {
 
 export default function({ message, primaryButton, secondaryButton }: AskModalBodyPropTypes) {
   return <>
-    <div className="flex justify-center text-center text-2xl mb-8 text-white">
+    <div className="flex justify-center text-center text-2xl mb-8 text-color">
       {message}
     </div>
     <div className='flex justify-between gap-2'>

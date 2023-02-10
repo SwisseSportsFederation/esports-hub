@@ -14,10 +14,10 @@ const UserState = () => {
   if(data.user) {
     return <div className="relative group">
       <Link to="/admin">
-        <Icon iconName='user' className="text-black dark:text-white p-0 m-0 w-[40px] h-[40px]"/>
+        <Icon iconName='user' className="text-color p-0 m-0 w-[40px] h-[40px]"/>
       </Link>
       <div
-        className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4  rounded-md top-full right-0 opacity-0
+        className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
         group-hover:opacity-100">
         <ul className="space-y-2 text-right">
           <li className="cursor-pointer hover:text-red-1 w-full px-8">
@@ -79,7 +79,7 @@ const Header = () => {
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
         <Link to={'/'}>
-          <Icon iconName='logo' className="text-black dark:text-white w-24 h-8 max-h-[40px]"/>
+          <Icon iconName='logo' className="text-color w-24 h-8 max-h-[40px]"/>
         </Link>
         <div className='flex-1'/>
         {/*desktop menu*/}

@@ -3,7 +3,7 @@ import Icon from "~/components/Icons";
 
 const Login = () => <Form action={"/auth/login"} method="post">
   <button>
-    <Icon iconName='signIn' className="text-black dark:text-white p-0 m-0 w-[40px] h-[40px]"/>
+    <Icon iconName='signIn' className="text-color p-0 m-0 w-[40px] h-[40px]"/>
   </button>
 </Form>;
 

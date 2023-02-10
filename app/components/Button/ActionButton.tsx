@@ -26,7 +26,7 @@ const ActionButton = (props: PropsWithClassName<IActionButtonProps>) => {
   return <button disabled={disabled}
                  onClick={action} type={type} name={name} value={value}
                  className={`w-full max-w-xs flex items-center justify-center rounded-xl
-        bg-red-1 text-white py-2 disabled:bg-gray-400 ${className}`}>
+        bg-red-1 text-color py-2 disabled:bg-gray-400 ${className}`}>
     {content}
   </button>;
 };

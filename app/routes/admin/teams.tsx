@@ -301,7 +301,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: string, intent: string, submitName: string, userId: string) =>
   <Modal isOpen={!!isOpen} handleClose={() => activeFunction(null)}>
-    <div className="flex justify-center text-center text-2xl mb-8 text-white">
+    <div className="flex justify-center text-center text-2xl mb-8 text-color">
       {text}
     </div>
     <Form className='flex justify-between gap-2' method="post" onSubmit={() => activeFunction(null)}>
@@ -321,7 +321,7 @@ const mainTeamIcon = (teamId: string, isMainTeam: boolean | null, userId: string
 
 const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void, userId: string) =>
   <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <H1 className='text-2xl text-white'>Add new Former Team</H1>
+    <H1 className='text-2xl text-color'>Add new Former Team</H1>
     <Form id="createFormerTeamForm" method='post' onSubmit={() => handleClose(false)}
           className='flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
       <input type='hidden' name='intent' value='CREATE_FORMER_TEAM'/>
@@ -356,7 +356,7 @@ const SelectNewAdminModal = (
     </Form>
   }
   return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <H1 className='text-2xl text-white'>Select new Administrator</H1>
+    <H1 className='text-2xl text-color'>Select new Administrator</H1>
     <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/team/members'}>
       <input type='hidden' name='teamId' value={teamId}/>
       <div className="max-w-sm md:max-w-lg">
@@ -364,12 +364,12 @@ const SelectNewAdminModal = (
                    buttonType="submit" defaultValue={""}/>
       </div>
     </fetcher.Form>
-    <TeaserList type='Static' title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-white'
+    <TeaserList type='Static' title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
                 iconFactory={addAsAdminIcon}/>
     {(!fetcher.data || fetcher.data?.members.length === 0) &&
       <div className='w-full h-40 flex flex-col justify-center items-center'>
         <Icons iconName='search' className='w-20 h-20 fill-white'/>
-        <H1 className='text-white'>No results</H1>
+        <H1 className='text-color'>No results</H1>
       </div>
     }
   </Modal>

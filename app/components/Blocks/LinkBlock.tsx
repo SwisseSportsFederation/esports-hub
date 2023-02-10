@@ -7,7 +7,7 @@ interface ILinkBlockProps {
 }
 
 const LinkBlock = ({ path, title }: ILinkBlockProps) => {
-  return <Link to={path} className={'text-black dark:text-white rounded-2xl bg-white' +
+  return <Link to={path} className={'text-color rounded-2xl bg-white' +
     ' hover:bg-gray-6 dark:bg-gray-2 dark:hover:bg-gray-3 flex items-center justify-between px-4 py-2'}>
     {title}
     <div className='p-0 m-0 transform -rotate-90'>

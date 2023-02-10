@@ -79,7 +79,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
             entityType === 'TEAM' &&
             <div className="relative w-full max-w-sm lg:max-w-full">
               <label>
-                <span className={`absolute text-xs left-4 -top-4 transition-all text-white`}>Game</span>
+                <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game</span>
               </label>
               <DropdownInput name="game" selected={game ?? null} inputs={searchParams.games} isBig={true}
                              className="mt-1 block" showDefaultOption={false}/>
@@ -97,7 +97,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           }
           <div className="relative w-full max-w-sm lg:max-w-full">
             <label>
-              <span className={`absolute left-4 text-xs -top-4 text-white`}>Canton</span>
+              <span className={`absolute left-4 text-xs -top-4 text-color`}>Canton</span>
             </label>
             <DropdownInput name="canton" selected={canton ?? null} inputs={searchParams.cantons}
                            sendDefaultOption={false} isBig={true} className="mt-1 block"
