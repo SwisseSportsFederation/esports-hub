@@ -86,7 +86,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
         <div className='flex-1'/>
         {/*desktop menu*/}
         <div className="hidden md:flex flex-row space-x-4">
-          <Menu/>
+          <Menu forceWhiteText={props.forceWhiteText} />
         </div>
         {/* Icons (login/user) + desktop:theme + mobile:hamburger */}
         <div className="flex-none md:ml-8">
