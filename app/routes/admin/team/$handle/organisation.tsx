@@ -100,17 +100,17 @@ export default function() {
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
         <H1Nav path={'..'} title='Organisation' />
-        { orgTeams.length > 0 && 
+        { orgTeams.length > 0 ? 
           <H1 className='px-4 mb-1 w-full'>Current</H1>
-          ||
+          :
           <H1 className='px-4 mb-1 w-full'>Not in Organisation</H1>
         }
         {
           orgTeams.map(orgTeam => {
             return <Teaser key={orgTeam.organisation_id} avatarPath={orgTeam.organisation.image} name={orgTeam.organisation.name}
-                                     team={orgTeam.organisation.handle}
-                                     games={[team.game]} 
-                                     icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)}/>
+                            team={orgTeam.organisation.handle}
+                            games={[team.game]} 
+                            icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)}/>
           })
         }
         <TeaserList title={'Invitation Requests'} teasers={invited}
