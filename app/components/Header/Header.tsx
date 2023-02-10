@@ -8,13 +8,13 @@ import Menu from "./Menu";
 import { Login, Logout } from '~/utils/AuthComponents';
 import classNames from "classnames";
 
-const UserState = () => {
+const UserState = (props: { textColor: string }) => {
   const data = useLoaderData();
   /* User Icon with Logout and Admin Dropdown */
   if(data.user) {
     return <div className="relative group">
       <Link to="/admin">
-        <Icon iconName='user' className="text-color p-0 m-0 w-[40px] h-[40px]"/>
+        <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[40px] h-[40px]"}/>
       </Link>
       <div
         className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
@@ -35,7 +35,7 @@ const UserState = () => {
   return <Login/>;
 };
 
-const Header = () => {
+const Header = (props: { forceWhiteText: boolean }) => {
   const [menuActive, _setMenuActive] = useState<boolean>(false);
   const location = useLocation();
   const menuActiveRef = useRef(menuActive);
@@ -74,12 +74,14 @@ const Header = () => {
     'dark:bg-gray-2 bg-white': location.pathname !== "/" || (menuActiveRef.current && location.pathname === '/'),
   });
 
+  const textColor: string = props.forceWhiteText ? "text-white" : "text-color";
+
   return <header className="sticky top-0 z-50">
     <nav className={bg}>
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
         <Link to={'/'}>
-          <Icon iconName='logo' className="text-color w-24 h-8 max-h-[40px]"/>
+          <Icon iconName='logo' className={textColor + " w-24 h-8 max-h-[40px]"} />
         </Link>
         <div className='flex-1'/>
         {/*desktop menu*/}
@@ -89,7 +91,7 @@ const Header = () => {
         {/* Icons (login/user) + desktop:theme + mobile:hamburger */}
         <div className="flex-none md:ml-8">
           <div className="flex justify-end space-x-5 flex-1">
-            <UserState/>
+            <UserState textColor={textColor}/>
             {/*  <div className='hidden md:flex items-center justify-center'>*/}
             {/*    /!*<ThemeToggle/>*!/*/}
             {/*  </div>*/}

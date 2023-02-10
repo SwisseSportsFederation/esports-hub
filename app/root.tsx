@@ -9,7 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-  useLoaderData
+  useLoaderData, useLocation
 } from "@remix-run/react";
 import styles from "./styles/app.css";
 import { authenticator } from "~/services/auth.server";
@@ -55,6 +55,7 @@ BigInt.prototype.toJSON = function() {
 
 export default function App() {
   const { message } = useLoaderData<typeof loader>()
+  const location = useLocation();
   return (
     <html lang="en">
     <head>
@@ -70,7 +71,7 @@ export default function App() {
     <div id="modal-root"/>
     <div className='min-h-screen min-h-[-webkit-fill-available]
         dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
-      <Header/>
+      <Header forceWhiteText={location.pathname == "/"}/>
       <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
         <Outlet/>
       </main>
