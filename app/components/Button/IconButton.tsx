@@ -12,14 +12,15 @@ export type IIconButtonProps = {
   action: (() => void),
   path?: never,
   name?: never,
-  value?: never
-
+  value?: never,
+  disabled?: boolean
 } | {
   type: 'link'
   action?: never,
   path: string,
   name?: never,
   value?: never
+  disabled?: never
 
 } | {
   type: 'submit',
@@ -27,11 +28,12 @@ export type IIconButtonProps = {
   path?: never,
   name?: string,
   value?: string
+  disabled?: boolean
 });
 
 
 const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
-  const { icon, action, path, size = "medium", className, type, name, value } = props;
+  const { icon, action, path, size = "medium", className, type, name, value, disabled } = props;
   const useHandleClick = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
     event.stopPropagation();
@@ -41,13 +43,14 @@ const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
   const classname = classNames({
     "h-5 w-5": size === "small",
     "h-8 w-8": size === "medium",
-    "h-12 w-12": size === "large"
+    "h-12 w-12": size === "large",
+    "opacity-50": disabled
   }, className);
 
   const core = <Icon iconName={icon} className={`rounded-full align-middle inline ${classname}`}/>;
 
   if(type === 'submit') {
-    return <button type='submit' name={name} value={value}>
+    return <button type='submit' name={name} value={value} disabled={disabled}>
       {core}
     </button>;
   }
@@ -58,7 +61,7 @@ const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
     </Link>;
   }
 
-  return <button onClick={useHandleClick}>
+  return <button onClick={useHandleClick} disabled={disabled}>
     {core}
   </button>;
 };

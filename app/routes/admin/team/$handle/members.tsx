@@ -220,7 +220,7 @@ export default function() {
         <H1Nav path={'..'} title='Members'>
           <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5'/>
         </H1Nav>
-        <H1 className='px-2 mb-1 w-full'>Members</H1>
+        <H1 className='px-4 mb-1 w-full'>Members</H1>
         {
           members.map(member => {
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
