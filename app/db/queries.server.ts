@@ -33,14 +33,15 @@ type UsersQuery = {
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
 
-const searchQueries = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset: number = 0): [Promise<UsersQuery>, Promise<TeamsQuery>, Promise<OrgsQuery>] => {
+const searchQueries = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): [Promise<UsersQuery>, Promise<TeamsQuery>, Promise<OrgsQuery>] => {
+  offset = offset ? offset : 0;
   const u = typeFilter("User", type) ? usersQuery(search, canton, game, language, offset) : Promise.resolve<UsersQuery>([]);
   const t = typeFilter("Team", type) ? teamsQuery(search, canton, game, language, offset) : Promise.resolve<TeamsQuery>([]);
   const o = typeFilter("Organisation", type) ? orgsQuery(search, canton, language, offset) : Promise.resolve<OrgsQuery>([]);
   return [u, t, o];
 };
 
-const usersQuery = (search?: string, canton?: string, language?: string, game?: string, offset: number = 0) => db.user.findMany({
+const usersQuery = (search?: string, canton?: string, language?: string, game?: string, offset?: number) => db.user.findMany({
   where: {
     AND: [
       ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
@@ -65,7 +66,7 @@ const usersQuery = (search?: string, canton?: string, language?: string, game?: 
   skip: offset
 });
 
-const teamsQuery = (search?: string, canton?: string, game?: string, language?: string, offset: number = 0) => db.team.findMany({
+const teamsQuery = (search?: string, canton?: string, game?: string, language?: string, offset?: number) => db.team.findMany({
   where: {
     AND: [
       ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
@@ -89,10 +90,11 @@ const teamsQuery = (search?: string, canton?: string, game?: string, language?: 
       }
     }
   },
-  take: 20
+  take: 20,
+  skip: offset
 });
 
-const orgsQuery = (search?: string, canton?: string, language?: string, offset: number = 0) => db.organisation.findMany({
+const orgsQuery = (search?: string, canton?: string, language?: string, offset?: number) => db.organisation.findMany({
   where: {
     AND: [
       ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
@@ -110,7 +112,8 @@ const orgsQuery = (search?: string, canton?: string, language?: string, offset: 
     name: true,
     handle: true
   },
-  take: 20
+  take: 20,
+  skip: offset
 });
 
 
