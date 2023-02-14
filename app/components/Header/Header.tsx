@@ -24,7 +24,7 @@ const UserState = (props: { textColor: string }) => {
             <Link to={'/admin'}>Admin</Link>
           </li>
           <li>
-            <Logout/>
+            <Logout textColor={props.textColor} />
           </li>
         </ul>
       </div>
@@ -32,7 +32,7 @@ const UserState = (props: { textColor: string }) => {
   }
 
   /* Sign-in Button */
-  return <Login/>;
+  return <Login textColor={props.textColor}/>;
 };
 
 const Header = (props: { forceWhiteText: boolean }) => {
