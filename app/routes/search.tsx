@@ -23,6 +23,7 @@ export default function() {
   const { searchResults, searchParams } = useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const fetcher = useFetcher();
+  const maxLoadEntity = 5;
 
   const [resultsNode, setResultsNode] = useState<JSX.Element[]>([]);
   const [users, setUsers] = useState<UserSearchResult[]>([]);
@@ -30,34 +31,28 @@ export default function() {
   const [orgs, setOrgs] = useState<UserSearchResult[]>([]);
   const [hasNext, setHasNext] = useState<Boolean>(false);
 
+  const resultList = (userList: UserSearchResult[], teamList: UserSearchResult[], orgList: UserSearchResult[]) => {
+    setUsers([...users, ...userList]);
+    setTeams([...teams, ...teamList]);
+    setOrgs([...orgs, ...orgList]);
+  
+    setHasNext(userList.length >= maxLoadEntity || teamList.length >= maxLoadEntity || orgList.length >= maxLoadEntity);
+  
+    const results = new Array<UserSearchResult>().concat(teamList, orgList, userList);
+    return [...resultsNode, ...results.map((teaser: UserSearchResult, index: number) => 
+                <LinkTeaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games}
+                avatarPath={teaser.image} type={teaser.type} handle={teaser.handle}/>
+                )];
+  }
+
   useEffect(() => {
     if(fetcher.type === 'done') {
-      setUsers([...users, ...fetcher.data.searchResults.users]);
-      setTeams([...teams, ...fetcher.data.searchResults.teams]);
-      setOrgs([...orgs, ...fetcher.data.searchResults.orgs]);
-
-      setHasNext(fetcher.data.searchResults.users.length > 0 || fetcher.data.searchResults.teams.length > 0 || fetcher.data.searchResults.orgs.length > 0);
-
-      const results = new Array<UserSearchResult>().concat(fetcher.data.searchResults.teams, fetcher.data.searchResults.orgs, fetcher.data.searchResults.users);
-      setResultsNode([...resultsNode, ...results.map((teaser: UserSearchResult, index: number) =>
-      <LinkTeaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games}
-                  avatarPath={teaser.image} type={teaser.type} handle={teaser.handle}/>
-                  )]);
+      setResultsNode(resultList(fetcher.data.searchResults.users, fetcher.data.searchResults.teams, fetcher.data.searchResults.orgs));
     }
   }, [fetcher.data])
 
   useEffect(() => {
-    setUsers(searchResults.users);
-    setTeams(searchResults.teams);
-    setOrgs(searchResults.orgs);
-
-    setHasNext(searchResults.users.length > 0 || searchResults.teams.length > 0 || searchResults.orgs.length > 0);
-
-    const results = new Array<UserSearchResult>().concat(searchResults.teams, searchResults.orgs, searchResults.users);
-    setResultsNode([...results.map((teaser: UserSearchResult, index: number) =>
-    <LinkTeaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games}
-                avatarPath={teaser.image} type={teaser.type} handle={teaser.handle}/>
-                )]);
+    setResultsNode(resultList(searchResults.users, searchResults.teams, searchResults.orgs));
   }, [])
 
   return <div className="max-w-md w-full mx-auto px-4 pt-8">
