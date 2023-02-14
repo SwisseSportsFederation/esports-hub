@@ -58,7 +58,7 @@ export default function() {
   return <div className="max-w-md w-full mx-auto px-4 pt-8">
     <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []} languages={searchParams.languages ?? []}/>
     {resultsNode && resultsNode}
-    {resultsNode && hasNext && <fetcher.Form method="get" action={'/search'}>
+    {resultsNode && hasNext && <fetcher.Form method="get" action={'/search'} className="flex justify-center pt-4">
       <input type="hidden" name="game" value={params.get("game")!}/>
       <input type="hidden" name="canton" value={params.get("canton")!}/>
       <input type="hidden" name="language" value={params.get("language")!}/>
@@ -67,7 +67,7 @@ export default function() {
       <input type="hidden" name="offset-org" value={orgs.length ?? 0}/>
       <input type="hidden" name="offset-team" value={teams.length ?? 0}/>
       <input type="hidden" name="offset-user" value={users.length ?? 0}/>
-      <ActionButton type="submit" content="Load more" />
+      <ActionButton type="submit" content="Load more"/>
     </fetcher.Form>}
   </div>;
 }
