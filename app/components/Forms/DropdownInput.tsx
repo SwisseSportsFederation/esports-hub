@@ -44,8 +44,12 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
     labelText = value.name;
   }
 
+  const getInputValue = () => {
+    return search ? value.name : value.id;
+  }
+
   return <>
-    {(value.id !== defaultOption.id || sendDefaultOption) && <input type="hidden" name={name} value={value.id}/>}
+    {(value.id !== defaultOption.id || sendDefaultOption) && <input type="hidden" name={name} value={getInputValue()}/>}
     <Listbox value={value} onChange={onValueChange}>
       <div className={wrapperClasses}>
         <Listbox.Button className={listBoxButton}>
