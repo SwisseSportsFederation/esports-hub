@@ -39,7 +39,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         },
         include: { user: { include: { games: true } } }
       },
-      socials: true
+      socials: true,
+      languages: true,
+      canton: true
     }
   }).catch(() => {
     throw new Response("Not Found", {
@@ -89,7 +91,7 @@ export default function() {
     await mutate();*/
   };
 
-  const orgHeaderProps = team.organisation ? {
+  const orgHeaderProps = (team.organisation && team.organisation.organisation) ? {
     parentLink: `/detail/${entityToPathSegment('ORG')}/${team.organisation.organisation.handle}`,
     parentName: team.organisation.organisation.name
   } : {};
@@ -106,7 +108,7 @@ export default function() {
                       onApply={handleActionClick}/>
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...team} />
-          <div className="">
+          <div>
             <TeaserList title="Members" teasers={memberTeasers}/>
           </div>
           {showApply &&

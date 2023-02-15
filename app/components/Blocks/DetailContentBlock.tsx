@@ -2,16 +2,16 @@ import type { Canton, Language } from "@prisma/client";
 import type { StringOrNull } from "~/db/queries.server";
 
 
-interface IDetailContantBlockProps {
+interface IDetailContentBlockProps {
   fullName?: string;
   age?: number;
   languages?: Language[];
-  canton?: Canton;
+  canton?: Canton | null;
   website?: StringOrNull;
   description: StringOrNull;
 }
 
-const DetailContentBlock = (props: IDetailContantBlockProps) => {
+const DetailContentBlock = (props: IDetailContentBlockProps) => {
   const { fullName, age, languages, canton, website, description } = props;
   return (
     <div className="p-4 rounded-xl bg-white dark:bg-gray-2">

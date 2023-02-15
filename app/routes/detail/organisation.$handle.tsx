@@ -28,6 +28,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
     include: {
       socials: true,
+      canton: true,
+      languages: true,
       teams: { include: { team: { include: { game: true } } } },
       members: {
         where: {
