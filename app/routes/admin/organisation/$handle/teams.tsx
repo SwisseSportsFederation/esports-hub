@@ -90,8 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
             OR: [
               { name: query() },
               { handle: query() }
-            ],
-            organisation: null
+            ]
           },
           include: { game: true }
         });
