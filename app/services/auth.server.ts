@@ -25,8 +25,8 @@ if(!process.env.AUTH0_DOMAIN) {
 }
 
 let callbackURL = process.env.AUTH0_CALLBACK_URL;
-if(process.env.VERCEL_ENV === 'preview') {
-  callbackURL = `${process.env.VERCEL_URL}/auth/callback`;
+if(process.env.CONTEXT === 'deploy-preview') {
+  callbackURL = `${process.env.DEPLOY_PRIME_URL}/auth/callback`;
 }
 
 authenticator.use(

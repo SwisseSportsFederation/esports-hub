@@ -1,5 +1,5 @@
 [build]
-  command = "remix build"
+  command = "yarn build"
   publish = "public"
 
 [dev]
