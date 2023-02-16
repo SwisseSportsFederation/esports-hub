@@ -28,7 +28,7 @@ const MobileMenu = ({ menuActive }: IMobileMenu) => {
     left-0 top-0 bottom-0 mt-16 transform -translate-x-full dark:bg-gray-2 bg-white
     transition-transform p-2 pt-4 ${classes}`}>
     <div className="ml-[20px]">
-      <Menu/>
+      <Menu textColor={menuActive ? "text-black" : "text-color" }/>
     </div>
     <div>
       <div className="ml-[20px] mt-[20px] mb-[27px] flex items-center justify-start w-full">

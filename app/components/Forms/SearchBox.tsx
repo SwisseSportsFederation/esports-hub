@@ -9,11 +9,13 @@ type SearchBoxProps = ({
   cantons: IdValue[];
   languages: IdValue[];
   small?: boolean;
+  forceWhiteText?: boolean;
 } | {
   games?: never;
   cantons?: never;
   languages?: never;
   small?: never;
+  forceWhiteText?: boolean;
 });
 
 const getIdValue = (values: IdValue[], query: string | null): IdValue | null => {
@@ -30,7 +32,7 @@ const getIdValue = (values: IdValue[], query: string | null): IdValue | null => 
   };
 }
 
-const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: SearchBoxProps) => {
+const SearchBox = ({ games = [], cantons = [], languages = [], small = false, forceWhiteText = false }: SearchBoxProps) => {
   const [params] = useSearchParams();
   const types: IdValue[] = [
     { name: "User", id: "User" },
@@ -42,6 +44,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
   const canton = getIdValue(cantons, params.get("canton"));
   const language = getIdValue(languages, params.get("language"));
   const type = getIdValue(types, params.get("type"));
+  const buttonTextColor = forceWhiteText ? "text-white" : "text-color";
 
   return (
     <Form method="get" action={'/search'} autoComplete={"on"}>
@@ -63,7 +66,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
           </div>
         }
         <div className="w-full pb-4">
-          <ActionButton content="Search" type="submit" className="mr-auto ml-auto"/>
+          <ActionButton content="Search" type="submit" className={"mr-auto ml-auto"} buttonTextColor={buttonTextColor}/>
         </div>
       </div>
     </Form>

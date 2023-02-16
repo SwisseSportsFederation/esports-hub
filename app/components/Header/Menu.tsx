@@ -12,11 +12,10 @@ const MenuEntry = ({ path, title, textColor }: IMenuEntry) => {
   </Link>;
 };
 
-const Menu = (props: { forceWhiteText: boolean }) => {
-  const textColor = props.forceWhiteText ? "text-white" : "text-color";
+const Menu = (props: { textColor: string }) => {
   return <>
-    <MenuEntry path='/wiki/about-us' title='About us' textColor={textColor}/>
-    <MenuEntry path='/contact' title='Contact' textColor={textColor}/>
+    <MenuEntry path='/wiki/about-us' title='About us' textColor={props.textColor}/>
+    <MenuEntry path='/contact' title='Contact' textColor={props.textColor}/>
   </>;
 };
 

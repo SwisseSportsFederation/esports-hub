@@ -74,7 +74,8 @@ const Header = (props: { forceWhiteText: boolean }) => {
     'dark:bg-gray-2 bg-white': location.pathname !== "/" || (menuActiveRef.current && location.pathname === '/'),
   });
 
-  const textColor: string = props.forceWhiteText ? "text-white" : "text-color";
+  const textColor: string = props.forceWhiteText && !menuActive ? "text-white" : "text-color";
+  const hamburgerColorModifier: string = props.forceWhiteText ? "light-mode-dark-background" : "";
 
   return <header className="sticky top-0 z-50">
     <nav className={bg}>
@@ -86,7 +87,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
         <div className='flex-1'/>
         {/*desktop menu*/}
         <div className="hidden md:flex flex-row space-x-4">
-          <Menu forceWhiteText={props.forceWhiteText} />
+          <Menu textColor={textColor} />
         </div>
         {/* Icons (login/user) + desktop:theme + mobile:hamburger */}
         <div className="flex-none md:ml-8">
@@ -97,7 +98,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
             {/*  </div>*/}
             <button onClick={toggleMenu}
                     className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
-              <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''}`}/>
+              <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''} ${hamburgerColorModifier}`} />
             </button>
           </div>
         </div>

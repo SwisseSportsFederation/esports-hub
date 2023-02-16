@@ -9,6 +9,14 @@
 /* Slide down/up */
 @layer components {
 
+  .white-background {
+    background: white;
+  }
+
+  .black-background {
+    background: black;
+  }
+
   .slide-y-enter,
   .slide-y-enter-done,
   .slide-y-exit {
@@ -42,24 +50,34 @@
     width: 40px;
     height: 4px;
     position: relative;
-    background: white;
     border-radius: 25px;
-
-    .dark &,
-    .dark &:before,
-    .dark &:after {
-      background: white;
-    }
 
     &:before,
     &:after {
-      background: white;
       position: absolute;
       width: 40px;
       height: 4px;
       content: '';
       border-radius: 25px;
       left: 0;
+    }
+
+    &,
+    &:before,
+    &:after {
+      @apply black-background dark:white-background;
+    }
+
+    &.light-mode-dark-background,
+    &.light-mode-dark-background:before,
+    &.light-mode-dark-background:after {
+      @apply white-background;
+    }
+
+    &.light-mode-dark-background.active,
+    &.light-mode-dark-background.active:before,
+    &.light-mode-dark-background.active:after {
+      @apply black-background dark:white-background;
     }
 
     &:before {

@@ -29,9 +29,7 @@ export default function() {
     );
   }
   return <div className="max-w-md w-full mx-auto px-4 pt-8">
-    <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
-               languages={searchParams.languages ?? []}/>
-
+    <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []} languages={searchParams.languages ?? []}/>
     {resultsNode && resultsNode}
   </div>;
 }
