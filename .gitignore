@@ -5,11 +5,11 @@ node_modules
 .env
 /app/styles/tailwind.css
 .vscode
-.vercel
 .output
 /build/
-/public/build
 /api/index.js
 /api/index.js.map
 /app/styles/app.css
 
+.netlify
+/public/build
