@@ -2,7 +2,7 @@ import { Link, useLoaderData, useLocation } from "@remix-run/react";
 import Icon from "../Icons";
 import { useEffect, useRef, useState } from "react";
 import MobileMenu from "./MobileMenu";
-// import ThemeToggle from "../ThemeToggle";
+import ThemeToggle from "../ThemeToggle";
 import Menu from "./Menu";
 
 import { Login, Logout } from '~/utils/AuthComponents';
@@ -93,9 +93,9 @@ const Header = (props: { forceWhiteText: boolean }) => {
         <div className="flex-none md:ml-8">
           <div className="flex justify-end space-x-5 flex-1">
             <UserState textColor={textColor}/>
-            {/*  <div className='hidden md:flex items-center justify-center'>*/}
-            {/*    /!*<ThemeToggle/>*!/*/}
-            {/*  </div>*/}
+            <div className='hidden md:flex items-center justify-center'>
+              <ThemeToggle/>
+            </div>
             <button onClick={toggleMenu}
                     className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
               <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''} ${hamburgerColorModifier}`} />

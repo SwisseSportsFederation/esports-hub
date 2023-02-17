@@ -21,6 +21,8 @@ import LinkButton from "./components/Button/LinkButton";
 import type { LoaderFunctionArgs } from "@remix-run/router";
 import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
+import classNames from "classnames";
+import useTheme from "./hooks/useTheme";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -58,13 +60,15 @@ export default function App() {
   const { message } = useLoaderData<typeof loader>()
   const location = useLocation();
   const forceWhiteText = location.pathname == "/";
+  const [theme, setTheme] = useTheme();
+
   return (
     <html lang="en">
     <head>
       <Meta/>
       <Links/>
     </head>
-    <body>
+    <body className={theme}>
     {
       message ?
         <Toast text={message}/>
