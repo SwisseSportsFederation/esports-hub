@@ -19,6 +19,10 @@ const Footer = (props: { forceWhiteText: boolean }) => {
     'bg-transparent': location.pathname === '/',
     'bg-gray-7 dark:bg-gray-1': location.pathname !== "/"
   });
+  const linkClasses = classNames({
+    'text-white': props.forceWhiteText,
+    'text-color': !props.forceWhiteText
+  }, 'hover:text-red-1 transition-colors');
 
   return (
     <footer className={`px-5 pt-4 pb-8 mt-8 ${bg} z-0`}>
@@ -26,7 +30,7 @@ const Footer = (props: { forceWhiteText: boolean }) => {
         {
           pages.map((page: IFooterPage) =>
             <li key={page.name} className="mx-4">
-              <Link to={`${page.url}`} className={props.forceWhiteText ? "text-white" : "text-color" + " hover:text-red-1 transition-colors"}>
+              <Link to={`${page.url}`} className={linkClasses}>
                 {page.name}
               </Link>
             </li>)
