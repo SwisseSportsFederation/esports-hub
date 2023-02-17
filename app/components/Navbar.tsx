@@ -15,7 +15,8 @@ interface ILinkBlockProps {
 
 const NavbarLink = ({path, title, icon = 'arrowDown'}: ILinkBlockProps) => {
   const iconClassNames = classNames({
-    'transform -rotate-90': icon === 'arrowDown'
+    'transform -rotate-90': icon === 'arrowDown',
+    'rounded-full bg-gray-100 dark:bg-gray-3': icon === 'edit'
   }, "p-0 m-0")
   return <NavLink to={path} className={({isActive}) => 'text-color rounded-2xl hover:bg-gray-6 dark:hover:bg-gray-3' +
     ' flex items-center justify-between px-4 py-1 mb-1 transition' + (isActive ? ' bg-gray-6 dark:bg-gray-3' : ' bg-white dark:bg-gray-2')}>

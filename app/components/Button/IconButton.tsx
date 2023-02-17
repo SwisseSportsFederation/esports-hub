@@ -44,7 +44,8 @@ const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
     "h-5 w-5": size === "small",
     "h-8 w-8": size === "medium",
     "h-12 w-12": size === "large",
-    "opacity-50": disabled
+    "opacity-50": disabled,
+    "bg-gray-100 dark:bg-gray-3": icon === 'edit'
   }, className);
 
   const core = <Icon iconName={icon} className={`rounded-full align-middle inline ${classname}`}/>;
