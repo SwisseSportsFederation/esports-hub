@@ -75,7 +75,7 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
           {!edit &&
             <TextInput id={social.platform.toLowerCase()} label={social.platform} disabled={true}
                        defaultValue={social.name}
-                       inputClassName='disabled:bg-gray-3 disabled:text-color disabled:border-none'/>
+                       inputClassName='disabled:bg-gray-4 dark:disabled:bg-gray-3 disabled:text-color disabled:border-none'/>
           }
           {edit &&
             <>
