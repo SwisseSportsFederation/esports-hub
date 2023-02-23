@@ -12,7 +12,7 @@ export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserPr
       name: team.name || "",
       games: [team.game],
       avatarPath: team.image,
-      team: team.name
+      team: ""
     };
   });
 };
