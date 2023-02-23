@@ -37,6 +37,20 @@ export async function checkUserAuth(request: Request): Promise<AuthUser> {
 
 }
 
+export async function checkUserValid(userId: bigint, url: string): Promise<Boolean> {
+  const user = await db.user.findFirstOrThrow({
+    where: {
+      id: Number(userId)
+    }
+  });
+  if(user.email && user.name && user.handle && user.surname && user.description) {
+    return true;
+  } else if(!url.endsWith('/admin/user/account')) {
+    throw redirect('/admin/user/account');
+  }
+  return false;
+}
+
 export const checkIdAccessForEntity = async (userId: string | bigint, id: number, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
   const entityName = entity === 'TEAM' ? 'team_id' : 'organisation_id';
 
