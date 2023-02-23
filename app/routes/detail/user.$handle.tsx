@@ -25,6 +25,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
       former_teams: true,
       socials: true,
       games: true,
+      canton: true,
+      languages: true,
       organisations: {
         where: {
           request_status: RequestStatus.ACCEPTED
