@@ -22,7 +22,8 @@ import type { LoaderFunctionArgs } from "@remix-run/router";
 import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
 import classNames from "classnames";
-import useTheme from "./hooks/useTheme";
+import { useContext } from "react";
+import { ThemeContext, ThemeProvider } from "./context/ThemeContext";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -60,7 +61,7 @@ export default function App() {
   const { message } = useLoaderData<typeof loader>()
   const location = useLocation();
   const forceWhiteText = location.pathname == "/";
-  const [theme, setTheme] = useTheme();
+  const theme: string = useContext(ThemeContext);
 
   return (
     <html lang="en">
@@ -75,13 +76,17 @@ export default function App() {
         : null
     }
     <div id="modal-root"/>
-    <div className='min-h-screen min-h-[-webkit-fill-available]
-        dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
-      <Header forceWhiteText={forceWhiteText}/>
-      <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
-        <Outlet/>
-      </main>
-      <Footer forceWhiteText={forceWhiteText}/>
+    <div>
+    <ThemeProvider>
+      <div className='min-h-screen min-h-[-webkit-fill-available]
+          dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
+        <Header forceWhiteText={forceWhiteText}/>
+        <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
+          <Outlet/>
+        </main>
+        <Footer forceWhiteText={forceWhiteText}/>
+      </div>
+    </ThemeProvider>
     </div>
     <ScrollRestoration/>
     <Scripts/>
