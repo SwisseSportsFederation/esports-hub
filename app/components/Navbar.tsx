@@ -15,9 +15,10 @@ interface ILinkBlockProps {
 
 const NavbarLink = ({path, title, icon = 'arrowDown'}: ILinkBlockProps) => {
   const iconClassNames = classNames({
-    'transform -rotate-90': icon === 'arrowDown'
+    'transform -rotate-90': icon === 'arrowDown',
+    'rounded-full bg-gray-100 dark:bg-gray-3': icon === 'edit'
   }, "p-0 m-0")
-  return <NavLink to={path} className={({isActive}) => 'text-black dark:text-white rounded-2xl hover:bg-gray-6 dark:hover:bg-gray-3' +
+  return <NavLink to={path} className={({isActive}) => 'text-color rounded-2xl hover:bg-gray-6 dark:hover:bg-gray-3' +
     ' flex items-center justify-between px-4 py-1 mb-1 transition' + (isActive ? ' bg-gray-6 dark:bg-gray-3' : ' bg-white dark:bg-gray-2')}>
     {title}
     <div className={iconClassNames}>
@@ -36,7 +37,7 @@ const membershipLinkBlock = (membership: Membership, type: string) => {
 export default function Navbar() {
   const { memberships } = useLoaderData();
 
-  return <div className="hidden lg:block h-[calc(100vh-4.5rem)] z-10 fixed top-[4.5rem] bg-white dark:bg-gray-2 w-72 text-black dark:text-white p-4 overflow-y-auto">
+  return <div className="hidden lg:block h-[calc(100vh-4.5rem)] z-10 fixed top-[4.5rem] bg-white dark:bg-gray-2 w-72 text-color p-4 overflow-y-auto">
     <div className="mb-16">
       <div className="text-xl font-bold mb-4">User</div>
       <NavbarLink path={`/admin/user/account`} title="Account"/>

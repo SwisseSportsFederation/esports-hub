@@ -63,14 +63,14 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
             {inputs.length > 0 &&
               <>
                 {showDefaultOption && <div className="py-1">
-                  <Listbox.Option value={defaultOption} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 dark:text-white
+                  <Listbox.Option value={defaultOption} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 text-color
                         dark:hover:bg-gray-3 hover:bg-gray-6 w-full h-9">
                     {defaultOption.name}
                   </Listbox.Option>
                 </div>}
                 <div className="py-1">
                   {inputs.map((input) => (
-                    <Listbox.Option key={Number(input.id)} value={input} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 dark:text-white
+                    <Listbox.Option key={Number(input.id)} value={input} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 text-color
                         dark:hover:bg-gray-3 hover:bg-gray-6 w-full">
                       {input.name}
                     </Listbox.Option>

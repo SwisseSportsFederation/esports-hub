@@ -13,12 +13,16 @@ const pages: IFooterPage[] = [
   { name: "Contact", url: "/contact" },
 ];
 
-const Footer = () => {
+const Footer = (props: { forceWhiteText: boolean }) => {
   const location = useLocation();
   const bg = classNames({
     'bg-transparent': location.pathname === '/',
     'bg-gray-7 dark:bg-gray-1': location.pathname !== "/"
   });
+  const linkClasses = classNames({
+    'text-white': props.forceWhiteText,
+    'text-color': !props.forceWhiteText
+  }, 'hover:text-red-1 transition-colors');
 
   return (
     <footer className={`px-5 pt-4 pb-8 mt-8 ${bg} z-0`}>
@@ -26,7 +30,7 @@ const Footer = () => {
         {
           pages.map((page: IFooterPage) =>
             <li key={page.name} className="mx-4">
-              <Link to={`${page.url}`} className="hover:text-red-1 transition-colors dark:text-white">
+              <Link to={`${page.url}`} className={linkClasses}>
                 {page.name}
               </Link>
             </li>)

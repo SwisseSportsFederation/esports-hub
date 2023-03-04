@@ -18,8 +18,8 @@ const DateInput = ({ label, name, value: defaultValue, min, max, className }: Pr
   const [isOpen, setIsOpen] = useState(false);
   return <>
     <div className={`relative mt-3 z-20 w-full ${className}`}>
-      <label className={`absolute text-xs -top-5 left-4 text-black dark:text-white`}>{label}</label>
-      <div className={`text-black h-10 text-md px-4 cursor-pointer 
+      <label className={`absolute text-xs -top-5 left-4 text-color`}>{label}</label>
+      <div className={`text-color h-10 text-md px-4 cursor-pointer 
                        relative inline-flex items-center justify-between
                        rounded-xl bg-white borderborder-gray-300 w-full`}
            placeholder="Select date" onClick={() => setIsOpen(true)}>

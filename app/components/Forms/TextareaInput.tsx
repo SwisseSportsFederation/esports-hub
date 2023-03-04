@@ -26,7 +26,7 @@ const TextareaInput = (props: ITextareaInputProps) => {
 
   const labelInvalid = classNames({
     'is-dirty': check,
-    'dark:text-white': !!value
+    'text-color': !!value
   });
 
   return (

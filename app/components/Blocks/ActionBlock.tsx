@@ -7,7 +7,7 @@ interface IActionBlockProps {
 }
 
 const ActionBlock = ({ onAction, title, className = '' }: PropsWithClassName<IActionBlockProps>) => {
-  return <div className={`text-black dark:text-white text-sm rounded-full bg-white dark:bg-gray-2
+  return <div className={`text-color text-sm rounded-full bg-white dark:bg-gray-2
                           flex items-center justify-between px-4 py-2 w-full max-w-sm lg:max-w-full ${className}`}>
     {title}
     <button onClick={onAction} type="button">

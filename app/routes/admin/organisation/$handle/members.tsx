@@ -222,7 +222,7 @@ export default function() {
       </div>
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
-      <div className="flex justify-center text-center text-2xl mb-8 text-white">
+      <div className="flex justify-center text-center text-2xl mb-8 text-color">
         Remove User from Organisation?
       </div>
       <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
@@ -241,12 +241,12 @@ export default function() {
                      buttonType="submit" defaultValue={""}/>
         </div>
       </Form>
-      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-white'
+      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
                   iconFactory={addSearchIcons}/>
       {searchTeaser.length === 0 &&
         <div className='w-full h-40 flex flex-col justify-center items-center'>
           <Icons iconName='search' className='w-20 h-20 fill-white'/>
-          <H1 className='text-white'>No results</H1>
+          <H1 className='text-color'>No results</H1>
         </div>
       }
     </Modal>

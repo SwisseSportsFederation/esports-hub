@@ -2,8 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+.text-color {
+  @apply text-black dark:text-white;
+}
+
 /* Slide down/up */
 @layer components {
+
+  .white-background {
+    background: white;
+  }
+
+  .black-background {
+    background: black;
+  }
 
   .slide-y-enter,
   .slide-y-enter-done,
@@ -38,24 +50,34 @@
     width: 40px;
     height: 4px;
     position: relative;
-    background: white;
     border-radius: 25px;
-
-    .dark &,
-    .dark &:before,
-    .dark &:after {
-      background: white;
-    }
 
     &:before,
     &:after {
-      background: white;
       position: absolute;
       width: 40px;
       height: 4px;
       content: '';
       border-radius: 25px;
       left: 0;
+    }
+
+    &,
+    &:before,
+    &:after {
+      @apply black-background dark:white-background;
+    }
+
+    &.light-mode-dark-background,
+    &.light-mode-dark-background:before,
+    &.light-mode-dark-background:after {
+      @apply white-background;
+    }
+
+    &.light-mode-dark-background.active,
+    &.light-mode-dark-background.active:before,
+    &.light-mode-dark-background.active:after {
+      @apply black-background dark:white-background;
     }
 
     &:before {
@@ -95,7 +117,8 @@
     transform: translate3d(0, -2.4em, 0);
     transform-origin: left;
     opacity: 1;
-    @apply text-white text-xs;
+    @include text-color;
+    @apply text-xs;
   }
 
   textarea:not(:placeholder-shown)+label,
@@ -103,7 +126,8 @@
     transform: translate3d(0, -2.7em, 0);
     transform-origin: left;
     opacity: 1;
-    @apply text-white text-xs;
+    @include text-color;
+    @apply text-xs;
   }
 
   textarea[required]::placeholder,
