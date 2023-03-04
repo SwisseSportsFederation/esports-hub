@@ -61,7 +61,6 @@ export default function App() {
   const { message } = useLoaderData<typeof loader>()
   const location = useLocation();
   const forceWhiteText = location.pathname == "/";
-  const theme: string = useContext(ThemeContext);
 
   return (
     <html lang="en">
@@ -69,14 +68,13 @@ export default function App() {
       <Meta/>
       <Links/>
     </head>
-    <body className={theme}>
+    <body>
     {
       message ?
         <Toast text={message}/>
         : null
     }
     <div id="modal-root"/>
-    <div>
     <ThemeProvider>
       <div className='min-h-screen min-h-[-webkit-fill-available]
           dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
@@ -87,7 +85,6 @@ export default function App() {
         <Footer forceWhiteText={forceWhiteText}/>
       </div>
     </ThemeProvider>
-    </div>
     <ScrollRestoration/>
     <Scripts/>
     <LiveReload/>
