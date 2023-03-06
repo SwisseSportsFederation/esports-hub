@@ -36,8 +36,11 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const game = paramUndefined(searchParams.get("game"));
   const language = paramUndefined(searchParams.get("language"));
   const type = paramUndefined(searchParams.get("type"));
+  const offsetOrg = paramUndefined(searchParams.get("offset-org"));
+  const offsetTeam = paramUndefined(searchParams.get("offset-team"));
+  const offsetUser = paramUndefined(searchParams.get("offset-user"));
 
-  const queries = searchQueries(search, canton, game, language, type);
+  const queries = searchQueries(search, canton, game, language, type, Number(offsetOrg ?? 0), Number(offsetTeam ?? 0), Number(offsetUser ?? 0));
 
   const [usersResult, teamsResult, orgsResult] = await Promise.all(queries);
 
