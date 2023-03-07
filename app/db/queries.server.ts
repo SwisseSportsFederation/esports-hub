@@ -1,5 +1,6 @@
 import { db } from "~/services/db.server";
 import type { Prisma } from "@prisma/client";
+import { EntityType } from "~/helpers/entityType";
 
 const query = (search?: string): Prisma.StringFilter => ({
   contains: search?.toString(),
@@ -30,6 +31,53 @@ type UsersQuery = {
   games: { name: string }[],
   teams: { team: { name: StringOrNull } }[]
 }[];
+
+type EntityQuery = {
+  id: bigint,
+  image: StringOrNull,
+  handle: string,
+  games: { name: string }[],
+  teams: { team: { name: StringOrNull } }[],
+  entity_type: EntityType
+}[];
+
+const searchQuery = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): Promise<EntityQuery[]> => {
+  const searchString = `'%${search}%'`;
+  
+  return db.$queryRaw<EntityQuery[]>`
+  SELECT u2.id, u2.handle, u2.image, u2.game_id, short_name, 'USER' AS entity_type FROM (
+    SELECT u.id, u.handle, u.image, array_agg(ug.A) AS game_id FROM User u
+    INNER JOIN _GameToUser ug
+       ON u.id = ug.B
+    WHERE LOWER(handle) LIKE ${searchString}
+    GROUP BY (u.id, u.handle, u.image)
+  ) AS u2
+  INNER JOIN TeamMember tm
+      ON u2.id = tm.user_id
+  INNER JOIN Team t2
+      ON t2.id = tm.team_id
+  WHERE tm.is_main_team = true
+
+  UNION
+
+  SELECT id, handle, image, array_agg(game_id), short_name, 'TEAM' AS entity_type FROM teams
+  WHERE LOWER(handle) LIKE ${searchString}
+  GROUP BY (id, handle, image)
+
+  UNION
+
+  SELECT org.id, org.handle, org.image, array_agg(game_id), org.short_name, 'ORG' AS entity_type FROM organisations AS org
+  INNER JOIN organisation_team ot
+      ON org.id = ot.organisation_id
+  INNER JOIN team t3
+      ON ot.team_id = t3.id
+  WHERE LOWER(org.handle) LIKE ${searchString}
+  GROUP BY (org.id, org.handle, org.image)
+`
+// TODO Test
+// TODO Offset
+// TODO Game Names instead of IDs
+}
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
 
@@ -117,5 +165,6 @@ const orgsQuery = (search?: string, canton?: string, language?: string, offset?:
 
 
 export {
-  searchQueries
+  searchQueries,
+  searchQuery
 };

@@ -1,6 +1,6 @@
 import getCache from "~/services/cache.server";
 import { db } from "~/services/db.server";
-import { searchQueries } from "~/db/queries.server";
+import { searchQuery } from "~/db/queries.server";
 import type { Game } from "@prisma/client";
 import type { EntityType } from "~/helpers/entityType";
 
@@ -23,9 +23,7 @@ export type UserSearchResult = {
 };
 
 export type SearchResult = {
-  users: UserSearchResult[],
-  teams: UserSearchResult[],
-  orgs: UserSearchResult[]
+  results: UserSearchResult[],
 }
 
 const paramUndefined = (value: string | null) => (value === null || value === "All") ? undefined : value;
@@ -40,10 +38,20 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const offsetTeam = paramUndefined(searchParams.get("offset-team"));
   const offsetUser = paramUndefined(searchParams.get("offset-user"));
 
-  const queries = searchQueries(search, canton, game, language, type, Number(offsetOrg ?? 0), Number(offsetTeam ?? 0), Number(offsetUser ?? 0));
+  const query = searchQuery(search, canton, game, language, type, Number(offsetOrg ?? 0));
+  // TODO replace offsetorg with offset
 
-  const [usersResult, teamsResult, orgsResult] = await Promise.all(queries);
-
+  const [ queryResults ] = await query;
+  const results = queryResults.map(result => ({
+    id: String(result.id),
+    handle: result.handle,
+    name: result.handle,
+    image: result.image,
+    team: result.teams.map(mem => mem.team.name)?.[0],
+    games: result.entity_type === 'ORG' ? [] : result.games,
+    type: result.entity_type
+  }));
+  /*
   const users = usersResult.map(user => ({
     id: String(user.id),
     handle: user.handle,
@@ -72,8 +80,8 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
     team: org.handle,
     games: [],
     type: 'ORG' as EntityType
-  }));
-  return { users, teams, orgs };
+  }));*/
+  return { results };
 }
 
 export async function getSearchParams(): Promise<SearchParams> {
