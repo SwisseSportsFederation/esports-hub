@@ -117,7 +117,7 @@
     transform: translate3d(0, -2.4em, 0);
     transform-origin: left;
     opacity: 1;
-    @include text-color;
+    @include text-gray-4;
     @apply text-xs;
   }
 
@@ -126,7 +126,7 @@
     transform: translate3d(0, -2.7em, 0);
     transform-origin: left;
     opacity: 1;
-    @include text-color;
+    @include text-gray-4;
     @apply text-xs;
   }
 
@@ -137,7 +137,7 @@
   textarea[required]+span:after,
   input[required]+span:after {
     content: " *";
-    color: currentColor;
+    color: text-gray-4;
   }
 
   input[type="date"]::-webkit-inner-spin-button,
