@@ -4,6 +4,7 @@ import Modal from "~/components/Notifications/Modal";
 import IconButton from "~/components/Button/IconButton";
 import { dateToFormattedString } from "~/utils/dateHelper";
 import { PropsWithClassName } from '~/utils/PropsWithClassName';
+import classNames from 'classnames';
 
 interface IDateInputProps {
   label: string;
@@ -16,14 +17,17 @@ interface IDateInputProps {
 const DateInput = ({ label, name, value: defaultValue, min, max, className }: PropsWithClassName<IDateInputProps>) => {
   const [value, onChange] = useState<Date | null>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
+  const spanClasses = classNames({
+    'text-gray-4': !value
+  })
   return <>
     <div className={`relative mt-3 z-20 w-full ${className}`}>
       <label className={`absolute text-xs -top-5 left-4 text-color`}>{label}</label>
-      <div className={`text-color h-10 text-md px-4 cursor-pointer 
+      <div className={`text-black h-10 text-md px-4 cursor-pointer 
                        relative inline-flex items-center justify-between
                        rounded-xl bg-white borderborder-gray-300 w-full`}
-           placeholder="Select date" onClick={() => setIsOpen(true)}>
-        <span>{dateToFormattedString(value)}</span>
+                       onClick={() => setIsOpen(true)}>
+        <span className={spanClasses}>{value ? dateToFormattedString(value) : 'Select date'}</span>
         <IconButton icon='remove' type='button' action={() => onChange(null)}/>
       </div>
 

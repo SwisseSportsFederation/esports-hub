@@ -23,7 +23,7 @@ export default function Admin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(!userValid) {
+    if(!userValid && !location.pathname.endsWith('/admin/user/account')) {
       navigate('/admin/user/account');
     }
   }, [location]);

@@ -15,7 +15,7 @@ export default function Index() {
   const textColor =  "text-white";
   return <>
     <section className="flex items-center justify-center flex-col px-3 h-full z-10 flex-1">
-      <h2 className={textColor + " text-xl lg:text-3xl font-bold mb-4"}>Search for Swiss Esports Actors</h2>
+      <h2 className={textColor + " text-xl lg:text-3xl font-bold mb-4"}>Search for Swiss Esports Members</h2>
       <div className="max-w-full">
         <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
                    languages={searchParams.languages ?? []} forceWhiteText={true}/>

@@ -47,7 +47,7 @@ authenticator.use(
         try {
           user = await db.user.create({
             data: {
-              handle: '',
+              handle: profile.emails![0].value,
               name: '',
               description: '',
               surname: '',
