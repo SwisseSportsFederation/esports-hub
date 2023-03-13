@@ -131,7 +131,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
       </div>
     </div>
     {entityType === 'USER' &&
-    <div className="bg-red-600/25 py-12 my-4">
+    <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
       <div className="w-full max-w-prose mx-auto">
         <H1>Danger Zone</H1>
         <div className='flex flex-col items-center max-w-md mx-auto mt-8'>

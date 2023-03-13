@@ -42,9 +42,9 @@ const DropDownAdder = (props: IDropDownAdderProps) => {
   };
 
   return <>
-    <div className="w-full">
+    <div className="w-full max-w-sm lg:max-w-full relative">
       <label>
-        <span className={`absolute left-4 top-6 transition-all text-color`}>{label}</span>
+        <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>{label}</span>
       </label>
       <DropDownInput name={label} inputs={selectableValues} selected={null} isBig={true} className="mt-1 block"
                      onChange={addItem} showSelected={false}/>
