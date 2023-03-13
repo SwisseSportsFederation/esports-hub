@@ -34,20 +34,18 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const game = paramUndefined(searchParams.get("game"));
   const language = paramUndefined(searchParams.get("language"));
   const type = paramUndefined(searchParams.get("type"));
-  const offsetOrg = paramUndefined(searchParams.get("offset-org"));
-  const offsetTeam = paramUndefined(searchParams.get("offset-team"));
-  const offsetUser = paramUndefined(searchParams.get("offset-user"));
+  const offset = paramUndefined(searchParams.get("offset"));
 
-  const query = searchQuery(search, canton, game, language, type, Number(offsetOrg ?? 0));
-  // TODO replace offsetorg with offset
+  const query = searchQuery(search, canton, game, language, type, Number(offset ?? 0));
 
-  const [ queryResults ] = await query;
+  const queryResults = await query;
+  console.log("results ", queryResults);
   const results = queryResults.map(result => ({
     id: String(result.id),
     handle: result.handle,
     name: result.handle,
     image: result.image,
-    team: result.teams.map(mem => mem.team.name)?.[0],
+    team: result.team ? result.team : "",
     games: result.entity_type === 'ORG' ? [] : result.games,
     type: result.entity_type
   }));

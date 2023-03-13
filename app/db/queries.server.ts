@@ -36,8 +36,8 @@ type EntityQuery = {
   id: bigint,
   image: StringOrNull,
   handle: string,
-  games: { name: string }[],
-  teams: { team: { name: StringOrNull } }[],
+  games: string[],
+  team?: string[],
   entity_type: EntityType
 }[];
 
@@ -45,38 +45,96 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
   const searchString = `'%${search}%'`;
   
   return db.$queryRaw<EntityQuery[]>`
-  SELECT u2.id, u2.handle, u2.image, u2.game_id, short_name, 'USER' AS entity_type FROM (
-    SELECT u.id, u.handle, u.image, array_agg(ug.A) AS game_id FROM User u
-    INNER JOIN _GameToUser ug
-       ON u.id = ug.B
-    WHERE LOWER(handle) LIKE ${searchString}
-    GROUP BY (u.id, u.handle, u.image)
-  ) AS u2
-  INNER JOIN TeamMember tm
-      ON u2.id = tm.user_id
-  INNER JOIN Team t2
-      ON t2.id = tm.team_id
-  WHERE tm.is_main_team = true
+  SELECT
+      u2.id,
+      u2.handle,
+      u2.image,
+      u2.games,
+      t.name AS team,
+      'USER' AS entity_type
+  FROM
+      (SELECT
+          u.id,
+          u.handle,
+          u.image,
+          array_agg(g.name) AS games 
+      FROM
+          "user" u 
+      INNER JOIN
+          "_GameToUser" gu
+              ON u.id = gu."B"
+      INNER JOIN
+          "game" g
+            ON gu."A" = g.id
+      WHERE
+          LOWER(u.handle) LIKE ${searchString}
+      GROUP BY
+          (u.id,
+          u.handle,
+          u.image)) AS u2 
+  INNER JOIN
+      "team_member" tm 
+          ON u2.id = tm.user_id 
+  INNER JOIN
+      "team" t 
+          ON t.id = tm.team_id 
+  WHERE
+      tm.is_main_team = true 
 
-  UNION
+  UNION ALL
 
-  SELECT id, handle, image, array_agg(game_id), short_name, 'TEAM' AS entity_type FROM teams
-  WHERE LOWER(handle) LIKE ${searchString}
-  GROUP BY (id, handle, image)
+  SELECT
+      t2.id,
+      t2.handle,
+      t2.image,
+      array_agg(g2.name) AS games,
+      '' AS team,
+      'TEAM' AS entity_type 
+  FROM
+      "team" t2
+	INNER JOIN
+		"game" g2
+			ON t2.game_id = g2.id
+    WHERE
+        LOWER(handle) LIKE ${searchString}
+    GROUP BY
+        (t2.id,
+        t2.handle,
+        t2.image) 
 
-  UNION
-
-  SELECT org.id, org.handle, org.image, array_agg(game_id), org.short_name, 'ORG' AS entity_type FROM organisations AS org
-  INNER JOIN organisation_team ot
-      ON org.id = ot.organisation_id
-  INNER JOIN team t3
-      ON ot.team_id = t3.id
-  WHERE LOWER(org.handle) LIKE ${searchString}
-  GROUP BY (org.id, org.handle, org.image)
+  UNION ALL
+    
+  SELECT
+      org.id,
+      org.handle,
+      org.image,
+      array_agg(g3.name) AS games,
+      '' AS team,
+      'ORG' AS entity_type 
+  FROM
+      "organisation" AS org 
+  INNER JOIN
+      "organisation_team" ot 
+          ON org.id = ot.organisation_id 
+  INNER JOIN
+      "team" t3 
+          ON ot.team_id = t3.id 
+	INNER JOIN
+		"game" g3
+			ON t3.game_id = g3.id
+    WHERE
+        LOWER(org.handle) LIKE ${searchString}
+    GROUP BY
+        (org.id,
+        org.handle,
+        org.image)
 `
+  
+
 // TODO Test
 // TODO Offset
 // TODO Game Names instead of IDs
+// TODO Canton etc. filtering
 }
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
@@ -168,3 +226,4 @@ export {
   searchQueries,
   searchQuery
 };
+
