@@ -31,7 +31,7 @@ export function links() {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "SESF Esports Database",
+  title: "Swiss Esports Database",
   viewport: "width=device-width,initial-scale=1",
 });
 
