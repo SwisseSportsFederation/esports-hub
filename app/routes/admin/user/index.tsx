@@ -7,6 +7,6 @@ export default function() {
   const { user } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const navigations = ["Account", "Games", "Socials"];
 
-  return <EditOverviewBlock title="Profile" type='USER' navigations={navigations} canDelete={true}
+  return <EditOverviewBlock title="Profile" type='USER' navigations={navigations} canDelete={false}
                             entityId={user.db.id}/>;
 };
