@@ -43,7 +43,6 @@ type EntityQuery = {
 
 const searchQuery = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): Promise<EntityQuery[]> => {
   const searchString = `'%${search}%'`;
-  
   return db.$queryRaw<EntityQuery[]>`
   SELECT
       u2.id,
@@ -59,12 +58,12 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
           u.image,
           array_agg(g.name) AS games 
       FROM
-          "user" u 
+          "public"."user" u 
       INNER JOIN
-          "_GameToUser" gu
+          "public"."_GameToUser" gu
               ON u.id = gu."B"
       INNER JOIN
-          "game" g
+          "public"."game" g
             ON gu."A" = g.id
       WHERE
           LOWER(u.handle) LIKE ${searchString}
@@ -73,10 +72,10 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
           u.handle,
           u.image)) AS u2 
   INNER JOIN
-      "team_member" tm 
+      "public"."team_member" tm 
           ON u2.id = tm.user_id 
   INNER JOIN
-      "team" t 
+      "public"."team" t 
           ON t.id = tm.team_id 
   WHERE
       tm.is_main_team = true 
@@ -91,16 +90,16 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
       '' AS team,
       'TEAM' AS entity_type 
   FROM
-      "team" t2
+      "public"."team" t2
 	INNER JOIN
-		"game" g2
+      "public"."game" g2
 			ON t2.game_id = g2.id
-    WHERE
-        LOWER(handle) LIKE ${searchString}
-    GROUP BY
-        (t2.id,
-        t2.handle,
-        t2.image) 
+  WHERE
+      LOWER(handle) LIKE ${searchString}
+  GROUP BY
+      (t2.id,
+      t2.handle,
+      t2.image) 
 
   UNION ALL
     
@@ -112,28 +111,26 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
       '' AS team,
       'ORG' AS entity_type 
   FROM
-      "organisation" AS org 
+      "public"."organisation" AS org 
   INNER JOIN
-      "organisation_team" ot 
+      "public"."organisation_team" ot 
           ON org.id = ot.organisation_id 
   INNER JOIN
-      "team" t3 
+      "public"."team" t3 
           ON ot.team_id = t3.id 
 	INNER JOIN
-		"game" g3
+      "public"."game" g3
 			ON t3.game_id = g3.id
-    WHERE
-        LOWER(org.handle) LIKE ${searchString}
-    GROUP BY
-        (org.id,
-        org.handle,
-        org.image)
+  WHERE
+      LOWER(org.handle) LIKE ${searchString}
+  GROUP BY
+      (org.id,
+      org.handle,
+      org.image)
 `
-  
 
 // TODO Test
 // TODO Offset
-// TODO Game Names instead of IDs
 // TODO Canton etc. filtering
 }
 
