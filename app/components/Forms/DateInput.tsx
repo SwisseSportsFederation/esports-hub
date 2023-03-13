@@ -21,7 +21,7 @@ const DateInput = ({ label, name, value: defaultValue, min, max, className }: Pr
     'text-gray-4': !value
   })
   return <>
-    <div className={`relative mt-3 z-20 w-full ${className}`}>
+    <div className={`relative mt-3 z-20 w-full max-w-sm lg:max-w-full ${className}`}>
       <label className={`absolute text-xs -top-5 left-4 text-color`}>{label}</label>
       <div className={`text-black h-10 text-md px-4 cursor-pointer 
                        relative inline-flex items-center justify-between

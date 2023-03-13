@@ -1,19 +1,23 @@
-import H1Nav from "~/components/Titles/H1Nav";
-import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
-import { Form } from "@remix-run/react";
-import TextInput from "~/components/Forms/TextInput";
-import TextareaInput from "~/components/Forms/TextareaInput";
-import DropdownInput from "~/components/Forms/DropdownInput";
-import DropDownAdder from "~/components/Forms/DropDownAdder";
 import type { Canton, Game } from "@prisma/client";
+import { Form, useFetcher } from "@remix-run/react";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import { useState } from "react";
+import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
+import LinkBlock from "~/components/Blocks/LinkBlock";
 import ActionButton from "~/components/Button/ActionButton";
+import DateInput from "~/components/Forms/DateInput";
+import DropDownAdder from "~/components/Forms/DropDownAdder";
+import DropdownInput from "~/components/Forms/DropdownInput";
+import TextareaInput from "~/components/Forms/TextareaInput";
+import TextInput from "~/components/Forms/TextInput";
+import AskModalBody from "~/components/Notifications/AskModalBody";
+import Modal from "~/components/Notifications/Modal";
+import H1Nav from "~/components/Titles/H1Nav";
 import type { StringOrNull } from "~/db/queries.server";
-import type { IdValue, SearchParams } from "~/services/search.server";
 import type { EntityType } from "~/helpers/entityType";
 import { entityToPathSegment } from "~/helpers/entityType";
-import LinkBlock from "~/components/Blocks/LinkBlock";
-import DateInput from "~/components/Forms/DateInput";
-import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { IdValue, SearchParams } from "~/services/search.server";
+import H1 from "../Titles/H1";
 
 type EntityDetailBlockProps = {
   entityId: number,
@@ -49,7 +53,19 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     entityBirthday,
     surname,
     game
-  } = props;
+  } = props;  
+  const [modalOpen, setModalOpen] = useState(false);
+  const fetcher = useFetcher();
+  const handleDelete = () => {
+    setModalOpen(false);
+    const path = entityToPathSegment(entityType);
+    fetcher.submit({
+      entityId: entityId.toString()
+    }, {
+      method: 'delete',
+      action: `/admin/api/${path}`
+    })
+  };
 
   let path = `/admin/${entityToPathSegment(entityType)}`;
   if(entityType !== 'USER') {
@@ -114,6 +130,21 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         </Form>
       </div>
     </div>
+    {entityType === 'USER' &&
+    <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
+      <div className="w-full max-w-prose mx-auto">
+        <H1>Danger Zone</H1>
+        <div className='flex flex-col items-center max-w-md mx-auto mt-8'>
+          <ActionButton content='Delete' action={() => setModalOpen(true)}/>
+          <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
+            <AskModalBody message={`Do you really want to delete your account?`}
+                          primaryButton={{ text: 'Yes', onClick: handleDelete }}
+                          secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }}/>
+          </Modal>
+        </div>
+      </div>
+    </div>
+    }
   </>;
 }
 
