@@ -7,16 +7,16 @@ function hydrate() {
     hydrateRoot(
       document,
       <StrictMode>
-        <RemixBrowser/>
+        <RemixBrowser />
       </StrictMode>
     );
   });
 }
 
-if(window.requestIdleCallback) {
-  window.requestIdleCallback(hydrate);
+if (typeof requestIdleCallback === "function") {
+  requestIdleCallback(hydrate);
 } else {
   // Safari doesn't support requestIdleCallback
   // https://caniuse.com/requestidlecallback
-  window.setTimeout(hydrate, 1);
+  setTimeout(hydrate, 1);
 }

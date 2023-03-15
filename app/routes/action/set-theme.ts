@@ -5,7 +5,7 @@ import { getThemeSession } from "~/services/theme.server";
 import { isTheme } from "~/context/theme-provider";
 
 export const action = async ({ request }: ActionArgs) => {
-  const themeSession = await getThemeSession(request);
+  const themeSession = await getThemeSession(request.headers.get("Cookie"));
   const requestText = await request.text();
   const form = new URLSearchParams(requestText);
   const theme = form.get("theme");
