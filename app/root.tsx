@@ -35,22 +35,25 @@ export const meta: MetaFunction = () => ({
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await authenticator.isAuthenticated(request);
-  const themeSession = await getThemeSession(request);
-  const session = await getSession(
-    request.headers.get("Cookie")
-  );
+  const cookie = request.headers.get("Cookie");
+  const userPromise = authenticator.isAuthenticated(request);
+  const themeSessionPromise = getThemeSession(cookie);
+  const sessionPromise = getSession(cookie);
+  const [user, themeSession, session] = await Promise.all([userPromise, themeSessionPromise, sessionPromise]);
+
   const message = session.get("globalMessage") || null;
+
 
   return json({
     message,
     user,
     theme: themeSession.getTheme(),
   }, {
-    headers: {
-      // only necessary with cookieSessionStorage
-      "Set-Cookie": await commitSession(session),
-    },
+    ...(message && {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      }
+    })
   });
 }
 
@@ -93,7 +96,6 @@ function App() {
 
 export default function AppWithProviders() {
   const { theme } = useLoaderData<typeof loader>();
-
   return (
     <ThemeProvider specifiedTheme={theme}>
       <App/>
