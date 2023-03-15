@@ -39,14 +39,13 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const query = searchQuery(search, canton, game, language, type, Number(offset ?? 0));
 
   const queryResults = await query;
-  console.log("results ", queryResults);
   const results = queryResults.map(result => ({
     id: String(result.id),
     handle: result.handle,
     name: result.handle,
     image: result.image,
     team: result.team ? result.team : "",
-    games: result.entity_type === 'ORG' ? [] : result.games,
+    games: result.entity_type === 'ORG' ? [] : result.games.map((game: string) => {return {id: 0, name: game}}),
     type: result.entity_type
   }));
   /*

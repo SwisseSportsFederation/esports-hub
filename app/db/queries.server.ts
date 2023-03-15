@@ -42,7 +42,7 @@ type EntityQuery = {
 }[];
 
 const searchQuery = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): Promise<EntityQuery[]> => {
-  const searchString = `'%${search}%'`;
+  const searchString = `%${search?.toLowerCase()}%`;
   return db.$queryRaw<EntityQuery[]>`
   SELECT
       u2.id,
@@ -95,7 +95,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
       "public"."game" g2
 			ON t2.game_id = g2.id
   WHERE
-      LOWER(handle) LIKE ${searchString}
+      LOWER(t2.handle) LIKE ${searchString}
   GROUP BY
       (t2.id,
       t2.handle,
