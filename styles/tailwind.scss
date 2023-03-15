@@ -137,7 +137,7 @@
   textarea[required]+span:after,
   input[required]+span:after {
     content: " *";
-    color: text-gray-4;
+    @apply text-gray-4;
   }
 
   input[type="date"]::-webkit-inner-spin-button,
