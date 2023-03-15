@@ -45,92 +45,102 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
   const searchString = `%${search?.toLowerCase()}%`;
   return db.$queryRaw<EntityQuery[]>`
   SELECT
-      u2.id,
-      u2.handle,
-      u2.image,
-      u2.games,
-      t.name AS team,
-      'USER' AS entity_type
-  FROM
-      (SELECT
-          u.id,
-          u.handle,
-          u.image,
-          array_agg(g.name) AS games 
-      FROM
-          "public"."user" u 
-      INNER JOIN
-          "public"."_GameToUser" gu
-              ON u.id = gu."B"
-      INNER JOIN
-          "public"."game" g
-            ON gu."A" = g.id
-      WHERE
-          LOWER(u.handle) LIKE ${searchString}
-      GROUP BY
-          (u.id,
-          u.handle,
-          u.image)) AS u2 
-  INNER JOIN
-      "public"."team_member" tm 
-          ON u2.id = tm.user_id 
-  INNER JOIN
-      "public"."team" t 
-          ON t.id = tm.team_id 
-  WHERE
-      tm.is_main_team = true 
+      e.id,
+      e.handle,
+      e.image,
+      e.games,
+      e.team,
+      e.entity_type
+  FROM (
+    SELECT
+        u2.id,
+        u2.handle,
+        u2.image,
+        u2.games,
+        t.name AS team,
+        'USER' AS entity_type
+    FROM
+        (SELECT
+            u.id,
+            u.handle,
+            u.image,
+            array_agg(g.name) AS games 
+        FROM
+            "public"."user" u 
+        INNER JOIN
+            "public"."_GameToUser" gu
+                ON u.id = gu."B"
+        INNER JOIN
+            "public"."game" g
+              ON gu."A" = g.id
+        WHERE
+            LOWER(u.handle) LIKE ${searchString}
+        GROUP BY
+            (u.id,
+            u.handle,
+            u.image)) AS u2 
+    INNER JOIN
+        "public"."team_member" tm 
+            ON u2.id = tm.user_id 
+    INNER JOIN
+        "public"."team" t 
+            ON t.id = tm.team_id 
+    WHERE
+        tm.is_main_team = true 
 
-  UNION ALL
+    UNION ALL
 
-  SELECT
-      t2.id,
-      t2.handle,
-      t2.image,
-      array_agg(g2.name) AS games,
-      '' AS team,
-      'TEAM' AS entity_type 
-  FROM
-      "public"."team" t2
-	INNER JOIN
-      "public"."game" g2
-			ON t2.game_id = g2.id
-  WHERE
-      LOWER(t2.handle) LIKE ${searchString}
-  GROUP BY
-      (t2.id,
-      t2.handle,
-      t2.image) 
+    SELECT
+        t2.id,
+        t2.handle,
+        t2.image,
+        array_agg(g2.name) AS games,
+        '' AS team,
+        'TEAM' AS entity_type 
+    FROM
+        "public"."team" t2
+    INNER JOIN
+        "public"."game" g2
+        ON t2.game_id = g2.id
+    WHERE
+        LOWER(t2.handle) LIKE ${searchString}
+    GROUP BY
+        (t2.id,
+        t2.handle,
+        t2.image) 
 
-  UNION ALL
-    
-  SELECT
-      org.id,
-      org.handle,
-      org.image,
-      array_agg(g3.name) AS games,
-      '' AS team,
-      'ORG' AS entity_type 
-  FROM
-      "public"."organisation" AS org 
-  INNER JOIN
-      "public"."organisation_team" ot 
-          ON org.id = ot.organisation_id 
-  INNER JOIN
-      "public"."team" t3 
-          ON ot.team_id = t3.id 
-	INNER JOIN
-      "public"."game" g3
-			ON t3.game_id = g3.id
-  WHERE
-      LOWER(org.handle) LIKE ${searchString}
-  GROUP BY
-      (org.id,
-      org.handle,
-      org.image)
+    UNION ALL
+      
+    SELECT
+        org.id,
+        org.handle,
+        org.image,
+        array_agg(g3.name) AS games,
+        '' AS team,
+        'ORG' AS entity_type 
+    FROM
+        "public"."organisation" AS org 
+    INNER JOIN
+        "public"."organisation_team" ot 
+            ON org.id = ot.organisation_id 
+    INNER JOIN
+        "public"."team" t3 
+            ON ot.team_id = t3.id 
+    INNER JOIN
+        "public"."game" g3
+        ON t3.game_id = g3.id
+    WHERE
+        LOWER(org.handle) LIKE ${searchString}
+    GROUP BY
+        (org.id,
+        org.handle,
+        org.image)
+  ) AS e
+  ORDER BY e.handle
+  LIMIT 15
+  OFFSET ${offset}
 `
 
-// TODO Test
-// TODO Offset
 // TODO Canton etc. filtering
 }
 

@@ -48,36 +48,6 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
     games: result.entity_type === 'ORG' ? [] : result.games.map((game: string) => {return {id: 0, name: game}}),
     type: result.entity_type
   }));
-  /*
-  const users = usersResult.map(user => ({
-    id: String(user.id),
-    handle: user.handle,
-    name: user.handle,
-    image: user.image,
-    team: user.teams.map(mem => mem.team.name)?.[0],
-    games: user.games,
-    type: 'USER' as EntityType
-  }));
-
-  const teams = teamsResult.map(team => ({
-    id: String(team.id),
-    handle: team.handle,
-    image: team.image,
-    name: team.name,
-    team: team.handle,
-    games: team.game ? [team.game] : [],
-    type: 'TEAM' as EntityType
-  }));
-
-  const orgs = orgsResult.map(org => ({
-    id: String(org.id),
-    handle: org.handle,
-    image: org.image,
-    name: org.name,
-    team: org.handle,
-    games: [],
-    type: 'ORG' as EntityType
-  }));*/
   return { results };
 }
 
