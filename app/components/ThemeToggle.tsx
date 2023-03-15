@@ -1,22 +1,23 @@
 import Icon from "./Icons";
-import { useContext } from "react";
-import { ThemeContext, ThemeDispatchContext } from "~/context/ThemeContext";
+import { Theme, Themed, useTheme } from "~/context/theme-provider";
 
 export default function() {
-  const theme: string = useContext(ThemeContext);
-  const dispatch: Function = useContext(ThemeDispatchContext);
-  const isDark = theme === 'dark';
-
+  const [theme, setTheme] = useTheme();
+  const isDark = theme === Theme.DARK;
   return <label className="flex items-center cursor-pointer">
     <div className="relative">
       <input data-testid="theme-toggle" type="checkbox" className="hidden" defaultChecked={isDark} onChange={() => {
-        dispatch({value: isDark ? 'light' : 'dark'});
+        setTheme(isDark ? Theme.LIGHT : Theme.DARK);
       }}/>
-      <div className="toggle__line w-10 h-4 bg-gray-400 rounded-full shadow-inner"/>
-      <div className="toggle__dot absolute w-6 h-6 duration-[0.3s] ease-in-out  top-[-.25rem] left-[-.25rem]
+      <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"/>
+      <div className="absolute w-6 h-6 duration-[0.3s] ease-in-out  top-[-.25rem] left-[-.25rem]
                       rounded-full shadow inset-y-0 flex justify-center items-center
                       bg-black dark:bg-white dark:transform dark:translate-x-[100%]">
-                        <Icon iconName={`${isDark ? 'moon' : 'sun'}`} className='text-white dark:text-black p-0 m-0 absolute h-[50%] w-[60%]'/>
+        <Themed
+          dark={<Icon iconName='sun' className='text-white dark:text-black p-0 m-0 absolute h-[50%] w-[60%]'/>}
+          light={<Icon iconName='moon' className='text-white dark:text-black p-0 m-0 absolute h-[50%] w-[60%]'/>}
+        />
+
       </div>
     </div>
   </label>;

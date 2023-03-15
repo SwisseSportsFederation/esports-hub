@@ -8,7 +8,6 @@ export default function Background() {
          loading="lazy"
          decoding="async"
          ref={useCallback((img: HTMLImageElement | null) => {
-           console.log(img?.complete);
            if(img?.complete) {
              setVisible(false);
            }

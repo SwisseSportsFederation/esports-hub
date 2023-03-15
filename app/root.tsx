@@ -21,9 +21,8 @@ import LinkButton from "./components/Button/LinkButton";
 import type { LoaderFunctionArgs } from "@remix-run/router";
 import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
-import classNames from "classnames";
-import { useContext } from "react";
-import { ThemeContext, ThemeProvider } from "./context/ThemeContext";
+import { ThemeHead, ThemeBody, ThemeProvider, useTheme } from "~/context/theme-provider";
+import { getThemeSession } from "~/services/theme.server";
 
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
@@ -37,13 +36,16 @@ export const meta: MetaFunction = () => ({
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
+  const themeSession = await getThemeSession(request);
   const session = await getSession(
     request.headers.get("Cookie")
   );
   const message = session.get("globalMessage") || null;
+
   return json({
     message,
-    user
+    user,
+    theme: themeSession.getTheme(),
   }, {
     headers: {
       // only necessary with cookieSessionStorage
@@ -57,39 +59,45 @@ BigInt.prototype.toJSON = function() {
   return this.toString()
 }
 
-export default function App() {
-  const { message } = useLoaderData<typeof loader>()
+function App() {
+  const { message, theme: loaderTheme } = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
   const location = useLocation();
   const forceWhiteText = location.pathname == "/";
 
   return (
-    <html lang="en">
+    <html lang="en" className={theme ?? ""}>
     <head>
       <Meta/>
+      <ThemeHead ssrTheme={Boolean(loaderTheme)}/>
       <Links/>
     </head>
     <body>
-    {
-      message ?
-        <Toast text={message}/>
-        : null
-    }
+    {message ? <Toast text={message}/> : null}
     <div id="modal-root"/>
-    <ThemeProvider>
-      <div className='min-h-screen min-h-[-webkit-fill-available]
-          dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
-        <Header forceWhiteText={forceWhiteText}/>
-        <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
-          <Outlet/>
-        </main>
-        <Footer forceWhiteText={forceWhiteText}/>
-      </div>
-    </ThemeProvider>
+    <div className='min-h-screen min-h-[-webkit-fill-available] dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
+      <Header forceWhiteText={forceWhiteText}/>
+      <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
+        <Outlet/>
+      </main>
+      <Footer forceWhiteText={forceWhiteText}/>
+    </div>
     <ScrollRestoration/>
     <Scripts/>
     <LiveReload/>
+    <ThemeBody ssrTheme={Boolean(loaderTheme)}/>
     </body>
     </html>
+  );
+}
+
+export default function AppWithProviders() {
+  const { theme } = useLoaderData<typeof loader>();
+
+  return (
+    <ThemeProvider specifiedTheme={theme}>
+      <App/>
+    </ThemeProvider>
   );
 }
 

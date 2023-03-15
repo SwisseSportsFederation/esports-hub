@@ -142,7 +142,6 @@ const SearchModal = ({
   const manualSearch = useCallback(() => {
     fetcher.submit({ notInTeam: teamId, search: '' }, { method: 'post', action: '/admin/api/users' });
   }, []);
-  console.log(transition);
   useEffect(() => {
     manualSearch()
   }, [manualSearch]);
