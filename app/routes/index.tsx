@@ -1,24 +1,25 @@
-import SearchBox from "~/components/Forms/SearchBox";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { getSearchParams } from "~/services/search.server";
+// import SearchBox from "~/components/Forms/SearchBox";
+// import { json } from "@remix-run/node";
+// import { useLoaderData } from "@remix-run/react";
+// import { getSearchParams } from "~/services/search.server";
 import Background from "~/components/Background";
 
-export async function loader() {
-  return json({
-    searchParams: await getSearchParams()
-  });
-}
+// export async function loader() {
+//
+//   return json({
+//     searchParams: await getSearchParams()
+//   });
+// }
 
 export default function Index() {
-  const { searchParams } = useLoaderData<typeof loader>();
-  const textColor =  "text-white";
+  // const { searchParams } = useLoaderData<typeof loader>();
+  const textColor = "text-white";
   return <>
     <section className="flex items-center justify-center flex-col px-3 h-full z-10 flex-1">
       <h2 className={textColor + " text-xl lg:text-3xl font-bold mb-4"}>Search for Swiss Esports Members</h2>
       <div className="max-w-full">
-        <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
-                   languages={searchParams.languages ?? []} forceWhiteText={true}/>
+        {/*<SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}*/}
+        {/*           languages={searchParams.languages ?? []} forceWhiteText={true}/>*/}
       </div>
     </section>
     <Background/>
