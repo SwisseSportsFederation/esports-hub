@@ -66,24 +66,22 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             u.image,
             array_agg(g.name) AS games 
         FROM
-            "public"."user" u 
+            "user" u 
         INNER JOIN
-            "public"."_GameToUser" gu
+            "_GameToUser" gu
                 ON u.id = gu."B"
         INNER JOIN
-            "public"."game" g
+            "game" g
               ON gu."A" = g.id
         WHERE
             LOWER(u.handle) LIKE ${searchString}
         GROUP BY
-            (u.id,
-            u.handle,
-            u.image)) AS u2 
+            u.id) AS u2 
     INNER JOIN
-        "public"."team_member" tm 
+        "team_member" tm 
             ON u2.id = tm.user_id 
     INNER JOIN
-        "public"."team" t 
+        "team" t 
             ON t.id = tm.team_id 
     WHERE
         tm.is_main_team = true 
@@ -98,16 +96,14 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         '' AS team,
         'TEAM' AS entity_type 
     FROM
-        "public"."team" t2
+        "team" t2
     INNER JOIN
-        "public"."game" g2
+        "game" g2
         ON t2.game_id = g2.id
     WHERE
         LOWER(t2.handle) LIKE ${searchString}
     GROUP BY
-        (t2.id,
-        t2.handle,
-        t2.image) 
+        t2.id
 
     UNION ALL
       
@@ -119,22 +115,20 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         '' AS team,
         'ORG' AS entity_type 
     FROM
-        "public"."organisation" AS org 
+        "organisation" AS org 
     INNER JOIN
-        "public"."organisation_team" ot 
+        "organisation_team" ot 
             ON org.id = ot.organisation_id 
     INNER JOIN
-        "public"."team" t3 
+        "team" t3 
             ON ot.team_id = t3.id 
     INNER JOIN
-        "public"."game" g3
+        "game" g3
         ON t3.game_id = g3.id
     WHERE
         LOWER(org.handle) LIKE ${searchString}
     GROUP BY
-        (org.id,
-        org.handle,
-        org.image)
+        org.id
   ) AS e
   ORDER BY e.handle
   LIMIT 15
