@@ -49,7 +49,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false, fo
   return (
     <Form method="get" action={'/search'} autoComplete={"on"}>
       <div className="max-w-sm md:max-w-lg">
-        <TextInput id="search" label="Search" searchIcon={true}
+        <TextInput id="search" label="Search" searchIcon={true} className={buttonTextColor}
                    buttonType="submit" defaultValue={params.get("search")}/>
       </div>
       <div className="pt-5 px-3 -mt-5 w-full max-w-sm md:max-w-lg">
