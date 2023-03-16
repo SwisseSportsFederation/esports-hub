@@ -53,7 +53,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     entityBirthday,
     surname,
     game
-  } = props;  
+  } = props;
   const [modalOpen, setModalOpen] = useState(false);
   const fetcher = useFetcher();
   const handleDelete = () => {
@@ -121,30 +121,30 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           </div>
           <DropDownAdder name="languages" label="Language" values={searchParams.languages}
                          defaultValues={languages}/>
-          {entityType === 'USER' &&
-            <div className="w-full max-w-sm lg:max-w-full">
-              <LinkBlock title="Password" path={`/admin/user/change-password`}/>
-            </div>
-          }
           <ActionButton content='Save' type='submit'/>
         </Form>
       </div>
     </div>
     {entityType === 'USER' &&
-    <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
-      <div className="w-full max-w-prose mx-auto">
-        <H1>Danger Zone</H1>
-        <div className='flex flex-col items-center max-w-md mx-auto mt-8'>
-          <ActionButton content='Delete' action={() => setModalOpen(true)}/>
-          <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
-            <AskModalBody message={`Do you really want to delete your account?`}
-                          primaryButton={{ text: 'Yes', onClick: handleDelete }}
-                          secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }}/>
-          </Modal>
+      <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
+        <div className="w-full max-w-prose mx-auto">
+          <H1>Danger Zone</H1>
+          <div className='flex flex-col items-center max-w-md mx-auto mt-8 gap-4'>
+            <ActionButton content="Change Password" action={() => fetcher.submit({}, {
+              action: '/admin/api/password',
+              method: 'post'
+            })}/>
+            <ActionButton content='Delete' action={() => setModalOpen(true)}/>
+          </div>
         </div>
       </div>
-    </div>
     }
+    <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
+      <AskModalBody message={`Do you really want to delete your account?`}
+                    primaryButton={{ text: 'Yes', onClick: handleDelete }}
+                    secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }}/>
+    </Modal>
+
   </>;
 }
 
