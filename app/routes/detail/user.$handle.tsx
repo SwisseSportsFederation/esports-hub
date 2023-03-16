@@ -69,7 +69,7 @@ export default function() {
   return <div className="mx-3 py-7">
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
-        <DetailHeader name={user.name}
+        <DetailHeader name={`${user.name} ${user.surname}`}
                       imagePath={user.image}
                       entitySocials={user.socials}
                       games={user.games}/>
