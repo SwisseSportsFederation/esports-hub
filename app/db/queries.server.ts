@@ -62,6 +62,9 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
   let showUser = typeCheck(type, 'User');
   let showTeam = typeCheck(type, 'Team');
   let showOrg = typeCheck(type, 'Organisation');
+  // FIXME: Only show active entities
+  // FIXME: Do not show teams in users that have not accepted invite yet.
+  // TODO: Show Games of teams in the organisations. Do not show of teams that have not accepted invite yet
   return db.$queryRaw<EntityQuery[]>`
   -- *********************************
   -- ENTITY 
@@ -98,12 +101,14 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         INNER JOIN
               "game" gam
            ON gtu."A" = gam.id  
+           AND gam.name LIKE ${gameString}
               --
               -- canton
               --
         INNER JOIN
               "canton" can1
           ON usr.canton_id = can1.id
+          AND can1.name LIKE ${cantonString}
               --
               -- _LanguageToUser
               --
@@ -116,12 +121,14 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         INNER JOIN
               "language" lang1
           ON ltu."A" = lang1.id
+          AND lang1.name LIKE ${langString}
               --
               -- team_member
               --
         INNER JOIN
               "team_member" tem 
            ON usr.id = tem.user_id 
+           AND tem.is_main_team = true
               --
               -- team
               --
@@ -135,14 +142,6 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             1 = ${showUser}
         AND
             LOWER(usr.handle) LIKE ${searchString}
-        AND
-            can1.name LIKE ${cantonString}
-        AND
-            lang1.name LIKE ${langString}
-        AND
-            gam.name LIKE ${gameString}
-        AND 
-            tem.is_main_team = true           
              --
              --  GROUP BY
              --
@@ -174,12 +173,14 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         INNER JOIN
               "game" gam2
            ON tea.game_id = gam2.id
+           AND gam2.name LIKE ${gameString}
               --
               -- canton
               --
         INNER JOIN
               "canton" can2
           ON tea.canton_id = can2.id
+          AND can2.name LIKE ${cantonString}
               --
               -- _LanguageToTeam
               --
@@ -192,6 +193,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         INNER JOIN
               "language" lang2
           ON ltt."A" = lang2.id
+          AND lang2.name LIKE ${langString}
               --
               -- WHERE
               --
@@ -199,21 +201,13 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             1 = ${showTeam}
         AND
             LOWER(tea.handle) LIKE ${searchString}
-        AND
-            can2.name LIKE ${cantonString}
-        AND
-            lang2.name LIKE ${langString}
-        AND
-            gam2.name LIKE ${gameString}
               --
               --   GROUP BY
               --
         GROUP BY
               1,
               2,
-              3,    
-          -- 4, -- ARRAY ARGUMENTS
-              5
+              3
              -- ---------------------------------
              -- UNION ALL
              -- ---------------------------------
@@ -233,39 +227,42 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         --
         -- organisation_team
         -- 
-        INNER JOIN
+        LEFT OUTER JOIN
               "organisation_team" ogt 
            ON org.id = ogt.organisation_id 
           --
           -- team
           --
-       INNER JOIN
-             "team" tem 
-          ON ogt.team_id = tem.id 
+       LEFT OUTER JOIN
+             "team" tea2
+          ON ogt.team_id = tea2.id 
          --
          -- game
          --
-       INNER JOIN
+       LEFT OUTER JOIN
              "game" gam3
-          ON tem.game_id = gam3.id
+          ON tea2.game_id = gam3.id
+          AND gam3.name LIKE ${gameString}
         --
         -- canton
         --
-        INNER JOIN
+        LEFT OUTER JOIN
               "canton" can3
            ON org.canton_id = can3.id
+           AND can3.name LIKE ${cantonString}
         --
         -- _LanguageToOrg
         --
-        INNER JOIN
+        LEFT OUTER JOIN
               "_LanguageToOrganisation" lto
           ON org.id = lto."B"
         --
         -- language
         --
-        INNER JOIN
+        LEFT OUTER JOIN
               "language" lang3
           ON lto."A" = lang3.id
+          AND lang3.name LIKE ${langString}
          --
          -- WHERE
          --
@@ -273,21 +270,13 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             1 = ${showOrg}
         AND
             LOWER(org.handle) LIKE ${searchString}
-        AND
-            can3.name LIKE ${cantonString}
-        AND
-            lang3.name LIKE ${langString}
-        AND
-            gam3.name LIKE ${gameString}
          --
          -- GROUP BY
          --
        GROUP BY
             1,
             2,
-            3,    
-         -- 4,  -- ARRAY ARGUMENTS
-            5
+            3
         ) AS ent
     ORDER BY ent.handle
     LIMIT 15
