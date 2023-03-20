@@ -41,101 +41,259 @@ type EntityQuery = {
   entity_type: EntityType
 }[];
 
+const excludeAllText = (text: string | undefined): string => {
+  if(text && text !== 'All') {
+    return text;
+  }
+  return '%'
+}
+
+const typeCheck = (type: string | undefined, wantedType: string): number => {
+  if(type === undefined)
+    return 1
+  return (type === wantedType || type === 'All') ? 1 : 0;
+}
+
 const searchQuery = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): Promise<EntityQuery[]> => {
   const searchString = `%${search?.toLowerCase()}%`;
+  const gameString = `${excludeAllText(game)}`;
+  const cantonString = `${excludeAllText(canton)}`;
+  const langString = `${excludeAllText(language)}`;
+  let showUser = typeCheck(type, 'User');
+  let showTeam = typeCheck(type, 'Team');
+  let showOrg = typeCheck(type, 'Organisation');
   return db.$queryRaw<EntityQuery[]>`
-  SELECT
-      e.id,
-      e.handle,
-      e.image,
-      e.games,
-      e.team,
-      e.entity_type
+  -- *********************************
+  -- ENTITY 
+  -- *********************************
+    SELECT
+        ent.id,
+        ent.handle,
+        ent.image,
+        ent.games,
+        ent.team,
+        ent.entity_type
   FROM (
-    SELECT
-        u2.id,
-        u2.handle,
-        u2.image,
-        u2.games,
-        t.name AS team,
-        'USER' AS entity_type
-    FROM
-        (SELECT
-            u.id,
-            u.handle,
-            u.image,
-            array_agg(g.name) AS games 
-        FROM
-            "user" u 
+        -- *********************************
+        -- USER 
+        -- *********************************
+        SELECT
+              usr.id               AS id,
+              usr.handle           AS handle,
+              usr.image            AS image,
+              array_agg(gam.name)  AS games,    -- ARRAY ARGUMENTS
+              tea.name             AS team,
+              'USER'               AS entity_type
+         FROM
+              "user" usr 
+              --
+              -- _GameToUser
+              --
         INNER JOIN
-            "_GameToUser" gu
-                ON u.id = gu."B"
+              "_GameToUser" gtu
+           ON usr.id = gtu."B"
+              --
+              -- game
+              --
         INNER JOIN
-            "game" g
-              ON gu."A" = g.id
+              "game" gam
+           ON gtu."A" = gam.id  
+              --
+              -- canton
+              --
+        INNER JOIN
+              "canton" can1
+          ON usr.canton_id = can1.id
+              --
+              -- _LanguageToUser
+              --
+        INNER JOIN
+              "_LanguageToUser" ltu
+          ON usr.id = ltu."B"
+              --
+              -- language
+              --
+        INNER JOIN
+              "language" lang1
+          ON ltu."A" = lang1.id
+              --
+              -- team_member
+              --
+        INNER JOIN
+              "team_member" tem 
+           ON usr.id = tem.user_id 
+              --
+              -- team
+              --
+        INNER JOIN
+              "team" tea 
+           ON tea.id = tem.team_id 
+              --
+              -- WHERE 
+              --      
         WHERE
-            LOWER(u.handle) LIKE ${searchString}
+            1 = ${showUser}
+        AND
+            LOWER(usr.handle) LIKE ${searchString}
+        AND
+            can1.name LIKE ${cantonString}
+        AND
+            lang1.name LIKE ${langString}
+        AND
+            gam.name LIKE ${gameString}
+        AND 
+            tem.is_main_team = true           
+             --
+             --  GROUP BY
+             --
+       GROUP BY
+              1,
+              2,
+              3,    
+          -- 4,-- ARRAY ARGUMENTS
+              5       
+             -- ---------------------------------
+             -- UNION ALL
+             -- ---------------------------------
+       UNION ALL
+             -- *********************************
+             -- TEAM
+             -- *********************************
+        SELECT
+              tea.id              AS id,
+              tea.handle          AS handle,
+              tea.image           AS image,
+              array_agg(gam2.name) AS games,    -- ARRAY ARGUMENTS
+              ''                  AS team,
+              'TEAM'              AS entity_type 
+         FROM
+              "team" tea
+              --
+              -- game
+              --
+        INNER JOIN
+              "game" gam2
+           ON tea.game_id = gam2.id
+              --
+              -- canton
+              --
+        INNER JOIN
+              "canton" can2
+          ON tea.canton_id = can2.id
+              --
+              -- _LanguageToTeam
+              --
+        INNER JOIN
+              "_LanguageToTeam" ltt
+          ON tea.id = ltt."B"
+              --
+              -- language
+              --
+        INNER JOIN
+              "language" lang2
+          ON ltt."A" = lang2.id
+              --
+              -- WHERE
+              --
+        WHERE
+            1 = ${showTeam}
+        AND
+            LOWER(tea.handle) LIKE ${searchString}
+        AND
+            can2.name LIKE ${cantonString}
+        AND
+            lang2.name LIKE ${langString}
+        AND
+            gam2.name LIKE ${gameString}
+              --
+              --   GROUP BY
+              --
         GROUP BY
-            u.id) AS u2 
-    INNER JOIN
-        "team_member" tm 
-            ON u2.id = tm.user_id 
-    INNER JOIN
-        "team" t 
-            ON t.id = tm.team_id 
-    WHERE
-        tm.is_main_team = true 
-
-    UNION ALL
-
-    SELECT
-        t2.id,
-        t2.handle,
-        t2.image,
-        array_agg(g2.name) AS games,
-        '' AS team,
-        'TEAM' AS entity_type 
-    FROM
-        "team" t2
-    INNER JOIN
-        "game" g2
-        ON t2.game_id = g2.id
-    WHERE
-        LOWER(t2.handle) LIKE ${searchString}
-    GROUP BY
-        t2.id
-
-    UNION ALL
-      
-    SELECT
-        org.id,
-        org.handle,
-        org.image,
-        array_agg(g3.name) AS games,
-        '' AS team,
-        'ORG' AS entity_type 
-    FROM
-        "organisation" AS org 
-    INNER JOIN
-        "organisation_team" ot 
-            ON org.id = ot.organisation_id 
-    INNER JOIN
-        "team" t3 
-            ON ot.team_id = t3.id 
-    INNER JOIN
-        "game" g3
-        ON t3.game_id = g3.id
-    WHERE
-        LOWER(org.handle) LIKE ${searchString}
-    GROUP BY
-        org.id
-  ) AS e
-  ORDER BY e.handle
-  LIMIT 15
-  OFFSET ${offset}
+              1,
+              2,
+              3,    
+          -- 4, -- ARRAY ARGUMENTS
+              5
+             -- ---------------------------------
+             -- UNION ALL
+             -- ---------------------------------
+       UNION ALL
+             -- *********************************
+             -- ORGANISATION
+             -- *********************************  
+        SELECT
+              org.id              AS id,
+              org.handle          AS handle,
+              org.image           AS image,
+              array_agg(gam3.name) AS games,    -- ARRAY ARGUMENTS
+              ''                  AS team,
+              'ORG'               AS entity_type 
+         FROM
+              "organisation" AS org 
+        --
+        -- organisation_team
+        -- 
+        INNER JOIN
+              "organisation_team" ogt 
+           ON org.id = ogt.organisation_id 
+          --
+          -- team
+          --
+       INNER JOIN
+             "team" tem 
+          ON ogt.team_id = tem.id 
+         --
+         -- game
+         --
+       INNER JOIN
+             "game" gam3
+          ON tem.game_id = gam3.id
+        --
+        -- canton
+        --
+        INNER JOIN
+              "canton" can3
+           ON org.canton_id = can3.id
+        --
+        -- _LanguageToOrg
+        --
+        INNER JOIN
+              "_LanguageToOrganisation" lto
+          ON org.id = lto."B"
+        --
+        -- language
+        --
+        INNER JOIN
+              "language" lang3
+          ON lto."A" = lang3.id
+         --
+         -- WHERE
+         --
+        WHERE
+            1 = ${showOrg}
+        AND
+            LOWER(org.handle) LIKE ${searchString}
+        AND
+            can3.name LIKE ${cantonString}
+        AND
+            lang3.name LIKE ${langString}
+        AND
+            gam3.name LIKE ${gameString}
+         --
+         -- GROUP BY
+         --
+       GROUP BY
+            1,
+            2,
+            3,    
+         -- 4,  -- ARRAY ARGUMENTS
+            5
+        ) AS ent
+    ORDER BY ent.handle
+    LIMIT 15
+    OFFSET ${offset}
 `
 
-// TODO Canton etc. filtering
 }
 
 const typeFilter = (name: string, type?: string) => !type || type === name;
