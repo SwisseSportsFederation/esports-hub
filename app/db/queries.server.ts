@@ -1,36 +1,7 @@
 import { db } from "~/services/db.server";
-import type { Prisma } from "@prisma/client";
 import { EntityType } from "~/helpers/entityType";
 
-const query = (search?: string): Prisma.StringFilter => ({
-  contains: search?.toString(),
-  mode: 'insensitive'
-});
-
 export type StringOrNull = string | null;
-
-type TeamsQuery = {
-  id: bigint,
-  image: StringOrNull,
-  name: string,
-  handle: string,
-  game: { name: string } | null;
-}[]
-
-type OrgsQuery = {
-  id: bigint,
-  image: StringOrNull,
-  name: string,
-  handle: string
-}[]
-
-type UsersQuery = {
-  id: bigint,
-  image: StringOrNull,
-  handle: string,
-  games: { name: string }[],
-  teams: { team: { name: StringOrNull } }[]
-}[];
 
 type EntityQuery = {
   id: bigint,
@@ -62,9 +33,6 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
   let showUser = typeCheck(type, 'User');
   let showTeam = typeCheck(type, 'Team');
   let showOrg = typeCheck(type, 'Organisation');
-  // FIXME: Only show active entities
-  // FIXME: Do not show teams in users that have not accepted invite yet.
-  // TODO: Show Games of teams in the organisations. Do not show of teams that have not accepted invite yet
   return db.$queryRaw<EntityQuery[]>`
   -- *********************************
   -- ENTITY 
@@ -84,15 +52,15 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               usr.id               AS id,
               usr.handle           AS handle,
               usr.image            AS image,
-              array_agg(gam.name)  AS games,    -- ARRAY ARGUMENTS
-              tea.name             AS team,
+              array_agg(DISTINCT gam.name)  AS games,    -- ARRAY ARGUMENTS
+              tea1.name             AS team,
               'USER'               AS entity_type
          FROM
               "user" usr 
               --
               -- _GameToUser
               --
-        INNER JOIN
+        LEFT OUTER JOIN
               "_GameToUser" gtu
            ON usr.id = gtu."B"
               --
@@ -112,7 +80,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               --
               -- _LanguageToUser
               --
-        INNER JOIN
+        LEFT OUTER JOIN
               "_LanguageToUser" ltu
           ON usr.id = ltu."B"
               --
@@ -125,21 +93,25 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               --
               -- team_member
               --
-        INNER JOIN
+        LEFT OUTER JOIN
               "team_member" tem 
            ON usr.id = tem.user_id 
            AND tem.is_main_team = true
+           AND tem.request_status = 'ACCEPTED'
               --
               -- team
               --
-        INNER JOIN
-              "team" tea 
-           ON tea.id = tem.team_id 
+        LEFT OUTER JOIN
+              "team" tea1 
+           ON tea1.id = tem.team_id
+           AND tea1.is_active = TRUE
               --
               -- WHERE 
               --      
         WHERE
             1 = ${showUser}
+        AND
+            usr.is_active = TRUE
         AND
             LOWER(usr.handle) LIKE ${searchString}
              --
@@ -162,7 +134,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               tea.id              AS id,
               tea.handle          AS handle,
               tea.image           AS image,
-              array_agg(gam2.name) AS games,    -- ARRAY ARGUMENTS
+              array_agg(DISTINCT gam2.name) AS games,    -- ARRAY ARGUMENTS
               ''                  AS team,
               'TEAM'              AS entity_type 
          FROM
@@ -184,7 +156,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               --
               -- _LanguageToTeam
               --
-        INNER JOIN
+        LEFT OUTER JOIN
               "_LanguageToTeam" ltt
           ON tea.id = ltt."B"
               --
@@ -199,6 +171,8 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               --
         WHERE
             1 = ${showTeam}
+        AND
+            tea.is_active = TRUE
         AND
             LOWER(tea.handle) LIKE ${searchString}
               --
@@ -219,7 +193,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               org.id              AS id,
               org.handle          AS handle,
               org.image           AS image,
-              array_agg(gam3.name) AS games,    -- ARRAY ARGUMENTS
+              array_agg(DISTINCT gam3.name) AS games,    -- ARRAY ARGUMENTS
               ''                  AS team,
               'ORG'               AS entity_type 
          FROM
@@ -230,36 +204,37 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         LEFT OUTER JOIN
               "organisation_team" ogt 
            ON org.id = ogt.organisation_id 
+           AND ogt.request_status = 'ACCEPTED'
           --
           -- team
           --
        LEFT OUTER JOIN
              "team" tea2
-          ON ogt.team_id = tea2.id 
+          ON ogt.team_id = tea2.id
+          AND tea2.is_active = TRUE
          --
          -- game
          --
        LEFT OUTER JOIN
              "game" gam3
           ON tea2.game_id = gam3.id
-          AND gam3.name LIKE ${gameString}
         --
         -- canton
         --
-        LEFT OUTER JOIN
+        INNER JOIN
               "canton" can3
            ON org.canton_id = can3.id
            AND can3.name LIKE ${cantonString}
         --
         -- _LanguageToOrg
         --
-        LEFT OUTER JOIN
+        INNER JOIN
               "_LanguageToOrganisation" lto
           ON org.id = lto."B"
         --
         -- language
         --
-        LEFT OUTER JOIN
+        INNER JOIN
               "language" lang3
           ON lto."A" = lang3.id
           AND lang3.name LIKE ${langString}
@@ -269,7 +244,11 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         WHERE
             1 = ${showOrg}
         AND
+            org.is_active = TRUE
+        AND
             LOWER(org.handle) LIKE ${searchString}
+        AND
+            ((gam3.name IS NULL AND ${gameString} = '%') OR (gam3.name IS NOT NULL AND gam3.name LIKE ${gameString}))
          --
          -- GROUP BY
          --
@@ -285,93 +264,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
 
 }
 
-const typeFilter = (name: string, type?: string) => !type || type === name;
-
-const searchQueries = (search?: string, canton?: string, game?: string, language?: string, type?: string, offsetOrg?: number, offsetTeam?: number, offsetUser?: number): [Promise<UsersQuery>, Promise<TeamsQuery>, Promise<OrgsQuery>] => {
-  const u = typeFilter("User", type) ? usersQuery(search, canton, game, language, offsetUser ?? 0) : Promise.resolve<UsersQuery>([]);
-  const t = typeFilter("Team", type) ? teamsQuery(search, canton, game, language, offsetTeam ?? 0) : Promise.resolve<TeamsQuery>([]);
-  const o = typeFilter("Organisation", type) ? orgsQuery(search, canton, language, offsetOrg ?? 0) : Promise.resolve<OrgsQuery>([]);
-  return [u, t, o];
-};
-
-const usersQuery = (search?: string, canton?: string, language?: string, game?: string, offset?: number) => db.user.findMany({
-  where: {
-    AND: [
-      ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
-      ...(language ? [{ languages: { some: { name: language } } }] : []),
-      ...(game ? [{ games: { some: { name: game } } }] : []),
-      ...(search ? [{ OR: [
-        { handle: query(search) },
-        { name: query(search) },
-        { surname: query(search) }
-      ]}
-      ] : [])
-    ],
-  },
-  select: {
-    id: true,
-    image: true,
-    handle: true,
-    games: { select: { name: true } },
-    teams: { select: { team: { select: { name: true } } } }
-  },
-  skip: offset,
-  take: 5
-});
-
-const teamsQuery = (search?: string, canton?: string, game?: string, language?: string, offset?: number) => db.team.findMany({
-  where: {
-    AND: [
-      ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
-      ...(language ? [{ languages: { some: { name: language } } }] : []),
-      ...(game ? [{ game: { name: game } }] : []),
-      ...(search ? [{ OR: [
-        { handle: query(search) },
-        { name: query(search) },
-      ]}
-      ] : [])
-    ]
-  },
-  select: {
-    id: true,
-    image: true,
-    name: true,
-    handle: true,
-    game: {
-      select: {
-        name: true
-      }
-    }
-  },
-  skip: offset,
-  take: 5,
-});
-
-const orgsQuery = (search?: string, canton?: string, language?: string, offset?: number) => db.organisation.findMany({
-  where: {
-    AND: [
-      ...(canton ? [{ canton: { name: { equals: canton } } }] : []),
-      ...(language ? [{ languages: { some: { name: language } } }] : []),
-      ...(search ? [{ OR: [
-        { handle: query(search) },
-        { name: query(search) },
-      ]}
-      ] : [])
-    ]
-  },
-  select: {
-    id: true,
-    image: true,
-    name: true,
-    handle: true
-  },
-  skip: offset,
-  take: 5
-});
-
-
 export {
-  searchQueries,
   searchQuery
 };
 

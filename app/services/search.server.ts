@@ -45,7 +45,7 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
     name: result.handle,
     image: result.image,
     team: result.team ? result.team : "",
-    games: result.entity_type === 'ORG' ? [] : result.games.map((game: string) => {return {id: 0, name: game}}),
+    games: result.games.filter((game: string) => !!game).map((game: string) => { return {id: 0, name: game}}),
     type: result.entity_type
   }));
   return { results };
