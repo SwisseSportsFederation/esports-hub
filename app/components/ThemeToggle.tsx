@@ -12,10 +12,10 @@ export default function() {
       <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"/>
       <div className="absolute w-6 h-6 duration-[0.3s] ease-in-out  top-[-.25rem] left-[-.25rem]
                       rounded-full shadow inset-y-0 flex justify-center items-center
-                      bg-black dark:bg-white dark:transform dark:translate-x-[100%]">
+                      dark:bg-black bg-white dark:transform dark:translate-x-[100%]">
         <Themed
-          dark={<Icon iconName='sun' className='text-white dark:text-black p-0 m-0 absolute h-[50%] w-[60%]'/>}
-          light={<Icon iconName='moon' className='text-white dark:text-black p-0 m-0 absolute h-[50%] w-[60%]'/>}
+          dark={<Icon iconName='moon' className='dark:text-white text-black p-0 m-0 absolute h-[50%] w-[60%]'/>}
+          light={<Icon iconName='sun' className='dark:text-white text-black p-0 m-0 absolute h-[50%] w-[60%]'/>}
         />
 
       </div>
