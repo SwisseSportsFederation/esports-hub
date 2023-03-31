@@ -12,9 +12,9 @@ const UserState = (props: { textColor: string }) => {
   const data = useLoaderData();
   /* User Icon with Logout and Admin Dropdown */
   if(data.user) {
-    return <div className="relative group">
+    return <div className="relative group mr-1">
       <Link to="/admin">
-        <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[40px] h-[40px]"}/>
+        <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[32px] h-[32px]"}/>
       </Link>
       <div
         className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
