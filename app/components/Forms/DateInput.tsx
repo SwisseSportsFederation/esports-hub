@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import Modal from "~/components/Notifications/Modal";
 import IconButton from "~/components/Button/IconButton";
-import { dateToISOString } from "~/utils/dateHelper";
+import { toISODateString } from "~/utils/dateHelper";
 import { PropsWithClassName } from '~/utils/PropsWithClassName';
 import classNames from 'classnames';
 
@@ -27,7 +27,7 @@ const DateInput = ({ label, name, value: defaultValue, min, max, className }: Pr
                        relative inline-flex items-center justify-between
                        rounded-xl bg-white borderborder-gray-300 w-full`}>
         <input type="date" name={name} 
-          defaultValue={value ? dateToISOString(value) : ""} 
+          defaultValue={value ? toISODateString(value) : ""} 
           onChange={(el) => onChange(new Date(el.target.value))}
           className="bg-transparent focus:ring-0 outline-none"/>
           <div>
