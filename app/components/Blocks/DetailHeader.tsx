@@ -11,6 +11,7 @@ type IDetailHeaderProps = {
   name: string,
   entitySocials?: Social[],
   games?: Game[],
+  isActive?: boolean,
   showApply?: boolean,
   onApply?: (() => void)
 } & ({
@@ -22,7 +23,7 @@ type IDetailHeaderProps = {
 })
 
 const DetailHeader = (props: IDetailHeaderProps) => {
-  const { imagePath, name, parentLink, parentName, entitySocials, games, showApply, onApply } = props;
+  const { imagePath, name, parentLink, parentName, entitySocials, games, isActive, showApply, onApply } = props;
 
   return (
     <div className="max-w-full">
@@ -68,6 +69,11 @@ const DetailHeader = (props: IDetailHeaderProps) => {
               )
           }
         </div>
+        {isActive === false &&
+            <div className="p-1 text-center my-2 rounded-xl bg-gray-4">
+              inactive
+            </div>
+          }
       </div>
     </div>
   );

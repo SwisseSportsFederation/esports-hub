@@ -8,7 +8,7 @@ import ActionButton from "~/components/Button/ActionButton";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilters";
-import { RequestStatus } from "@prisma/client";
+import { RequestStatus, Prisma } from "@prisma/client";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { LoaderFunctionArgs } from "@remix-run/router";
@@ -21,7 +21,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   });
 
-  /* TODO check query */
   const organisation = await db.organisation.findUniqueOrThrow({
     where: {
       handle
@@ -38,10 +37,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         include: { user: { include: { games: true } } }
       }
     }
-  }).catch(() => {
-    throw new Response("Not Found", {
-      status: 404,
-    })
+  }).catch((e) => {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === 'P2015') {
+        throw new Response("Not Found", {
+          status: 404,
+        })
+      } else {
+        throw new Response("Server Error", {
+          status: 500,
+          statusText: `Server Error: ${e.code}`
+        })
+      }
+    } else {
+      throw new Response("Server Error", {
+        status: 500,
+        statusText: "Server Error"
+      })
+    }
   });
 
   let showApply = false;
@@ -95,6 +108,7 @@ export default function() {
                       imagePath={organisation.image}
                       entitySocials={organisation.socials}
                       games={getOrganisationGames(organisation)}
+                      isActive={organisation.is_active}
                       showApply={showApply}
                       onApply={handleActionClick}/>
         <div className="col-span-2 space-y-4">

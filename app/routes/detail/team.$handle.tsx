@@ -9,7 +9,7 @@ import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import { isTeamMember } from "~/utils/entityFilters";
 import { entityToPathSegment } from "~/helpers/entityType";
-import { RequestStatus } from "@prisma/client";
+import { RequestStatus, Prisma } from "@prisma/client";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { LoaderFunctionArgs } from "@remix-run/router";
@@ -43,10 +43,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       languages: true,
       canton: true
     }
-  }).catch(() => {
-    throw new Response("Not Found", {
-      status: 404,
-    });
+  }).catch((e) => {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === 'P2015') {
+        throw new Response("Not Found", {
+          status: 404,
+        })
+      } else {
+        throw new Response("Server Error", {
+          status: 500,
+          statusText: `Server Error: ${e.code}`
+        })
+      }
+    } else {
+      throw new Response("Server Error", {
+        status: 500,
+        statusText: "Server Error"
+      })
+    }
   });
 
   let showApply;
@@ -104,6 +118,7 @@ export default function() {
                       imagePath={team.image}
                       entitySocials={team.socials}
                       games={[team.game]}
+                      isActive={team.is_active}
                       showApply={showApply}
                       onApply={handleActionClick}/>
         <div className="col-span-2 space-y-4">

@@ -5,7 +5,7 @@ import { getOrganisationTeasers } from "~/utils/teaserHelper";
 import TeaserList from "~/components/Teaser/TeaserList";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { RequestStatus } from "@prisma/client";
+import { RequestStatus, Prisma } from "@prisma/client";
 import TeamHistory from "~/components/Blocks/TeamHistory";
 import { zx } from "zodix";
 import { z } from "zod";
@@ -44,10 +44,24 @@ export async function loader({ params }: LoaderFunctionArgs) {
         }
       }
     }
-  }).catch(() => {
-    throw new Response("Not Found", {
-      status: 404,
-    });
+  }).catch((e) => {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === 'P2015') {
+        throw new Response("Not Found", {
+          status: 404,
+        })
+      } else {
+        throw new Response("Server Error", {
+          status: 500,
+          statusText: `Server Error: ${e.code}`
+        })
+      }
+    } else {
+      throw new Response("Server Error", {
+        status: 500,
+        statusText: "Server Error"
+      })
+    }
   });
 
   const { former_teams: formerTeams } = user;
@@ -72,6 +86,7 @@ export default function() {
         <DetailHeader name={`${user.name} ${user.surname}`}
                       imagePath={user.image}
                       entitySocials={user.socials}
+                      isActive={user.is_active}
                       games={user.games}/>
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...user} />
