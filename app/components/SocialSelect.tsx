@@ -28,6 +28,32 @@ const getErrorForPath = (path: string, data: any) => {
   return data?.issues?.find((issue: { path: string[] }) => issue.path[0] === path)?.message
 };
 
+const getPlaceHolderForSocial = (social: SelectableSocial) => {
+  switch(social.platform){
+    case "TWITTER":
+      return "https://twitter.com/yourname"
+    case "FACEBOOK":
+      return "https://facebook.com/yourname"
+    case "DISCORD":
+      return "yourtag#1234"
+    case "BATTLENET":
+      return "yourtag#1234"
+    case "INSTAGRAM":
+      return "https://instagram.com/yourname"
+    case "ORIGIN":
+      return "yourname"
+    case "TWITCH":
+      return "https://twitch.tv/yourname"
+    case "STEAM":
+      return "yourNickname"
+    case "UPLAY":
+      return "yourNickname"
+    case "WEBSITE":
+      return "https://sesf.ch"
+    default:
+      return social.platform
+  }
+}
 
 const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProps) => {
   const [edit, setEdit] = useState(false);
@@ -80,7 +106,7 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
           {edit &&
             <>
               <div className='flex flex-row gap-2'>
-                <TextInput id={social.platform.toLowerCase()} label={social.platform} defaultValue={social.name}/>
+                <TextInput id={social.platform.toLowerCase()} label={social.platform} defaultValue={social.name} placeholder={getPlaceHolderForSocial(social)}/>
                 <IconButton icon='decline' className='mt-3 h-9 w-9' action={() => removeLocalSocial(social)}
                             type='button'/>
               </div>

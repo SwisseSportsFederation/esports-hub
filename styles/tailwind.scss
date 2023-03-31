@@ -108,12 +108,13 @@
   textarea:placeholder-shown+label,
   textarea:placeholder-shown+span,
   input:placeholder-shown+label,
-  input:placeholder-shown+span {
+  input:placeholder-shown+span:not(.has-placeholder) {
     @apply text-gray-4;
   }
 
   input:not(:placeholder-shown)+label,
-  input:not(:placeholder-shown)+span {
+  input:not(:placeholder-shown)+span:not(.has-placeholder),
+  input+span.has-placeholder {
     transform: translate3d(0, -2.4em, 0);
     transform-origin: left;
     opacity: 1;
