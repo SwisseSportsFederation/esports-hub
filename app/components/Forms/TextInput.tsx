@@ -11,7 +11,8 @@ interface ITextInputProps {
   required?: boolean,
   defaultValue: string | null,
   disabled?: boolean,
-  inputClassName?: string
+  inputClassName?: string,
+  placeholder?: string
 }
 
 const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
@@ -25,19 +26,24 @@ const TextInput = (props: PropsWithClassName<ITextInputProps>) => {
     className = '',
     inputClassName = '',
     defaultValue,
-    disabled = false
+    disabled = false,
+    placeholder
   } = props;
   const inputIconPadding = classNames({
     'pr-14': searchIcon
   }, inputClassName);
+  
+  const labelClasses = classNames({
+    'has-placeholder': !!placeholder
+  }, `absolute left-4 top-2 transition-all capitalize`)
 
   return (
     <div className={`relative mt-3 z-20 w-full max-w-sm lg:max-w-full ${className}`}>
       <label>
-        <input type={inputType} name={id} required={required} placeholder={" "} defaultValue={defaultValue ?? ""}
+        <input type={inputType} name={id} required={required} placeholder={placeholder || " "} defaultValue={defaultValue ?? ""}
                disabled={disabled}
                className={`bg-white rounded-xl w-full h-10 px-4 text-black focus:outline-none border border-gray-6 dark:border-white ${inputIconPadding}`}/>
-        <span className={`absolute left-4 top-2 transition-all capitalize`}>{label.toLowerCase()}</span>
+        <span className={labelClasses}>{label.toLowerCase()}</span>
       </label>
       {searchIcon &&
         <>
