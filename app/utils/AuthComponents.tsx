@@ -2,8 +2,8 @@ import { Form } from "@remix-run/react";
 import Icon from "~/components/Icons";
 
 const Login = (props: { textColor: string }) => <Form action={"/auth/login"} method="post">
-  <button>
-    <Icon iconName='signIn' className={props.textColor + " p-0 m-0 w-[40px] h-[40px]"}/>
+  <button className="mr-1">
+    <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[32px] h-[32px]"}/>
   </button>
 </Form>;
 
