@@ -27,6 +27,20 @@ export const dateToFormattedString = (date: Date | null): string => {
   return `${day}.${monthString}.${date.getFullYear()}`;
 };
 
+export const toISODateString = (date: Date | null): string => { 
+  if(!date) {
+    return '';
+  }
+  try {
+    const offset = date.getTimezoneOffset();
+    date = new Date(date.getTime() - (offset * 60 * 1000));
+    return date.toISOString().split('T')[0];
+  } catch {
+    console.log('Date format wrong with date:', date);
+    return '';
+  }
+}
+
 export const isToday = (day: Date): boolean => {
   const today = new Date();
 
