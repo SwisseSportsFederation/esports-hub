@@ -58,6 +58,13 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
          FROM
               "user" usr 
               --
+              -- canton
+              --
+        INNER JOIN
+              "canton" can1
+            ON usr.canton_id = can1.id
+            AND can1.name LIKE ${cantonString}
+              --
               -- _GameToUser
               --
         LEFT OUTER JOIN
@@ -70,13 +77,6 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               "game" gam
            ON gtu."A" = gam.id  
            AND gam.name LIKE ${gameString}
-              --
-              -- canton
-              --
-        INNER JOIN
-              "canton" can1
-          ON usr.canton_id = can1.id
-          AND can1.name LIKE ${cantonString}
               --
               -- _LanguageToUser
               --
@@ -199,6 +199,13 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
          FROM
               "organisation" AS org 
         --
+        -- canton
+        --
+        INNER JOIN
+              "canton" can3
+           ON org.canton_id = can3.id
+           AND can3.name LIKE ${cantonString}
+        --
         -- organisation_team
         -- 
         LEFT OUTER JOIN
@@ -218,13 +225,6 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
        LEFT OUTER JOIN
              "game" gam3
           ON tea2.game_id = gam3.id
-        --
-        -- canton
-        --
-        INNER JOIN
-              "canton" can3
-           ON org.canton_id = can3.id
-           AND can3.name LIKE ${cantonString}
         --
         -- _LanguageToOrg
         --
