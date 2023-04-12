@@ -39,7 +39,7 @@ export const action = async ({ request, params }: ActionArgs) => {
         organisation: { connect: { id: organisation.id }}
       }
     })
-    console.log(`user ${user.db.id} applied for ${organisation.id}`)
+    console.log(`user ${user.db.id} applied for organisation ${organisation.id}`)
   } catch(error) {
     console.log(error);
     const headers = await createFlashMessage(request, 'Error while applying for organisation');
