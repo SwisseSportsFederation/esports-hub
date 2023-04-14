@@ -20,6 +20,7 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
 import Teaser from "~/components/Teaser/Teaser";
+import { createFlashMessage } from "~/services/toast.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -37,7 +38,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
     }
   });
-  return json({});
+  const headers = await createFlashMessage(request, 'Organisation left');
+  return json({}, headers);
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

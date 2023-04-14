@@ -20,6 +20,7 @@ import { RequestStatus } from "@prisma/client";
 import H1 from "~/components/Titles/H1";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import type { loader as handleLoader } from '../$handle';
+import { createFlashMessage } from "~/services/toast.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -111,7 +112,8 @@ export async function action({ request }: ActionFunctionArgs) {
             organisation_id
           }
         });
-        return json({ searchResult: [] });
+        const headers = await createFlashMessage(request, 'Team invited');
+        return json({ searchResult: [] }, headers);
       } catch(error) {
         console.log(error);
         throw json({}, 500);
@@ -124,7 +126,8 @@ export async function action({ request }: ActionFunctionArgs) {
             team_id: teamIdToRemove
           }
         });
-        return json({ searchResult: [] });
+        const headers = await createFlashMessage(request, 'Team removed');
+        return json({ searchResult: [] }, headers);
       } catch(error) {
         console.log(error);
         throw json({}, 500);
