@@ -1,6 +1,6 @@
 import getCache from "~/services/cache.server";
 import { db } from "~/services/db.server";
-import { searchQueries } from "~/db/queries.server";
+import { searchQuery } from "~/db/queries.server";
 import type { Game } from "@prisma/client";
 import type { EntityType } from "~/helpers/entityType";
 
@@ -23,9 +23,7 @@ export type UserSearchResult = {
 };
 
 export type SearchResult = {
-  users: UserSearchResult[],
-  teams: UserSearchResult[],
-  orgs: UserSearchResult[]
+  results: UserSearchResult[],
 }
 
 const paramUndefined = (value: string | null) => (value === null || value === "All") ? undefined : value;
@@ -36,44 +34,21 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const game = paramUndefined(searchParams.get("game"));
   const language = paramUndefined(searchParams.get("language"));
   const type = paramUndefined(searchParams.get("type"));
-  const offsetOrg = paramUndefined(searchParams.get("offset-org"));
-  const offsetTeam = paramUndefined(searchParams.get("offset-team"));
-  const offsetUser = paramUndefined(searchParams.get("offset-user"));
+  const offset = paramUndefined(searchParams.get("offset"));
 
-  const queries = searchQueries(search, canton, game, language, type, Number(offsetOrg ?? 0), Number(offsetTeam ?? 0), Number(offsetUser ?? 0));
+  const query = searchQuery(search, canton, game, language, type, Number(offset ?? 0));
 
-  const [usersResult, teamsResult, orgsResult] = await Promise.all(queries);
-
-  const users = usersResult.map(user => ({
-    id: String(user.id),
-    handle: user.handle,
-    name: user.handle,
-    image: user.image,
-    team: user.teams.map(mem => mem.team.name)?.[0],
-    games: user.games,
-    type: 'USER' as EntityType
+  const queryResults = await query;
+  const results = queryResults.map(result => ({
+    id: String(result.id),
+    handle: result.handle,
+    name: result.handle,
+    image: result.image,
+    team: result.team ? result.team : "",
+    games: result.games.filter((game: string) => !!game).map((game: string) => { return {id: 0, name: game}}),
+    type: result.entity_type
   }));
-
-  const teams = teamsResult.map(team => ({
-    id: String(team.id),
-    handle: team.handle,
-    image: team.image,
-    name: team.name,
-    team: team.handle,
-    games: team.game ? [team.game] : [],
-    type: 'TEAM' as EntityType
-  }));
-
-  const orgs = orgsResult.map(org => ({
-    id: String(org.id),
-    handle: org.handle,
-    image: org.image,
-    name: org.name,
-    team: org.handle,
-    games: [],
-    type: 'ORG' as EntityType
-  }));
-  return { users, teams, orgs };
+  return { results };
 }
 
 export async function getSearchParams(): Promise<SearchParams> {
