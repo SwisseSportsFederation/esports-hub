@@ -5,6 +5,7 @@ import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { SocialPlatform } from "@prisma/client";
 import { db } from "~/services/db.server";
+import { createFlashMessage } from "~/services/toast.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -58,5 +59,6 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error }, 500);
   }
 
-  return json({});
+  const headers = await createFlashMessage(request, 'Socials updated successfully');
+  return json({}, headers);
 };

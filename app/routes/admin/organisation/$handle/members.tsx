@@ -23,6 +23,7 @@ import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
 import TextInput from "~/components/Forms/TextInput";
 import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
+import { createFlashMessage } from "~/services/toast.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -59,7 +60,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         console.log(error);
         throw json({});
       }
-      return json({ searchResult: [] });
+
+      const headers = await createFlashMessage(request, 'Member invited');
+      return json({ searchResult: [] }, headers);
     }
     case "SEARCH": {
       const { search } = data;
@@ -109,7 +112,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           }
         }
       });
-      return json({ searchResult: [] });
+      const headers = await createFlashMessage(request, 'Member kicked');
+      return json({ searchResult: [] }, headers);
     }
     case "UPDATE_USER": {
       const { role, 'user-rights': userRights, orgId, userId } = data;
@@ -128,7 +132,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
           access_rights: userRights,
         }
       });
-      return json({ searchResult: [] });
+      const headers = await createFlashMessage(request, 'Member updated');
+      return json({ searchResult: [] }, headers);
     }
   }
 }

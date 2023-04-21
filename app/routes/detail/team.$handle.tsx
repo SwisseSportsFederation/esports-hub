@@ -1,20 +1,55 @@
-import { useLoaderData } from "@remix-run/react";
-import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
-import { db } from "~/services/db.server";
+import { Prisma, RequestStatus } from "@prisma/client";
+import type { ActionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { getTeamMemberTeasers } from "~/utils/teaserHelper";
-import TeaserList from "~/components/Teaser/TeaserList";
-import ActionButton from "~/components/Button/ActionButton";
+import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/router";
+import { z } from "zod";
+import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { isTeamMember } from "~/utils/entityFilters";
+import ActionButton from "~/components/Button/ActionButton";
+import TeaserList from "~/components/Teaser/TeaserList";
 import { entityToPathSegment } from "~/helpers/entityType";
-import { RequestStatus, Prisma } from "@prisma/client";
-import { zx } from "zodix";
-import { z } from "zod";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import { db } from "~/services/db.server";
+import { createFlashMessage } from "~/services/toast.server";
+import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
+import { isTeamMember } from "~/utils/entityFilters";
+import { getTeamMemberTeasers } from "~/utils/teaserHelper";
+import { AccessRight } from "@prisma/client";
+import { useFetcher } from "@remix-run/react";
 
-// const { addNotification } = useNotification(); // TODO add notification logic
+export const action = async ({ request, params }: ActionArgs) => {
+  /* Apply for Team */
+  const { handle } = zx.parseParams(params, {
+    handle: z.string()
+  });
+  const user = await checkUserAuth(request);
+  try {
+    const team = await db.team.findUniqueOrThrow({
+      where: {
+        handle
+      }
+    });
+    await db.teamMember.create({
+      data: {
+        access_rights: AccessRight.MEMBER,
+        request_status: RequestStatus.PENDING_TEAM,
+        joined_at: new Date(),
+        is_main_team: false,
+        role: "Member",
+        user: { connect: { id: BigInt(user.db.id) }},
+        team: { connect: { id: team.id }}
+      }
+    })
+    console.log(`user ${user.db.id} applied for team ${team.id}`)
+  } catch(error) {
+    console.log(error);
+    const headers = await createFlashMessage(request, 'Error while applying for team');
+    return json({}, headers);
+  }
+  const headers = await createFlashMessage(request, 'Applied for team');
+  return json({}, headers);
+};
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const loggedIn = await isLoggedIn(request);
@@ -81,29 +116,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function() {
   const { team, showApply, memberTeasers } = useLoaderData<typeof loader>();
 
-  const handleActionClick = async () => {
-    //addNotification("Error", 3000);
-    /* TODO later apply button
-    const [, error] = await authenticatedFetch(`/users/${user.profile.id}/team/apply`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        userId: user.profile.id,
-        teamId: team.id,
-        isMainTeam: false,
-        joinedAt: new Date().toISOString(),
-        role: ""
-      })
-    }, token);
+  const fetcher = useFetcher();
 
-    if (error) {
-      addNotification("Error", 3000);
-      console.error(error);
-      return;
-    }
-
-    addNotification("Success", 3000);
-    await mutate();*/
-  };
+  const handleActionClick = () => {
+    fetcher.submit({}, {
+      action: '',
+      method: 'post',
+    });
+  }
 
   const orgHeaderProps = (team.organisation && team.organisation.organisation) ? {
     parentLink: `/detail/${entityToPathSegment('ORG')}/${team.organisation.organisation.handle}`,
