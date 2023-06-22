@@ -1,8 +1,9 @@
 import { db } from "~/services/db.server";
 import type { AuthUser } from "~/services/auth.server";
+import { checkSuperAdmin } from "~/utils/auth.server";
 
 export async function getGameRequests(user: AuthUser) {
-  /* TODO: CHECK IF SUPERADMIN */
+  await checkSuperAdmin(user.db.id);
   const gameQuery = db.game.findMany({
     where: {
       is_active: false,
@@ -18,7 +19,7 @@ export async function getGameRequests(user: AuthUser) {
 }
 
 export async function getSuperAdmins(user: AuthUser) {
-  /* TODO: CHECK IF SUPERADMIN */
+  await checkSuperAdmin(user.db.id);
   const userQuery = db.user.findMany({
     where: {
       is_superadmin: true

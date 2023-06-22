@@ -11,6 +11,7 @@ import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 import type { LoaderFunctionArgs } from "@remix-run/router";
 import { Game, User } from "@prisma/client";
 import { getGameRequests, getSuperAdmins } from "~/services/superadmin/index.server";
+import TextInput from "~/components/Forms/TextInput";
 
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -33,7 +34,7 @@ const getRequestTeaser = (requests: SerializeFrom<Game>[], userId: string, fetch
             <span className="font-bold break-all block">{request.name}</span>
           </div>
         </div>
-        <fetcher.Form method='post' action={`/admin/api/game/request`} className="flex space-x-2">
+        <fetcher.Form method='post' action={`/superadmin/api/game/request`} className="flex space-x-2">
           <input type='hidden' name='entityId' value={`${request.id}`}/>
           <input type='hidden' name='userId' value={userId}/>
           <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
@@ -69,12 +70,18 @@ export default function() {
       <H1 className={`mx-2 px-2 mb-1`}>Game Requests</H1>
       { gameRequestTeasers }
       <div className="flex justify-center mt-4 mb-8">
-        <IconButton icon={"add"} type='link' path="/admin/create/team"/> {/* TODO Add game */}
+        <fetcher.Form method='post' action={`/admin/api/game`} className="flex space-x-2">
+          <TextInput id="name" label="Name" defaultValue={""}/>
+          <IconButton icon='add' type='submit' name='action' value='POST'/>
+        </fetcher.Form>
       </div>
       <H1 className={`mx-2 px-2 mb-1`}>Super Admins</H1>
       <TeaserList title="" teasers={superadminTeasers}/>
       <div className={`flex justify-center mt-4`}>
-        <IconButton icon={"add"} type='link' path="/admin/create/organisation"/> {/* TODO Add superadmin */}
+        <fetcher.Form method='post' action={`/superadmin/api/user/superadmin`} className="flex space-x-2">
+          <TextInput id="handle" label="User Handle" defaultValue={""}/>
+          <IconButton icon='add' type='submit' name='action' value='POST'/>
+        </fetcher.Form>
       </div>
     </div>
   </div>;
