@@ -55,11 +55,12 @@ export async function getSearchParams(): Promise<SearchParams> {
   const searchParams = getCache().get("searchParams");
 
   if(!searchParams) {
-    const name = { select: { id: true, name: true } };
+    const filter = { select: { id: true, name: true } };
+    const filterGame = { where: {is_active: true}, select: { id: true, name: true } };
     const [cantons, games, languages] = await Promise.all([
-      db.canton.findMany(name),
-      db.game.findMany(name),
-      db.language.findMany(name)
+      db.canton.findMany(filter),
+      db.game.findMany(filterGame),
+      db.language.findMany(filter)
     ]);
     const mapper = (toMap: { name: string, id: bigint }) => ({ name: toMap.name, id: String(toMap.id) });
 

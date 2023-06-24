@@ -17,14 +17,13 @@ export const action: ActionFunction = async ({ request }) => {
 
 const postAction = async (request: Request) => {
   const result = await zx.parseFormSafe(request, {
-	userId: zx.NumAsString,
     name: z.string()
   });
   if(!result.success) {
     return json(result.error, 400);
   }
 
-  const { userId, name } = result.data;
+  const { name } = result.data;
 
   const user = await checkUserAuth(request);
   const isSuperAdmin = await checkSuperAdmin(user.db.id, false);
@@ -39,12 +38,13 @@ const postAction = async (request: Request) => {
 	if(!isSuperAdmin) {
 		await db.user.update({
 			where: {
-				id: userId
+				id: BigInt(user.db.id)
 			},
-			// TODO: Test if game is added to the user when submitted over normal admin panel.
 			data: {
 				games: {
-					push: [{...game}],
+					connect: {
+            id: game.id
+          },
 				}
 			}
 		})
@@ -56,9 +56,9 @@ const postAction = async (request: Request) => {
 
   let headers;
   if(isSuperAdmin) {
-	headers = await createFlashMessage(request, 'Game added');
+	  headers = await createFlashMessage(request, 'Game added');
   } else {
-	headers = await createFlashMessage(request, 'Game Request sent');
+	  headers = await createFlashMessage(request, 'Game Request sent');
   }
   return json({}, headers);
 }
