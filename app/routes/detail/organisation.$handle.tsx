@@ -68,7 +68,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         where: {
           request_status: RequestStatus.ACCEPTED
         },
-        include: { user: { include: { games: true } } }
+        include: { user: { include: { games: {
+          where: {
+            is_active: true,
+          },
+        } } } }
       }
     }
   }).catch((e) => {

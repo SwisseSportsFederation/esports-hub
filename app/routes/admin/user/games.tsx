@@ -47,7 +47,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       id: Number(user.db.id)
     },
     include: {
-      games: true
+      games: {
+        where: {
+          is_active: true,
+        },
+      } 
     }
   });
 
