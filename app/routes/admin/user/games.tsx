@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import type { LoaderFunctionArgs } from "@remix-run/router";
-import { getSearchParams } from "~/services/search.server";
+import { getActiveGames, getSearchParams } from "~/services/search.server";
 import { zx } from 'zodix';
 import { z } from "zod";
 import ActionButton from "~/components/Button/ActionButton";
@@ -58,14 +58,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     games: userDetail?.games || [],
     user,
-    searchParams: await getSearchParams()
+    activeGames: await getActiveGames()
   });
 }
 
 export default function() {
-  const { games, user, searchParams } = useLoaderData<typeof loader>();
+  const { games, user, activeGames } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  let [gameList, setGameList] = useState(searchParams.games);
+  let [gameList, setGameList] = useState(activeGames);
 
   const checkNewInput = async (element: IdValue) => {
     if(element.id === null) {
@@ -75,7 +75,7 @@ export default function() {
         method: 'post',
         action: `/admin/api/game`
       });
-      setGameList((await getSearchParams()).games);
+      setGameList((await getActiveGames()));
     }
   }
 

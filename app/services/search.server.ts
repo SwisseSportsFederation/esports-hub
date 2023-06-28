@@ -51,21 +51,20 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   return { results };
 }
 
-export async function getSearchParams(): Promise<SearchParams> {
+export async function 
+getSearchParams(): Promise<SearchParams> {
   const searchParams = getCache().get("searchParams");
 
   if(!searchParams) {
     const filter = { select: { id: true, name: true } };
-    const filterGame = { where: {is_active: true}, select: { id: true, name: true } };
-    const [cantons, games, languages] = await Promise.all([
+    const [cantons, languages] = await Promise.all([
       db.canton.findMany(filter),
-      db.game.findMany(filterGame),
       db.language.findMany(filter)
     ]);
     const mapper = (toMap: { name: string, id: bigint }) => ({ name: toMap.name, id: String(toMap.id) });
 
     const searchParams: SearchParams = {
-      games: games.map(mapper),
+      games: await getActiveGames(),
       cantons: cantons.map(mapper),
       languages: languages.map(mapper)
     };
@@ -73,4 +72,11 @@ export async function getSearchParams(): Promise<SearchParams> {
     return searchParams;
   }
   return JSON.parse(searchParams);
+}
+
+export async function getActiveGames(): Promise<IdValue[]> {
+  const filterGame = { where: {is_active: true}, select: { id: true, name: true } };
+  const mapper = (toMap: { name: string, id: bigint }) => ({ name: toMap.name, id: String(toMap.id) });
+  const games = await Promise.resolve(db.game.findMany(filterGame));
+  return games.map(mapper);
 }
