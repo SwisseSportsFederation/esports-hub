@@ -69,19 +69,21 @@ export default function() {
     <div className="max-w-prose mx-auto">
       <H1 className={`mx-2 px-2 mb-1`}>Game Requests</H1>
       { gameRequestTeasers }
-      <div className="flex justify-center mt-4 mb-8">
-        <fetcher.Form method='post' action={`/admin/api/game`} className="flex space-x-2">
-          <TextInput id="name" label="Name" defaultValue={""}/>
+      <div className="flex justify-center mt-4 mb-16">
+        <fetcher.Form method='post' action={`/admin/api/game`} className="flex space-x-2 items-center">
+          <TextInput id="name" label="Name" defaultValue={""} className="!mt-0"/>
           <IconButton icon='add' type='submit' name='action' value='POST'/>
         </fetcher.Form>
       </div>
-      <H1 className={`mx-2 px-2 mb-1`}>Super Admins</H1>
-      <TeaserList title="" teasers={superadminTeasers}/>
-      <div className={`flex justify-center mt-4`}>
-        <fetcher.Form method='post' action={`/superadmin/api/user/superadmin`} className="flex space-x-2">
-          <TextInput id="handle" label="User Handle" defaultValue={""}/>
-          <IconButton icon='add' type='submit' name='action' value='POST'/>
-        </fetcher.Form>
+      <div className="bg-red-400 bg-opacity-50 p-4 rounded-xl">
+        <H1 className={`mx-2 px-2 mb-1`}>Super Admins</H1>
+        <TeaserList title="" teasers={superadminTeasers}/>
+        <div className={`flex justify-center mt-4`}>
+          <fetcher.Form method='post' action={`/superadmin/api/user/superadmin`} className="flex space-x-2 items-center">
+            <TextInput id="handle" label="User Handle" defaultValue={""} className="!mt-0"/>
+            <IconButton icon='add' type='submit' name='action' value='POST'/>
+          </fetcher.Form>
+        </div>
       </div>
     </div>
   </div>;

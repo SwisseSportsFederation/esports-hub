@@ -35,7 +35,7 @@ const membershipLinkBlock = (membership: Membership, type: string) => {
 }
 
 export default function Navbar() {
-  const { memberships } = useLoaderData();
+  const { memberships, isSuperAdmin } = useLoaderData();
 
   return <div className="hidden lg:block h-full z-10 fixed top-16 bg-white dark:bg-gray-2 w-72 text-color p-4 overflow-y-auto">
     <div className="mb-16">
@@ -64,5 +64,11 @@ export default function Navbar() {
       </div>
       { memberships.orgs.map((organisation: Membership) => membershipLinkBlock(organisation, "organisation"))}
     </div>
+    { isSuperAdmin && 
+      <div className="mb-16">
+        <div className="text-xl font-bold mb-4">Superadmin</div>
+        <NavbarLink path={`/superadmin`} title="Superadmin"/>
+      </div>
+    }
   </div>
 }
