@@ -1,4 +1,3 @@
-import DropDownInput from "./DropdownInput";
 import ActionBlock from "../Blocks/ActionBlock";
 import { useState } from "react";
 import type { IdValue } from "~/services/search.server";
@@ -10,7 +9,7 @@ interface IComboboxAdderProps {
   label: string,
   values: IdValue[],
   defaultValues: IdValue[],
-	onChange?: Function,
+  onChange?: Function,
 }
 
 const ComboboxAdder = (props: IComboboxAdderProps) => {
@@ -19,13 +18,13 @@ const ComboboxAdder = (props: IComboboxAdderProps) => {
   let [selectedValues, setSelectedValues] = useState(defaultValues);
 
   const addItem = (element: IdValue) => {
-    if(element && element.name !== "All") {
+    if (element && element.name !== "All") {
       setSelectedValues([
         ...selectedValues,
         element
       ]);
       setSelectableValues(selectableValues.filter(item => item.name !== element.name));
-    } else if(element.name === 'All') {
+    } else if (element.name === 'All') {
       setSelectedValues(values);
       setSelectableValues([]);
     }
@@ -33,7 +32,7 @@ const ComboboxAdder = (props: IComboboxAdderProps) => {
   };
 
   const removeItem = (element: IdValue) => {
-    if(element) {
+    if (element) {
       setSelectedValues(
         selectedValues.filter(val =>
           val.id !== element.id
@@ -51,14 +50,14 @@ const ComboboxAdder = (props: IComboboxAdderProps) => {
         <span className={`text-xs mb-4 text-color`}>{label}</span>
       </label>
       <ComboboxInput name={label} inputs={selectableValues} selected={null} isBig={true} className="mt-1 block"
-                     onChange={addItem} showSelected={false}/>
+        onChange={addItem} showSelected={false} />
       {selectedValues.map((value, index) => {
-          const blockstyling = classNames({
-            'opacity-30': value.id === null
-          }, 'mt-4 !rounded-xl');
-          return <ActionBlock key={`action-${index}`} title={value.name} onAction={() => removeItem(value)} className={blockstyling}/>
-        })}
-      <input type='hidden' name={name} value={JSON.stringify(selectedValues.map(value => value.id))}/>
+        const blockstyling = classNames({
+          'opacity-30': value.id === null
+        }, 'mt-4 !rounded-xl');
+        return <ActionBlock key={`action-${index}`} title={value.name} onAction={() => removeItem(value)} className={blockstyling} />
+      })}
+      <input type='hidden' name={name} value={JSON.stringify(selectedValues.map(value => value.id))} />
     </div>
   </>
 };

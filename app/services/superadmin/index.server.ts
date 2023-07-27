@@ -2,7 +2,7 @@ import { db } from "~/services/db.server";
 import type { AuthUser } from "~/services/auth.server";
 import { checkSuperAdmin } from "~/utils/auth.server";
 
-export async function getGameRequests(user: AuthUser) {
+export async function getGameRequests (user: AuthUser) {
   await checkSuperAdmin(user.db.id);
   const gameQuery = db.game.findMany({
     where: {
@@ -13,12 +13,11 @@ export async function getGameRequests(user: AuthUser) {
       name: true
     }
   });
-  const games = await Promise.resolve(gameQuery);
-
-  return games;
+  
+  return await Promise.resolve(gameQuery);
 }
 
-export async function getSuperAdmins(user: AuthUser) {
+export async function getSuperAdmins (user: AuthUser) {
   await checkSuperAdmin(user.db.id);
   const userQuery = db.user.findMany({
     where: {
@@ -29,8 +28,6 @@ export async function getSuperAdmins(user: AuthUser) {
     },
     include: { games: true }
   });
-  
-  const superadmins = await Promise.resolve(userQuery);
-  
-  return superadmins;
+
+  return await Promise.resolve(userQuery);
 }
