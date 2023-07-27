@@ -1,7 +1,7 @@
 import { json } from "@remix-run/node";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
-import { checkUserAuth, checkUserValid } from "~/utils/auth.server";
+import { checkUserAuth, checkUserValid, checkSuperAdmin } from "~/utils/auth.server";
 import { getUserMemberships } from "~/services/admin/index.server";
 import type { LoaderFunctionArgs } from "@remix-run/router";
 import { useEffect } from "react";
@@ -10,10 +10,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
   const userValid = await checkUserValid(user.db.id, request.url);
   const memberships = await getUserMemberships(user);
+  const isSuperAdmin = await checkSuperAdmin(user.db.id, false);
   return json({
     user,
     memberships,
-    userValid
+    userValid,
+    isSuperAdmin
   });
 }
 

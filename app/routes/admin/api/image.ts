@@ -10,10 +10,10 @@ import { StringOrNull } from "~/db/queries.server";
 export let loader: LoaderFunction = () => redirect("/admin");
 
 export const action: ActionFunction = async ({ request }) => {
-  if(request.method === 'PUT') {
+  if (request.method === 'PUT') {
     return putAction(request)
   }
-  if(request.method === 'DELETE') {
+  if (request.method === 'DELETE') {
     return deleteAction(request);
   }
   return json({}, 404);
@@ -27,7 +27,7 @@ const deleteAction = async (request: Request) => {
   });
 
   const user = await checkUserAuth(request);
-  if(entity !== 'USER') {
+  if (entity !== 'USER') {
     await checkIdAccessForEntity(user.db.id, entityId, entity, 'ADMINISTRATOR');
   }
   try {
@@ -37,15 +37,15 @@ const deleteAction = async (request: Request) => {
       }
     };
     let result;
-    if(entity === 'USER') {
+    if (entity === 'USER') {
       result = await db.user.findFirstOrThrow(checkQuery);
-    } else if(entity === 'TEAM') {
+    } else if (entity === 'TEAM') {
       result = await db.team.findFirstOrThrow(checkQuery);
-    } else if(entity === 'ORG') {
+    } else if (entity === 'ORG') {
       result = await db.organisation.findFirstOrThrow(checkQuery);
     }
 
-    if(result?.image === null || result?.image !== imageId) {
+    if (result?.image === null || result?.image !== imageId) {
       return json({}, 400);
     }
     await deleteImage(imageId);
@@ -58,16 +58,16 @@ const deleteAction = async (request: Request) => {
         image: null
       }
     };
-    if(entity === 'USER') {
+    if (entity === 'USER') {
       await db.user.update(updateQuery)
-    } else if(entity === 'TEAM') {
+    } else if (entity === 'TEAM') {
       await db.team.update(updateQuery)
-    } else if(entity === 'ORG') {
+    } else if (entity === 'ORG') {
       await db.organisation.update(updateQuery)
     }
 
 
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     return json({}, 500);
   }
@@ -84,7 +84,7 @@ const putAction = async (request: Request) => {
   });
   const cropData = JSON.parse(crop);
   const user = await checkUserAuth(request);
-  if(entity !== 'USER') {
+  if (entity !== 'USER') {
     await checkIdAccessForEntity(user.db.id, entityId, entity, 'ADMINISTRATOR');
   }
   try {
@@ -97,11 +97,11 @@ const putAction = async (request: Request) => {
       }
     };
     let image: { image: StringOrNull } = { image: null };
-    if(entity === 'USER') {
+    if (entity === 'USER') {
       image = await db.user.findFirstOrThrow(existingImageQuery)
-    } else if(entity === 'TEAM') {
+    } else if (entity === 'TEAM') {
       image = await db.team.findFirstOrThrow(existingImageQuery)
-    } else if(entity === 'ORG') {
+    } else if (entity === 'ORG') {
       image = await db.organisation.findFirstOrThrow(existingImageQuery)
     }
 
@@ -117,14 +117,14 @@ const putAction = async (request: Request) => {
       }
     };
 
-    if(entity === 'USER') {
+    if (entity === 'USER') {
       await db.user.update(query)
-    } else if(entity === 'TEAM') {
+    } else if (entity === 'TEAM') {
       await db.team.update(query)
-    } else if(entity === 'ORG') {
+    } else if (entity === 'ORG') {
       await db.organisation.update(query)
     }
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     return json({}, 500);
   }

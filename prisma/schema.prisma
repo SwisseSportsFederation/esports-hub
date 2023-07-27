@@ -160,6 +160,7 @@ model User {
   games              Game[]
   languages          Language[]
   socials            Social[]
+  is_superadmin      Boolean?             @default(false)
 
   @@map("user")
 }
@@ -191,6 +192,7 @@ model Game {
   name  String
   teams Team[]
   users User[]
+  is_active Boolean             @default(false)
 
   @@index([name], map: "idx_games_name")
   @@map("game")

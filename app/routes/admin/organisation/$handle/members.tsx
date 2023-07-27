@@ -79,7 +79,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
               { handle: query() }
             ]
           },
-          include: { games: true }
+          include: { games: {
+            where: {
+              is_active: true,
+            },
+          }}
         });
         const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
           return users.map(user => ({
@@ -149,7 +153,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         handle
       }
     },
-    include: { user: { include: { games: true, teams: { include: { team: true } } } } }
+    include: { user: { include: { 
+      games: { 
+        where: {
+          is_active: true,
+        },
+      }, 
+      teams: { include: { team: true } } } } }
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
   const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_ORG);

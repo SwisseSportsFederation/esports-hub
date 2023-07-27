@@ -67,6 +67,21 @@ export const checkIdAccessForEntity = async (userId: string | bigint, id: number
   return checkAccessForEntity(entity, query, minAccess);
 };
 
+export const checkSuperAdmin = async (userId: bigint, redirect_user?: boolean) => {
+  redirect_user = redirect_user == undefined ? true : redirect_user;
+  const user = await db.user.findFirstOrThrow({
+    where: {
+      id: Number(userId)
+    }
+  });
+  if(user.is_superadmin) {
+    return true;
+  } else if (redirect_user) {
+    throw redirect('/');
+  }
+  return false;
+}
+
 export const checkHandleAccessForEntity = async (userId: string | bigint, handle: string | undefined, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
   if(!handle) {
     throw redirect('/admin');

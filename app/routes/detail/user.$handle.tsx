@@ -16,7 +16,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
     handle: z.string()
   });
 
-  /* TODO check query */
   const user = await db.user.findUniqueOrThrow({
     where: {
       handle
@@ -24,7 +23,11 @@ export async function loader({ params }: LoaderFunctionArgs) {
     include: {
       former_teams: true,
       socials: true,
-      games: true,
+      games: {
+        where: {
+          is_active: true,
+        },
+      },
       canton: true,
       languages: true,
       organisations: {
