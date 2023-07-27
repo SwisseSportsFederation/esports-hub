@@ -18,6 +18,9 @@ const ComboboxAdder = (props: IComboboxAdderProps) => {
   let [selectedValues, setSelectedValues] = useState(defaultValues);
 
   const addItem = (element: IdValue) => {
+    if (selectedValues.includes(element)) {
+      return;
+    }
     if (element && element.name !== "All") {
       setSelectedValues([
         ...selectedValues,
