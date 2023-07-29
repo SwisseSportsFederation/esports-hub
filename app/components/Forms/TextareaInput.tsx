@@ -26,7 +26,8 @@ const TextareaInput = (props: ITextareaInputProps) => {
 
   const labelInvalid = classNames({
     'is-dirty': check,
-    'text-color': !!value
+    'text-color': !!value,
+    'text-black': !value
   });
 
   return (
@@ -35,7 +36,7 @@ const TextareaInput = (props: ITextareaInputProps) => {
       <textarea name={id} defaultValue={value} required={required} placeholder=" "
                 onBlur={handleBlur} onFocus={handleFocus}
                 className={`bg-white rounded-xl h-48 min-h-[150px] w-full mt-3 px-4 py-3 text-black focus:outline-none border border-gray-6 dark:border-white resize-y`}/>
-        <span className={`absolute left-4 top-6 transition-all text-black ${labelInvalid}`}>{label}</span>
+        <span className={`absolute left-4 top-6 transition-all ${labelInvalid}`}>{label}</span>
       </label>
     </div>
   );
