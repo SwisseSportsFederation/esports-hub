@@ -1,7 +1,6 @@
 import type { AuthUser } from "~/services/auth.server";
 import { authenticator } from "~/services/auth.server";
 import { db } from "~/services/db.server";
-import type { EntityType } from "~/helpers/entityType";
 import type { AccessRight } from "@prisma/client";
 import { RequestStatus } from "@prisma/client";
 import { redirect } from "@remix-run/node";
@@ -51,20 +50,19 @@ export async function checkUserValid(userId: bigint, url: string): Promise<Boole
   return false;
 }
 
-export const checkIdAccessForEntity = async (userId: string | bigint, id: number, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
-  const entityName = entity === 'TEAM' ? 'team_id' : 'organisation_id';
+export const checkIdAccessForEntity = async (userId: string | bigint, id: number, minAccess: AccessRight): Promise<AccessRight> => {
 
   const query = {
     where: {
       user_id: Number(userId),
-      [entityName]: id
+      group_id: id
     },
     select: {
       access_rights: true,
       request_status: true
     }
   };
-  return checkAccessForEntity(entity, query, minAccess);
+  return checkAccessForEntity(query, minAccess);
 };
 
 export const checkSuperAdmin = async (userId: bigint, redirect_user?: boolean) => {
@@ -82,16 +80,15 @@ export const checkSuperAdmin = async (userId: bigint, redirect_user?: boolean) =
   return false;
 }
 
-export const checkHandleAccessForEntity = async (userId: string | bigint, handle: string | undefined, entity: Omit<EntityType, 'USER'>, minAccess: AccessRight): Promise<AccessRight> => {
+export const checkHandleAccessForEntity = async (userId: string | bigint, handle: string | undefined, minAccess: AccessRight): Promise<AccessRight> => {
   if(!handle) {
     throw redirect('/admin');
   }
-  const entityName = entity === 'TEAM' ? 'team' : 'organisation';
 
   const query = {
     where: {
       user_id: Number(userId),
-      [entityName]: {
+      group: {
         handle
       }
     },
@@ -100,17 +97,13 @@ export const checkHandleAccessForEntity = async (userId: string | bigint, handle
       request_status: true
     }
   };
-  return checkAccessForEntity(entity, query, minAccess);
+  return checkAccessForEntity(query, minAccess);
 };
 
-const checkAccessForEntity = async (entity: Omit<EntityType, 'USER'>, query: any, minAccess: AccessRight) => {
+const checkAccessForEntity = async (query: any, minAccess: AccessRight) => {
   let membership;
   try {
-    if(entity === 'TEAM') {
-      membership = await db.teamMember.findFirstOrThrow(query);
-    } else {
-      membership = await db.organisationMember.findFirstOrThrow(query);
-    }
+    membership = await db.groupMember.findFirstOrThrow(query);
   } catch(error) {
     console.log(error);
     throw redirect('/admin')

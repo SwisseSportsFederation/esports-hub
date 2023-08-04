@@ -31,40 +31,42 @@ export function links() {
   ];
 }
 
-const promoteUser = async (userId: number, newAdminUserId: string, organisationId: number) => {
-  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
-  await checkIdAccessForEntity(newAdminUserId, organisationId, 'ORGANISATION', 'MEMBER');
+// TODO: Put all the api functions here into an own api endpoint. /organisations and /teams should then call this endpoint instead of having duplicate code. (remove api code from /teams)
 
-  await db.organisationMember.update({
+const promoteUser = async (userId: number, newAdminUserId: string, groupId: number) => {
+  await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
+  await checkIdAccessForEntity(newAdminUserId, groupId, 'MEMBER');
+
+  await db.groupMember.update({
     where: {
-      user_id_organisation_id: {
+      user_id_group_id: {
         user_id: Number(newAdminUserId),
-        organisation_id: organisationId
+        group_id: groupId
       }
     },
     data: {
       access_rights: AccessRight.ADMINISTRATOR
     }
   });
-  // potentially send email
+  // todo: potentially send email
 }
 
-const leaveOrganisation = async (userId: number, organisationId: number) => {
-  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
+const leaveOrganisation = async (userId: number, groupId: number) => {
+  await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 
-  const organisation = await db.organisation.findFirst({
+  const group = await db.group.findFirst({
     where: {
-      id: organisationId
+      id: groupId
     },
     include: {
       members: true
     }
   });
   // Set Organisation inactive if there is no more members
-  if(organisation?.members.length === 1) {
-    await db.organisation.update({
+  if(group?.members.length === 1) {
+    await db.group.update({
       where: {
-        id: organisationId
+        id: groupId
       },
       data: {
         is_active: false
@@ -72,30 +74,42 @@ const leaveOrganisation = async (userId: number, organisationId: number) => {
     });
   } else {
     // Set new admin if member is last admin
-    const admins = organisation?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
+    const admins = group?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
     if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
-      return json({ selectAdminOrgId: organisationId })
+      return json({ selectAdminOrgId: groupId })
     }
   }
   // delete member from organisation
-  await db.organisationMember.delete({
+  const groupMember = await db.groupMember.delete({
     where: {
-      user_id_organisation_id: {
+      user_id_group_id: {
         user_id: userId,
-        organisation_id: organisationId
+        group_id: groupId
       }
     }
   });
+
+  // TODO: Check if this works like this and has correct variables. (group_type etc.)
+  if(group && group.group_type === "TEAM") {
+    await db.formerTeam.create({
+      data: {
+        user_id: userId,
+        name: group.name,
+        from: groupMember.joined_at,
+        to: new Date(),
+      }
+    });
+  }
   return json({});
 }
 
-const updateOrganisation = async (userId: number, organisationId: number, joinedAt: string) => {
-  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
-  await db.organisationMember.update({
+const updateOrganisation = async (userId: number, groupId: number, joinedAt: string) => {
+  await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
+  await db.groupMember.update({
     where: {
-      user_id_organisation_id: {
+      user_id_group_id: {
         user_id: userId,
-        organisation_id: organisationId
+        group_id: groupId
       }
     },
     data: {
@@ -105,25 +119,68 @@ const updateOrganisation = async (userId: number, organisationId: number, joined
   return json({});
 }
 
-const changeMainOrganisation = async (userId: number, organisationId: number) => {
-  await checkIdAccessForEntity(userId.toString(), organisationId, 'ORGANISATION', 'MEMBER');
-  await db.organisationMember.updateMany({
+const changeMainOrganisation = async (userId: number, groupId: number) => {
+  await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
+  //TODO: Check group type here to be organisation before removing main group (because of main teams)
+  await db.groupMember.updateMany({
     where: {
       user_id: userId
     },
     data: {
-      is_main_organisation: false
+      is_main_group: false
     }
   });
-  await db.organisationMember.update({
+  await db.groupMember.update({
     where: {
-      user_id_organisation_id: {
+      user_id_group_id: {
         user_id: userId,
-        organisation_id: organisationId
+        group_id: groupId
       }
     },
     data: {
-      is_main_organisation: true
+      is_main_group: true
+    }
+  });
+  return json({});
+}
+
+const updateFormerTeam = async (userId: number, name: string, from: string, to: string, formerTeamName: string) => {
+  await db.formerTeam.update({
+    where: {
+      user_id_name: {
+        user_id: userId,
+        name: formerTeamName
+      }
+    },
+    data: {
+      name,
+      from: new Date(from),
+      to: new Date(to)
+    }
+  });
+  return json({});
+}
+
+const createFormerTeam = async (userId: number, name: string, from: string, to: string) => {
+  await db.formerTeam.create({
+    data: {
+      user_id: userId,
+      name,
+      from: new Date(from),
+      to: new Date(to)
+    }
+  });
+  return json({});
+}
+
+
+const leaveFormerTeam = async (userId: number, formerTeamName: string) => {
+  await db.formerTeam.delete({
+    where: {
+      user_id_name: {
+        user_id: userId,
+        name: formerTeamName
+      }
     }
   });
   return json({});
@@ -135,18 +192,38 @@ export async function action({ request }: ActionFunctionArgs) {
     z.object({
       intent: z.literal('UPDATE_ORGANISATION'),
       userId: zx.NumAsString,
-      organisationId: zx.NumAsString,
+      groupId: zx.NumAsString,
       joinedAt: z.string()
     }),
     z.object({
-      intent: z.literal('PROMOTE_USER'), organisationId: zx.NumAsString, userId: zx.NumAsString, newAdminUserId: z.string()
+      intent: z.literal('PROMOTE_USER'), groupId: zx.NumAsString, userId: zx.NumAsString, newAdminUserId: z.string()
     }),
-    z.object({ intent: z.literal('LEAVE_ORGANISATION'), organisationId: zx.NumAsString, userId: zx.NumAsString }),
+    z.object({ intent: z.literal('LEAVE_ORGANISATION'), groupId: zx.NumAsString, userId: zx.NumAsString }),
     z.object({
       intent: z.literal('CHANGE_MAIN_ORGANISATION'),
       userId: zx.NumAsString,
-      organisationId: zx.NumAsString
-    })
+      groupId: zx.NumAsString
+    }),
+    z.object({
+      intent: z.literal('UPDATE_FORMER_TEAM'),
+      userId: zx.NumAsString,
+      formerTeamName: z.string(),
+      from: z.string(),
+      to: z.string(),
+      name: z.string()
+    }),
+    z.object({
+      intent: z.literal('CREATE_FORMER_TEAM'),
+      userId: zx.NumAsString,
+      from: z.string(),
+      to: z.string(),
+      name: z.string()
+    }),
+    z.object({
+      intent: z.literal('LEAVE_FORMER_TEAM'),
+      userId: zx.NumAsString,
+      formerTeamName: z.string(),
+    }),
   ]));
 
   const { userId } = data;
@@ -156,25 +233,37 @@ export async function action({ request }: ActionFunctionArgs) {
 
   switch(data.intent) {
     case "PROMOTE_USER": {
-      const { newAdminUserId, organisationId } = data;
-      promoteUser(userId, newAdminUserId, organisationId);
+      const { newAdminUserId, groupId } = data;
+      promoteUser(userId, newAdminUserId, groupId);
       // purpose fallthrough
     }
     case "LEAVE_ORGANISATION": {
-      const { organisationId } = data;
-      return leaveOrganisation(userId, organisationId);
+      const { groupId } = data;
+      return leaveOrganisation(userId, groupId);
     }
     case "UPDATE_ORGANISATION": {
-      const { joinedAt, organisationId } = data;
+      const { joinedAt, groupId } = data;
       if(joinedAt) {
-        return updateOrganisation(userId, organisationId, joinedAt);
+        return updateOrganisation(userId, groupId, joinedAt);
       } else {
         throw json({}, 400);
       }
     }
     case "CHANGE_MAIN_ORGANISATION": {
-      const { organisationId } = data;
-      return changeMainOrganisation(userId, organisationId);
+      const { groupId } = data;
+      return changeMainOrganisation(userId, groupId);
+    }
+    case "UPDATE_FORMER_TEAM": {
+      const { name, from, to, formerTeamName } = data;
+      return updateFormerTeam(userId, name, from, to, formerTeamName);
+    }
+    case "CREATE_FORMER_TEAM": {
+      const { name, from, to } = data;
+      return createFormerTeam(userId, name, from, to);
+    }
+    case "LEAVE_FORMER_TEAM": {
+      const { formerTeamName } = data;
+      return leaveFormerTeam(userId, formerTeamName);
     }
   }
 }
@@ -218,26 +307,26 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
     </Form>
   </Modal>;
 
-const mainOrgIcon = (organisationId: string, isMainOrg: boolean | null, userId: string) =>
+const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, userId: string) =>
   <Form method='post' className={isMainOrg ? 'text-yellow-400' : 'text-gray-3'}>
     <input type='hidden' name='intent' value='CHANGE_MAIN_ORGANISATION'/>
     <input type='hidden' name='userId' value={userId}/>
-    <IconButton icon='star' type='submit' name='organisationId' value={organisationId} className="rounded-none mx-1"/>
+    <IconButton icon='star' type='submit' name='groupId' value={groupId} className="rounded-none mx-1"/>
   </Form>;
 
 const SelectNewAdminModal = (
-  { isOpen, handleClose, organisationId, userId }:
-    { isOpen: boolean, handleClose: (value: boolean) => void, organisationId: string, userId: string }) => {
+  { isOpen, handleClose, groupId, userId }:
+    { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string, userId: string }) => {
   const fetcher = useFetcher();
   useEffect(() => {
-    fetcher.submit({ organisationId, search: '' }, { method: 'post', action: '/admin/api/organisation/members' })
-  }, [organisationId]);
+    fetcher.submit({ groupId, search: '' }, { method: 'post', action: '/admin/api/organisation/members' })
+  }, [groupId]);
   // @ts-ignore
   const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
 
   const addAsAdminIcon = (teaser: ITeaserProps) => {
     return <Form method='post' onSubmit={() => handleClose(false)}>
-      <input type='hidden' name='organisationId' value={organisationId}/>
+      <input type='hidden' name='groupId' value={groupId}/>
       <input type='hidden' name='newAdminUserId' value={teaser.id}/>
       <input type='hidden' name='userId' value={userId}/>
       <input type='hidden' name='intent' value='PROMOTE_USER'/>
@@ -247,7 +336,7 @@ const SelectNewAdminModal = (
   return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
     <H1 className='text-2xl text-white'>Select new Administrator</H1>
     <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/organisation/members'}>
-      <input type='hidden' name='organisationId' value={organisationId}/>
+      <input type='hidden' name='groupId' value={groupId}/>
       <div className="max-w-sm md:max-w-lg">
         <TextInput id="search" label="Search" searchIcon={true}
                    buttonType="submit" defaultValue={""}/>
@@ -307,7 +396,7 @@ export default function() {
                     <input type='hidden' name='userId' value={user.db.id}/>
                     <DateInput name='joinedAt' label='Joined at' value={new Date(member.joined_at)}/>
                     <div className='w-full flex flex-row space-x-4 justify-center'>
-                      <ActionButton content='Save' type='submit' name='organisationId' value={member.id}/>
+                      <ActionButton content='Save' type='submit' name='groupId' value={member.id}/>
                       <ActionButton content='Leave' action={() => setDeleteModalOpen(member.id)}/>
                     </div>
                   </Form>
@@ -318,8 +407,8 @@ export default function() {
 
       </div>
     </div>
-    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the organisation?', 'LEAVE_ORGANISATION', 'organisationId', user.db.id)}
+    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the organisation?', 'LEAVE_ORGANISATION', 'groupId', user.db.id)}
     {actionData?.selectAdminOrgId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
-                                                           organisationId={actionData?.selectAdminOrgId} userId={user.db.id}/>}
+                                                           groupId={actionData?.selectAdminOrgId} userId={user.db.id}/>}
   </>;
 };
