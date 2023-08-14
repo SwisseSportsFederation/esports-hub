@@ -60,9 +60,16 @@ async function seed() {
     ]
   });
 
+  await prisma.groupType.createMany({
+    data: [
+      { name: 'organisation' },
+      { name: 'team' },
+    ]
+  });
 
-  await Promise.all(createOrgs().map(data => prisma.organisation.create({ data })));
-  await Promise.all(createTeams().map(data => prisma.team.create({ data })));
+
+  await Promise.all(createOrgs().map(data => prisma.group.create({ data })));
+  await Promise.all(createTeams().map(data => prisma.group.create({ data })));
   await Promise.all(createUsers().map(data => prisma.user.create({ data })));
   const user = createUsers()[0];
   await prisma.user.create({
@@ -124,14 +131,9 @@ function createUsers(): Prisma.UserCreateInput[] {
       ...common(),
       email: faker.internet.email(),
       surname: faker.name.lastName(),
-      organisations: {
+      groups: {
         createMany: {
-          data: createOrgMember()
-        }
-      },
-      teams: {
-        createMany: {
-          data: createTeamMember()
+          data: createGroupMember()
         }
       },
       former_teams: {
@@ -162,33 +164,20 @@ function createFormerTeams(): Prisma.FormerTeamCreateManyUserInput[] {
 
 }
 
-function createTeamMember(): Prisma.TeamMemberCreateManyUserInput[] {
+function createGroupMember(): Prisma.GroupMemberCreateManyUserInput[] {
   return array().map((_, index) => {
     return {
       access_rights: faker.helpers.objectValue(AccessRight),
-      is_main_team: index === 0,
-      request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_USER, RequestStatus.PENDING_TEAM]),
+      is_main_group: index === 0,
+      request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_USER, RequestStatus.PENDING_GROUP]),
       joined_at: faker.datatype.datetime(),
       role: faker.name.jobTitle(),
-      team_id: index + 1
+      group_id: index + 1
     }
   });
 }
 
-function createOrgMember(): Prisma.OrganisationMemberCreateManyUserInput[] {
-  return array().map((_, index) => {
-    return {
-      access_rights: faker.helpers.objectValue(AccessRight),
-      is_main_organisation: index === 0,
-      request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_ORG, RequestStatus.PENDING_USER]),
-      joined_at: faker.datatype.datetime(),
-      role: faker.name.jobTitle(),
-      organisation_id: index + 1
-    }
-  });
-}
-
-function createTeams(): Prisma.TeamCreateInput[] {
+function createTeams(): Prisma.GroupCreateInput[] {
   return array(10).map(() => {
     return {
       ...common(),
@@ -197,10 +186,15 @@ function createTeams(): Prisma.TeamCreateInput[] {
           id: fakeBigInt(1, 7)
         }
       },
-      organisation: {
+      groupType: {
+        connect: {
+          id: 1
+        }
+      },
+      parent: {
         create: {
-          request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_ORG, RequestStatus.PENDING_TEAM]),
-          organisation: {
+          request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_GROUP, RequestStatus.PENDING_PARENT_GROUP]),
+          parent: {
             connect: {
               id: fakeBigInt(1, 10)
             }
@@ -211,7 +205,16 @@ function createTeams(): Prisma.TeamCreateInput[] {
   });
 }
 
-function createOrgs(): Prisma.OrganisationCreateInput[] {
-  return array(10).map(() => common())
+function createOrgs(): Prisma.GroupCreateInput[] {
+  return array(10).map(() => {
+    return {
+      ...common(),
+      groupType: {
+        connect: {
+          id: 2
+        }
+      },
+    }
+  })
 }
 
