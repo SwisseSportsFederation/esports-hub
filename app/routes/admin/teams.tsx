@@ -31,6 +31,8 @@ export function links() {
   ];
 }
 
+// TODO: remove API functions here and call /api/groupMember
+
 const promoteUser = async (userId: number, newAdminUserId: string, teamId: number) => {
   await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
   await checkIdAccessForEntity(newAdminUserId, teamId, 'TEAM', 'MEMBER');
