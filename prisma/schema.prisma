@@ -98,7 +98,7 @@ model GroupMember {
 
 model GroupType {
   id     BigInt  @id @default(autoincrement())
-  name   String
+  name   String  @unique // TODO check if doesn't give error because currently multiples
   groups Group[]
 
   @@map("group_type")

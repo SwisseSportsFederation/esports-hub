@@ -58,7 +58,7 @@ export const action: ActionFunction = async ({ request }) => {
       request_status: true
     }
   });
-  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_ORG) {
+  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_F) {
     await checkIdAccessForEntity(user.db.id, team_id, 'TEAM', 'ADMINISTRATOR');
   }
 

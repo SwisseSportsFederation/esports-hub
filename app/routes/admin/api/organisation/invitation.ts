@@ -26,7 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   });
   if(currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
-    await checkIdAccessForEntity(user.db.id, organisation_id, 'ORG', 'MODERATOR');
+    await checkIdAccessForEntity(user.db.id, organisation_id, 'ORGANISATION', 'MODERATOR');
   }
   try {
     if(action === 'ACCEPT') {

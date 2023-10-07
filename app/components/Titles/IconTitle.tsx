@@ -10,7 +10,7 @@ interface IIconTitleProps {
 
 const IconTitle = ({ type, children, className = '' }: PropsWithChildren<PropsWithClassName<IIconTitleProps>>) => {
 
-  const icon: IconType = type == 'USER' ? "user" : type === 'ORG' ? 'organisation' : 'team';
+  const icon: IconType = type == 'USER' ? "user" : type === 'ORGANISATION' ? 'organisation' : 'team';
   return (
     <>
       <h1 className={`font-bold text-2xl ${className} mb-5`}>

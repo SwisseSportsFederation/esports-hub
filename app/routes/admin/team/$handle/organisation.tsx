@@ -24,7 +24,7 @@ import { createFlashMessage } from "~/services/toast.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'ADMINISTRATOR');
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'ADMINISTRATOR');
   const data = await zx.parseForm(request, 
     z.object({ teamId: zx.NumAsString, orgId: zx.NumAsString })
   );
@@ -47,22 +47,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   })
   const user = await checkUserAuth(request);
-  const access = await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'MODERATOR');
+  const access = await checkHandleAccessForEntity(user.db.id, params.handle, 'MODERATOR');
 
-  const allOrgs = await db.organisationTeam.findMany({
+  const allOrgs = await db.groupToGroup.findMany({
     where: {
-      team: {
+      child: {
         handle
       }
     },
     include: {
-      organisation: { include: { teams: { include: { team: { include: { game: true }}}}}},
-      team: true
+      parent: { include: { children: { include: { child: { include: { game: true }}}}}},
+      child: true
     }
   });
   const orgTeams = allOrgs.filter(org => org.request_status === RequestStatus.ACCEPTED);
-  const invited = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_TEAM);
-  const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_ORG);
+  const invited = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_GROUP);
+  const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_PARENT_GROUP);
 
   return json({
     access,

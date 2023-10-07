@@ -22,7 +22,7 @@ export const action: ActionFunction = async ({ request }) => {
     }), {});
   const result = await zx.parseFormSafe(request, {
     entityId: zx.NumAsString,
-    entity: z.enum(["USER", "TEAM", "ORG"]),
+    entity: z.enum(["USER", "TEAM", "ORGANISATION"]),
     ...zSocials
   });
   if(!result.success) {

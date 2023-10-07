@@ -23,29 +23,29 @@ export const action = async ({ request, params }: ActionArgs) => {
   });
   const user = await checkUserAuth(request);
   try {
-    const organisation = await db.organisation.findUniqueOrThrow({
+    const group = await db.group.findUniqueOrThrow({
       where: {
         handle
       }
     });
-    await db.organisationMember.create({
+    await db.groupMember.create({
       data: {
         access_rights: AccessRight.MEMBER,
-        is_main_organisation: false,
-        request_status: RequestStatus.PENDING_ORG,
+        is_main_group: false,
+        request_status: RequestStatus.PENDING_GROUP,
         joined_at: new Date(),
         role: "Member",
         user: { connect: { id: BigInt(user.db.id) }},
-        organisation: { connect: { id: organisation.id }}
+        group: { connect: { id: group.id }}
       }
     })
-    console.log(`user ${user.db.id} applied for organisation ${organisation.id}`)
+    console.log(`user ${user.db.id} applied for group ${group.id}`)
   } catch(error) {
     console.log(error);
-    const headers = await createFlashMessage(request, 'Error while applying for organisation');
+    const headers = await createFlashMessage(request, 'Error while applying for group');
     return json({}, headers);
   }
-  const headers = await createFlashMessage(request, 'Applied for organisation');
+  const headers = await createFlashMessage(request, 'Applied for group');
   return json({}, headers);
 };
 
@@ -55,7 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   });
 
-  const organisation = await db.organisation.findUniqueOrThrow({
+  const organisation = await db.group.findUniqueOrThrow({
     where: {
       handle
     },
@@ -63,7 +63,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       socials: true,
       canton: true,
       languages: true,
-      teams: { include: { team: { include: { game: true } } } },
+      children: { include: { child: { include: { game: true } } } },
       members: {
         where: {
           request_status: RequestStatus.ACCEPTED
@@ -101,7 +101,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     showApply = !isOrganisationMember(organisation.members, Number(user.db.id));
   }
 
-  const teamTeasers = getTeamTeasers(organisation.teams.map(t => t.team))
+  const teamTeasers = getTeamTeasers(organisation.children.map(t => t.child))
   const memberTeasers = getOrganisationMemberTeasers(organisation.members)
   return json({
     organisation,

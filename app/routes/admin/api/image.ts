@@ -23,7 +23,7 @@ const deleteAction = async (request: Request) => {
   const { entityId, entity, imageId } = await zx.parseForm(request, {
     entityId: zx.NumAsString,
     imageId: z.string(),
-    entity: z.enum(["USER", "TEAM", "ORG"])
+    entity: z.enum(["USER", "TEAM", "ORGANISATION"])
   });
 
   const user = await checkUserAuth(request);
@@ -41,7 +41,7 @@ const deleteAction = async (request: Request) => {
       result = await db.user.findFirstOrThrow(checkQuery);
     } else if (entity === 'TEAM') {
       result = await db.team.findFirstOrThrow(checkQuery);
-    } else if (entity === 'ORG') {
+    } else if (entity === 'ORGANISATION') {
       result = await db.organisation.findFirstOrThrow(checkQuery);
     }
 
@@ -62,7 +62,7 @@ const deleteAction = async (request: Request) => {
       await db.user.update(updateQuery)
     } else if (entity === 'TEAM') {
       await db.team.update(updateQuery)
-    } else if (entity === 'ORG') {
+    } else if (entity === 'ORGANISATION') {
       await db.organisation.update(updateQuery)
     }
 
@@ -80,7 +80,7 @@ const putAction = async (request: Request) => {
   const { entityId, entity, crop } = await zx.parseForm(request, {
     entityId: zx.NumAsString,
     crop: z.string(),
-    entity: z.enum(["USER", "TEAM", "ORG"])
+    entity: z.enum(["USER", "TEAM", "ORGANISATION"])
   });
   const cropData = JSON.parse(crop);
   const user = await checkUserAuth(request);

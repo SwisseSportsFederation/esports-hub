@@ -129,7 +129,7 @@ export async function loader() {
 
 export default function() {
   const { searchParams, organisation } = useLoaderData<typeof loader>();
-  return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORG'
+  return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORGANISATION'
                             entityBirthday={organisation.founded} imageId={organisation.image}
                             searchParams={searchParams}/>;
 }

@@ -26,7 +26,7 @@ import { createFlashMessage } from "~/services/toast.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'MODERATOR');
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
     z.object({
       intent: z.literal('UPDATE_USER'),

@@ -60,10 +60,10 @@ export default function() {
   const { memberships, user } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const fetcher = useFetcher();
   const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
-  const orgTeaser = getTeaser(memberships.orgs, 'ORG');
+  const orgTeaser = getTeaser(memberships.orgs, 'ORGANISATION');
 
   const teamInvitationTeaser = getInvitationTeaser(memberships.teamInvitations, 'TEAM', user.db.id, fetcher);
-  const orgInvitationTeaser = getInvitationTeaser(memberships.orgInvitations, 'ORG', user.db.id, fetcher);
+  const orgInvitationTeaser = getInvitationTeaser(memberships.orgInvitations, 'ORGANISATION', user.db.id, fetcher);
   const invitationsLength = teamInvitationTeaser.length + orgInvitationTeaser.length;
   const addOrgClassNames = classNames({
     'mb-4': invitationsLength > 0,

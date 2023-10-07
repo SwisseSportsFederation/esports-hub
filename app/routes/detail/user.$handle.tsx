@@ -30,21 +30,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
       },
       canton: true,
       languages: true,
-      organisations: {
-        where: {
-          request_status: RequestStatus.ACCEPTED
-        },
-        include: { organisation: { include: { teams: { include: { team: { include: { game: true } } } } } } }
-      },
-      teams: {
+      groups: {
         where: {
           request_status: {
             equals: RequestStatus.ACCEPTED
           }
-        },
-        include: {
-          team: true
-        }
+        },        
+        include: { group: { include: { children: { include: { child: { include: { game: true } } } } } } }
       }
     }
   }).catch((e) => {
@@ -69,9 +61,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const { former_teams: formerTeams } = user;
 
-  const organisations = user.organisations.map((mem) => mem.organisation);
-  const teamMemberships = user.teams;
-  const organisationTeasers = getOrganisationTeasers(organisations);
+  const groups = user.groups.map((mem) => mem.group);
+  const teamMemberships = user.groups;
+  const organisationTeasers = getOrganisationTeasers(groups);
   return json({
     user,
     teamMemberships,

@@ -27,7 +27,7 @@ import { createFlashMessage } from "~/services/toast.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, params.handle, 'ORG', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'MODERATOR');
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
     z.object({
       intent: z.literal('UPDATE_USER'),
@@ -147,22 +147,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   })
   await checkUserAuth(request);
-  const allMembers = await db.organisationMember.findMany({
+  const allMembers = await db.groupMember.findMany({
     where: {
-      organisation: {
+      group: {
         handle
       }
     },
-    include: { user: { include: { 
-      games: { 
-        where: {
-          is_active: true,
-        },
-      }, 
-      teams: { include: { team: true } } } } }
+    include: { 
+      user: { 
+        include: { 
+          games: { 
+            where: {
+              is_active: true,
+            },
+          }, 
+          groups: { include: { group: true } } 
+        } 
+      } 
+    } 
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
-  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_ORG);
+  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_GROUP);
   const pending = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_USER);
 
   return json({

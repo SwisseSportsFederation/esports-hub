@@ -47,7 +47,7 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: s
     }
 
     return {
-      type: 'ORG',
+      type: 'ORGANISATION',
       id: String(invitation.id),
       handle: invitation.handle,
       avatarPath: invitation.image ?? null,
@@ -125,7 +125,7 @@ export default function() {
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
 
   const invitedOrganisations = memberships.orgInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER)
-  const pendingOrganisations = memberships.orgInvitations.filter(e => e.request_status === RequestStatus.PENDING_ORG)
+  const pendingOrganisations = memberships.orgInvitations.filter(e => e.request_status === RequestStatus.PENDING_GROUP) //pending org
 
   const invited = getInvitationTeaser(invitedOrganisations, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingOrganisations, user.db.id, true, fetcher);

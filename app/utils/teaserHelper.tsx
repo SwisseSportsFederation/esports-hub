@@ -1,9 +1,9 @@
-import type { Game, Organisation, OrganisationMember, Team, TeamMember, User, OrganisationTeam } from "@prisma/client";
+import type { Game, Group, User, GroupMember, GroupToGroup } from "@prisma/client";
 import type { EntityType } from "~/helpers/entityType";
 import { getOrganisationGames } from "./entityFilters";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 
-export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserProps, 'icons'>[] => {
+export const getTeamTeasers = (teams: (Group & { game: Game })[]): Omit<ITeaserProps, 'icons'>[] => {
   return teams.map((team) => {
     return {
       id: String(team.id),
@@ -17,12 +17,12 @@ export const getTeamTeasers = (teams: (Team & { game: Game })[]): Omit<ITeaserPr
   });
 };
 
-type OrgWithTeamGames = Organisation & { teams: { team: { game: Game } }[] };
-export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): Omit<ITeaserProps, 'icons'>[] => {
-  return organisations.map((organisation) => ({
+type GroupWithTeamGames = Group & { children: { child: { game: Game } }[] };
+export const getOrganisationTeasers = (groups: GroupWithTeamGames[]): Omit<ITeaserProps, 'icons'>[] => {
+  return groups.map((organisation) => ({
       id: String(organisation.id),
       handle: organisation.handle,
-      type: "ORG" as EntityType,
+      type: "ORGANISATION" as EntityType,
       avatarPath: organisation.image,
       name: organisation.name,
       games: getOrganisationGames(organisation),
@@ -33,10 +33,10 @@ export const getOrganisationTeasers = (organisations: OrgWithTeamGames[]): Omit<
 };
 
 
-type TeamMemberWithUser =
-  TeamMember
+type GroupMemberWithUser =
+  GroupMember
   & { user: User & { games: Game[] } };
-export const getTeamMemberTeasers = (teamName: string, members: TeamMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
+export const getTeamMemberTeasers = (teamName: string, members: GroupMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
   return members.map((member) => {
     return {
       id: String(member.user.id),
@@ -50,10 +50,7 @@ export const getTeamMemberTeasers = (teamName: string, members: TeamMemberWithUs
   });
 };
 
-type OrganisationMemberWithUser =
-  OrganisationMember
-  & { user: User & { games: Game[] } };
-export const getOrganisationMemberTeasers = (members: OrganisationMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
+export const getOrganisationMemberTeasers = (members: GroupMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
   return members.map((member) => {
     return {
       id: String(member.user.id),
@@ -67,15 +64,15 @@ export const getOrganisationMemberTeasers = (members: OrganisationMemberWithUser
   });
 };
 
-export const getOrganisationTeamTeasers = (organisationTeams: OrganisationTeam[]): Omit<ITeaserProps, 'icons'>[] => {
+export const getOrganisationTeamTeasers = (organisationTeams: GroupToGroup[]): Omit<ITeaserProps, 'icons'>[] => {
   return organisationTeams.map((organisationTeam) => {
     return {
-      id: String(organisationTeam.organisation_id),
-      handle: organisationTeam.organisation.handle,
-      type: "ORG" as EntityType,
-      avatarPath: organisationTeam.organisation.image,
-      name: organisationTeam.organisation.name,
-      games: getOrganisationGames(organisationTeam.organisation),
+      id: String(organisationTeam.parent_id),
+      handle: organisationTeam.parent.handle,
+      type: "ORGANISATION" as EntityType,
+      avatarPath: organisationTeam.parent.image,
+      name: organisationTeam.parent.name,
+      games: getOrganisationGames(organisationTeam.parent),
       team: null,
       icons: undefined
     };

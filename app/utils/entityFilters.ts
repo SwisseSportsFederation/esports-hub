@@ -1,24 +1,26 @@
-import type { Game, Organisation, OrganisationMember, Team, TeamMember } from "@prisma/client";
+import type { Game, Organisation, GroupMember, GroupToGroup, Team, TeamMember } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
 
 /** filters that work */
-export const isTeamMember = (teamMemberships: TeamMember[], userId: number) =>
+export const isTeamMember = (teamMemberships: GroupMember[], userId: number) =>
   teamMemberships.some(tm => Number(tm.user_id) === userId);
 
-export const isOrganisationMember = (organisationMemberships: OrganisationMember[], userId: number) =>
-  organisationMemberships.some((om: OrganisationMember) => Number(om.user_id) === userId);
+export const isOrganisationMember = (organisationMemberships: GroupMember[], userId: number) =>
+  organisationMemberships.some((om: GroupMember) => Number(om.user_id) === userId);
 
 
-export const getOrganisationGames = (organisation: { teams: { team: { game: Game } }[] }): Game[] => {
-  return organisation.teams
-    .map(team => team.team.game)
-    .filter((game, index, array) => array.indexOf(game) === index)
+export const getOrganisationGames = (group: { children: { child: { game: Game } }[] }): Game[] => {
+  const games = group.children
+    .map(child => child.child.game)
+    .filter((game, index, array) => array.indexOf(game) === index);
+  console.log("games: " + games);
+  return games;
 };
 
 
 // TODO fix all filters, that probably don't work anymore
 
-export const getActiveMemberships = <T extends TeamMember | OrganisationMember>(teamMemberships: T[]): T[] => {
+export const getActiveMemberships = <T extends TeamMember | GroupMember>(teamMemberships: T[]): T[] => {
   return teamMemberships?.filter((tm: T) => tm.request_status_id == RequestStatus.ACCEPTED) ?? [];
 };
 

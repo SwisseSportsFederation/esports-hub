@@ -104,11 +104,11 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
 
           <TextareaInput id="description" label="Description" value={description} required={true}/>
           {
-            entityType === 'ORG' &&
+            entityType === 'ORGANISATION' &&
             <TextInput id="street" label="Street" defaultValue={street ?? ""}/>
           }
           {
-            entityType === 'ORG' &&
+            entityType === 'ORGANISATION' &&
             <TextInput id="zip" label="Zip" defaultValue={zip ?? ""}/>
           }
           <div className="relative w-full max-w-sm lg:max-w-full">

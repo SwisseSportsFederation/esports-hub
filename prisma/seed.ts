@@ -39,13 +39,13 @@ async function seed() {
 
   await prisma.game.createMany({
     data: [
-      { name: 'League of Legends' },
-      { name: 'Call of Duty' },
-      { name: 'Hearthstone' },
-      { name: 'Counterstrike' },
-      { name: 'Valorant' },
-      { name: 'Overwatch' },
-      { name: 'Fortnite' }
+      { name: 'League of Legends', is_active: true },
+      { name: 'Call of Duty', is_active: true },
+      { name: 'Hearthstone', is_active: true },
+      { name: 'Counterstrike', is_active: true },
+      { name: 'Valorant', is_active: true },
+      { name: 'Overwatch', is_active: true },
+      { name: 'Fortnite', is_active: true }
     ]
   });
 
@@ -188,7 +188,7 @@ function createTeams(): Prisma.GroupCreateInput[] {
       },
       groupType: {
         connect: {
-          id: 1
+          id: 2
         }
       },
       parent: {
@@ -211,7 +211,7 @@ function createOrgs(): Prisma.GroupCreateInput[] {
       ...common(),
       groupType: {
         connect: {
-          id: 2
+          id: 1
         }
       },
     }
