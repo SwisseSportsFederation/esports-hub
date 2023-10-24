@@ -142,9 +142,16 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               --
               -- game
               --
+        LEFT OUTER JOIN
+              "group_to_group" gtg 
+              ON gro2.id = gtg.parent_id
+        LEFT OUTER JOIN
+              "group" child
+              ON gtg.child_id = child.id
         INNER JOIN
               "game" gam2
-           ON gro2.game_id = gam2.id
+           ON (gro2.game_id = gam2.id
+           OR child.game_id = gam2.id)
            AND gam2.name LIKE ${gameString}
               --
               -- canton
