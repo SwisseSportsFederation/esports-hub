@@ -5,7 +5,7 @@ import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import type { Membership } from "~/services/admin/index.server";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import classNames from "classnames";

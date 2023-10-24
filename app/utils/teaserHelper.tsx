@@ -1,5 +1,5 @@
 import type { Game, Group, User, GroupMember, GroupToGroup } from "@prisma/client";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 import { getOrganisationGames } from "./entityFilters";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 

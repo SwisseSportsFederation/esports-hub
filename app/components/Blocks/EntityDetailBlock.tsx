@@ -14,7 +14,7 @@ import AskModalBody from "~/components/Notifications/AskModalBody";
 import Modal from "~/components/Notifications/Modal";
 import H1Nav from "~/components/Titles/H1Nav";
 import type { StringOrNull } from "~/db/queries.server";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { IdValue, SearchParams } from "~/services/search.server";
 import H1 from "../Titles/H1";

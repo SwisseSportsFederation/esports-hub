@@ -2,11 +2,8 @@ import { AccessRight, RequestStatus } from "@prisma/client";
 import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { Form, useActionData, useFetcher, useOutletContext } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useEffect, useState } from "react";
-import { z } from "zod";
-import { zx } from "zodix";
 import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
 import DateInput from "~/components/Forms/DateInput";
@@ -21,9 +18,7 @@ import H1Nav from "~/components/Titles/H1Nav";
 import type { StringOrNull } from "~/db/queries.server";
 import type { loader as adminLoader } from "~/routes/admin";
 import type { Membership } from "~/services/admin/index.server";
-import { db } from "~/services/db.server";
 import dateInputStyles from "~/styles/date-input.css";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 // TODO: Check if API Works
 
@@ -124,8 +119,8 @@ export default function() {
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
 
-  const invitedOrganisations = memberships.orgInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER)
-  const pendingOrganisations = memberships.orgInvitations.filter(e => e.request_status === RequestStatus.PENDING_GROUP) //pending org
+  const invitedOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_USER && e.groupType.name === "ORGANISATION"})
+  const pendingOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_GROUP && e.groupType.name === "ORGANISATION"}) //pending org
 
   const invited = getInvitationTeaser(invitedOrganisations, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingOrganisations, user.db.id, true, fetcher);
@@ -145,18 +140,18 @@ export default function() {
         <div className='flex flex-col gap-4 w-full mt-8'>
           <H1 className='px-2 mb-1 w-full'>Active</H1>
           {
-            memberships.orgs.length === 0 &&
+            memberships.groups.length === 0 &&
             <H1 className='text-center text-base'>
               You are currently in no organisation
             </H1>
           }
           {
-            memberships.orgs
+            memberships.groups
               .map(member => {
                 return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
                                          team={member.handle}
                                          games={member.game ? [member.game] : []}
-                                         additionalIcons={mainOrgIcon(member.id, member.is_main_team, user.db.id, fetcher)}>
+                                         additionalIcons={mainOrgIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
                   <fetcher.Form method='post' action={`/admin/api/groupMember`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                     <input type='hidden' name='intent' value='UPDATE_ORGANISATION'/>
                     <input type='hidden' name='userId' value={user.db.id}/>

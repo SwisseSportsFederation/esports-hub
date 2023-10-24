@@ -4,7 +4,7 @@ import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
-import { RequestStatus } from "@prisma/client";
+import { RequestStatus, AccessRight } from "@prisma/client";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -34,7 +34,8 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 			id: groupId
 		},
 		include: {
-			members: true
+			members: true,
+			groupType: true,
 		}
 	});
 	// Set Organisation inactive if there is no more members
@@ -65,7 +66,7 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 	});
 
 	// TODO: Check if this works like this and has correct variables. (group_type etc.)
-	if (group && group.group_type === "TEAM") {
+	if (group && group.groupType === "TEAM") {
 		await db.formerTeam.create({
 			data: {
 				user_id: userId,

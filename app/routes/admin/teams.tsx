@@ -34,8 +34,8 @@ export function links() {
 // TODO: remove API functions here and call /api/groupMember
 
 const promoteUser = async (userId: number, newAdminUserId: string, teamId: number) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
-  await checkIdAccessForEntity(newAdminUserId, teamId, 'TEAM', 'MEMBER');
+  await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
+  await checkIdAccessForEntity(newAdminUserId, teamId, 'MEMBER');
 
   await db.teamMember.update({
     where: {
@@ -51,7 +51,7 @@ const promoteUser = async (userId: number, newAdminUserId: string, teamId: numbe
   // potentially send email
 }
 const leaveTeam = async (userId: number, teamId: number) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+  await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
 
   const team = await db.team.findFirst({
     where: {
@@ -101,7 +101,7 @@ const leaveTeam = async (userId: number, teamId: number) => {
 }
 
 const updateTeam = async (userId: number, teamId: number, joinedAt: string) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+  await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
   await db.teamMember.update({
     where: {
       user_id_team_id: {
@@ -117,7 +117,7 @@ const updateTeam = async (userId: number, teamId: number, joinedAt: string) => {
 }
 
 const changeMainTeam = async (userId: number, teamId: number) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
+  await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
   await db.teamMember.updateMany({
     where: {
       user_id: userId

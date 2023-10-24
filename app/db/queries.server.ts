@@ -1,9 +1,9 @@
 import { db } from "~/services/db.server";
-import { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 
 export type StringOrNull = string | null;
 
-type EntityQuery = {
+export type EntityQuery = {
   id: bigint,
   image: StringOrNull,
   handle: string,
@@ -31,8 +31,8 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
   const cantonString = `${excludeAllText(canton)}`;
   const langString = `${excludeAllText(language)}`;
   let showUser = typeCheck(type, 'User') ? 1 : 0;
-  let showTeam = typeCheck(type, 'Team') ? 'team' : '';
-  let showOrg = typeCheck(type, 'Organisation') ? 'organisation' : '';
+  let showTeam = typeCheck(type, 'Team') ? 'TEAM' : '';
+  let showOrg = typeCheck(type, 'Organisation') ? 'ORGANISATION' : '';
   return db.$queryRaw<EntityQuery[]>`
   -- *********************************
   -- ENTITY 
@@ -136,7 +136,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               gro2.image           AS image,
               array_agg(DISTINCT gam2.name) AS games,    -- ARRAY ARGUMENTS
               ''                  AS team,
-              UPPER(gtype.name)   AS entity_type 
+              gro2.group_type     AS entity_type 
          FROM
               "group" gro2
               --
@@ -174,18 +174,12 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
           ON ltg."B" = lang2.id
           AND lang2.name LIKE ${langString}
               --
-              -- group type
-              --
-        INNER JOIN
-            "group_type" gtype
-            ON gro2.group_type_id = gtype.id
-              --
               -- WHERE
               --
         WHERE
-            (gtype.name = ${showTeam}
+            (gro2.group_type::text = ${showTeam}
             OR 
-            gtype.name = ${showOrg})
+            gro2.group_type::text = ${showOrg})
         AND
             gro2.is_active = TRUE
         AND

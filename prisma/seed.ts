@@ -60,14 +60,6 @@ async function seed() {
     ]
   });
 
-  await prisma.groupType.createMany({
-    data: [
-      { name: 'organisation' },
-      { name: 'team' },
-    ]
-  });
-
-
   await Promise.all(createOrgs().map(data => prisma.group.create({ data })));
   await Promise.all(createTeams().map(data => prisma.group.create({ data })));
   await Promise.all(createUsers().map(data => prisma.user.create({ data })));
@@ -186,11 +178,7 @@ function createTeams(): Prisma.GroupCreateInput[] {
           id: fakeBigInt(1, 7)
         }
       },
-      groupType: {
-        connect: {
-          id: 2
-        }
-      },
+      group_type: "TEAM",
       parent: {
         create: {
           request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_GROUP, RequestStatus.PENDING_PARENT_GROUP]),
@@ -209,11 +197,7 @@ function createOrgs(): Prisma.GroupCreateInput[] {
   return array(10).map(() => {
     return {
       ...common(),
-      groupType: {
-        connect: {
-          id: 1
-        }
-      },
+      group_type: "ORGANISATION",
     }
   })
 }

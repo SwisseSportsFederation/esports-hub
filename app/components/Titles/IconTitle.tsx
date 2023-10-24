@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import type { IconType } from "../Icons";
 import Icon from "../Icons";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 
 interface IIconTitleProps {
   type: EntityType

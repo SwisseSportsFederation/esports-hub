@@ -42,6 +42,12 @@ enum AccessRight {
   ADMINISTRATOR
 }
 
+enum EntityType {
+  USER
+  TEAM
+  ORGANISATION
+}
+
 // models
 
 model Group {
@@ -55,12 +61,11 @@ model Group {
   zip                String?
   canton_id          BigInt?
   game_id            BigInt?
-  group_type_id      BigInt
   verification_level VerificationLevel @default(NOT_VERIFIED)
+  group_type         EntityType        @default(TEAM)
   is_active          Boolean           @default(true)
   canton             Canton?           @relation(fields: [canton_id], references: [id])
   game               Game?             @relation(fields: [game_id], references: [id])
-  groupType          GroupType         @relation(fields: [group_type_id], references: [id])
   languages          Language[]
   members            GroupMember[]
   parent             GroupToGroup?     @relation("GroupToGroup_child")
@@ -94,14 +99,6 @@ model GroupMember {
 
   @@id([user_id, group_id])
   @@map("group_member")
-}
-
-model GroupType {
-  id     BigInt  @id @default(autoincrement())
-  name   String  @unique // TODO check if doesn't give error because currently multiples
-  groups Group[]
-
-  @@map("group_type")
 }
 
 model FormerTeam {
