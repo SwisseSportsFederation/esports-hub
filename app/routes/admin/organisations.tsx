@@ -118,9 +118,10 @@ export default function() {
   const actionData = useActionData<{ selectAdminOrgId: StringOrNull }>();
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
+  const organisations = memberships.groups.filter(group => group.group_type = "ORGANISATION");
 
-  const invitedOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_USER && e.groupType.name === "ORGANISATION"})
-  const pendingOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_GROUP && e.groupType.name === "ORGANISATION"}) //pending org
+  const invitedOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_USER && e.group_type === "ORGANISATION"})
+  const pendingOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_GROUP && e.group_type === "ORGANISATION"}) //pending org
 
   const invited = getInvitationTeaser(invitedOrganisations, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingOrganisations, user.db.id, true, fetcher);
@@ -140,14 +141,13 @@ export default function() {
         <div className='flex flex-col gap-4 w-full mt-8'>
           <H1 className='px-2 mb-1 w-full'>Active</H1>
           {
-            memberships.groups.length === 0 &&
+            organisations.length === 0 &&
             <H1 className='text-center text-base'>
               You are currently in no organisation
             </H1>
           }
           {
-            memberships.groups
-              .map(member => {
+            organisations.map(member => {
                 return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
                                          team={member.handle}
                                          games={member.game ? [member.game] : []}

@@ -382,9 +382,10 @@ export default function() {
   const actionData = useActionData<{ selectAdminTeamId: StringOrNull }>();
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
+  const teams = memberships.groups.filter(group => group.group_type === "TEAM");
 
-  const invitedTeams = memberships.teamInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER)
-  const pendingTeams = memberships.teamInvitations.filter(e => e.request_status === RequestStatus.PENDING_TEAM)
+  const invitedTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER && e.group_type === "TEAM")
+  const pendingTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_GROUP && e.group_type === "TEAM")
 
   const invited = getInvitationTeaser(invitedTeams, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingTeams, user.db.id, true, fetcher);
@@ -406,18 +407,18 @@ export default function() {
         <div className='flex flex-col gap-4 w-full mt-8'>
           <H1 className='px-2 mb-1 w-full'>Active</H1>
           {
-            memberships.teams.length === 0 &&
+            teams.length === 0 &&
             <H1 className='text-center text-base'>
               You are currently in no team
             </H1>
           }
           {
-            memberships.teams
+            teams
               .map(member => {
                 return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
                                          team={member.handle}
                                          games={member.game ? [member.game] : []}
-                                         additionalIcons={mainTeamIcon(member.id, member.is_main_team, user.db.id)}>
+                                         additionalIcons={mainTeamIcon(member.id, member.is_main_group, user.db.id)}>
                   <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                     <input type='hidden' name='intent' value='UPDATE_TEAM'/>
                     <input type='hidden' name='userId' value={user.db.id}/>
