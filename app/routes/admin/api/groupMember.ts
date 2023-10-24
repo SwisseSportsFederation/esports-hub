@@ -34,8 +34,7 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 			id: groupId
 		},
 		include: {
-			members: true,
-			groupType: true,
+			members: true
 		}
 	});
 	// Set Organisation inactive if there is no more members

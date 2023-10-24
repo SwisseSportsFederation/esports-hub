@@ -2,7 +2,7 @@ import { db } from "~/services/db.server";
 import type { AuthUser } from "~/services/auth.server";
 import type { StringOrNull } from "~/db/queries.server";
 import type { AccessRight } from "@prisma/client";
-import { Game, RequestStatus, GroupType } from "@prisma/client";
+import { Game, RequestStatus, EntityType } from "@prisma/client";
 
 export type Membership = {
   request_status: RequestStatus,
@@ -14,7 +14,7 @@ export type Membership = {
   joined_at: Date,
   game: Game | null,
   is_main_group: boolean | null,
-  groupType: GroupType
+  group_type: EntityType
 }
 
 function splitInvitations(array: Membership[]) {
@@ -46,7 +46,7 @@ export async function getUserMemberships(user: AuthUser) {
           name: true,
           image: true,
           game: true,
-          groupType: true,
+          group_type: true,
         }
       }
     }
