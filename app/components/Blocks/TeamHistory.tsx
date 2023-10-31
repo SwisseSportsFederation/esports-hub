@@ -13,8 +13,6 @@ const TeamHistory = ({ formerTeams = [], memberships: teams = [] }: ITeamHistory
     return null;
   }
 
-  // TODO Check if only teams are shown here or also organisations
-
   return (
     <div className="p-4 rounded-xl bg-white dark:bg-gray-2">
       <div className="font-bold text-lg">Team-History</div>

@@ -67,7 +67,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
   };
 
   let path = `/admin/${entityToPathSegment(entityType)}`;
-  if(entityType !== 'USER') {
+  if(entityType !== EntityType.USER) {
     path = `${path}/${handle}`;
   }
   const date = entityBirthday ? new Date(entityBirthday) : null;
@@ -84,14 +84,14 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           <TextInput id="handle" label="Short Name" defaultValue={handle} required={true}/>
           <TextInput id="name" label="Name" defaultValue={name} required={true}/>
           {
-            entityType === 'USER' &&
+            entityType === EntityType.USER &&
             <TextInput id="surname" label="Surname" defaultValue={surname ?? ""} required={true}/>
           }
-          <DateInput name={entityType === 'USER' ? "birthDate" : 'founded'}
-                     label={entityType === 'USER' ? "Birthdate" : 'Founded'} value={date}
+          <DateInput name={entityType === EntityType.USER ? "birthDate" : 'founded'}
+                     label={entityType === EntityType.USER ? "Birthdate" : 'Founded'} value={date}
                      min={new Date(1900, 0, 0)} max={new Date()}/>
           {
-            entityType === 'TEAM' &&
+            entityType === EntityType.TEAM &&
             <div className="relative w-full max-w-sm lg:max-w-full">
               <label>
                 <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game</span>
@@ -103,11 +103,11 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
 
           <TextareaInput id="description" label="Description" value={description} required={true}/>
           {
-            entityType === 'ORGANISATION' &&
+            entityType === EntityType.ORGANISATION &&
             <TextInput id="street" label="Street" defaultValue={street ?? ""}/>
           }
           {
-            entityType === 'ORGANISATION' &&
+            entityType === EntityType.ORGANISATION &&
             <TextInput id="zip" label="Zip" defaultValue={zip ?? ""}/>
           }
           <div className="relative w-full max-w-sm lg:max-w-full">
@@ -124,7 +124,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         </Form>
       </div>
     </div>
-    {entityType === 'USER' &&
+    {entityType === EntityType.USER &&
       <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
         <div className="w-full max-w-prose mx-auto">
           <H1>Danger Zone</H1>

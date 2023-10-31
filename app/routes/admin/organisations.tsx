@@ -1,4 +1,4 @@
-import { AccessRight, RequestStatus } from "@prisma/client";
+import { AccessRight, EntityType, RequestStatus } from "@prisma/client";
 import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { Form, useActionData, useFetcher, useOutletContext } from "@remix-run/react";
@@ -118,10 +118,10 @@ export default function() {
   const actionData = useActionData<{ selectAdminOrgId: StringOrNull }>();
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
-  const organisations = memberships.groups.filter(group => group.group_type = "ORGANISATION");
+  const organisations = memberships.groups.filter(group => group.group_type === EntityType.ORGANISATION);
 
-  const invitedOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_USER && e.group_type === "ORGANISATION"})
-  const pendingOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_GROUP && e.group_type === "ORGANISATION"}) //pending org
+  const invitedOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_USER && e.group_type === EntityType.ORGANISATION})
+  const pendingOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_GROUP && e.group_type === EntityType.ORGANISATION}) //pending org
 
   const invited = getInvitationTeaser(invitedOrganisations, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingOrganisations, user.db.id, true, fetcher);

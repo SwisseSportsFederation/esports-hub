@@ -5,7 +5,7 @@ import { getOrganisationTeasers } from "~/utils/teaserHelper";
 import TeaserList from "~/components/Teaser/TeaserList";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { RequestStatus, Prisma } from "@prisma/client";
+import { RequestStatus, Prisma, EntityType } from "@prisma/client";
 import TeamHistory from "~/components/Blocks/TeamHistory";
 import { zx } from "zodix";
 import { z } from "zod";
@@ -62,8 +62,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const { former_teams: formerTeams } = user;
 
   const groups = user.groups.map((mem) => mem.group);
-  const teamMemberships = user.groups;
-  const organisationTeasers = getOrganisationTeasers(groups);
+  const teamMemberships = user.groups.filter(group => group.group.group_type === EntityType.TEAM);
+  const organisationTeasers = getOrganisationTeasers(groups.filter(group => group.group_type === EntityType.ORGANISATION));
   return json({
     user,
     teamMemberships,

@@ -10,7 +10,7 @@ import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
-import { AccessRight, RequestStatus, Group, VerificationLevel } from '@prisma/client';
+import { AccessRight, RequestStatus, Group, VerificationLevel, EntityType } from '@prisma/client';
 import { AuthUser } from '~/services/auth.server';
 
 export function links() {
@@ -117,7 +117,7 @@ export async function loader() {
     street: null,
     zip: null,
     game_id: null,
-    group_type: 'ORGANISATION',
+    group_type: EntityType.ORGANISATION,
     canton_id: null,
     verification_level: VerificationLevel.NOT_VERIFIED,
     is_active: true

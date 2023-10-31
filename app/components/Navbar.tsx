@@ -56,7 +56,7 @@ export default function Navbar() {
           <IconButton icon={"add"} type='link' path="/admin/create/team" size="small"/>
         </div>
       </div>
-      {  memberships.groups.map((group: Membership) => membershipLinkBlock(group, "TEAM")) }
+      {  memberships.groups.map((group: Membership) => membershipLinkBlock(group, EntityType.TEAM)) }
     </div>
     <div className="mb-16">
       <div className="text-xl font-bold mb-4 flex">
@@ -65,7 +65,7 @@ export default function Navbar() {
           <IconButton icon={"add"} type='link' path="/admin/create/organisation" size="small"/>
         </div>
       </div>
-      { memberships.groups.map((group: Membership) => membershipLinkBlock(group, "ORGANISATION"))}
+      { memberships.groups.map((group: Membership) => membershipLinkBlock(group, EntityType.ORGANISATION))}
     </div>
     { isSuperAdmin && 
       <div className="mb-16">

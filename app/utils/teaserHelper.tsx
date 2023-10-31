@@ -17,7 +17,7 @@ export const getTeamTeasers = (teams: (Group & { game: Game | null })[]): Omit<I
   });
 };
 
-type GroupWithTeamGames = Group & { children: { child: { game: Game } }[] };
+type GroupWithTeamGames = Group & { children: { child: { game: Game | null } }[] };
 export const getOrganisationTeasers = (groups: GroupWithTeamGames[]): Omit<ITeaserProps, 'icons'>[] => {
   return groups.map((organisation) => ({
       id: String(organisation.id),
