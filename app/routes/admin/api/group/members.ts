@@ -17,9 +17,9 @@ export const action: ActionFunction = async ({ request }) => {
     contains: search,
     mode: 'insensitive'
   });
-  const members = await db.teamMember.findMany({
+  const members = await db.groupMember.findMany({
     where: {
-      team_id: teamId,
+      group_id: teamId,
       request_status: RequestStatus.ACCEPTED,
       user: {
         OR: [

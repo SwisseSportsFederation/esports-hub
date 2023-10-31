@@ -3,9 +3,8 @@ import { zx } from "zodix";
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import { EntityType } from "@prisma/client";
 
-export const deleteEntity = async (request: Request, entity: Omit<EntityType, 'USER'>) => {
+export const deleteEntity = async (request: Request) => {
   if(request.method !== "DELETE") {
     throw json({}, 404);
   }

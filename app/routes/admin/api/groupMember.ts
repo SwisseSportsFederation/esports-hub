@@ -4,7 +4,7 @@ import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
-import { RequestStatus, AccessRight } from "@prisma/client";
+import { RequestStatus, AccessRight, EntityType } from "@prisma/client";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -64,8 +64,7 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 		}
 	});
 
-	// TODO: Check if this works like this and has correct variables. (group_type etc.)
-	if (group && group.groupType === "TEAM") {
+	if (group && group.group_type === EntityType.TEAM) {
 		await db.formerTeam.create({
 			data: {
 				user_id: userId,
@@ -96,26 +95,35 @@ const updateOrganisation = async (userId: number, groupId: number, joinedAt: str
 
 const changeMainOrganisation = async (userId: number, groupId: number) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
-	//TODO: Check group type here to be organisation before removing main group (because of main teams)
-	await db.groupMember.updateMany({
+	const group = await db.group.findUnique({
 		where: {
-			user_id: userId
+			id: groupId
 		},
-		data: {
-			is_main_group: false
+		select: {
+			group_type: true
 		}
-	});
-	await db.groupMember.update({
-		where: {
-			user_id_group_id: {
+	})
+	if(group?.group_type === EntityType.ORGANISATION) {
+		await db.groupMember.updateMany({
+			where: {
 				user_id: userId,
-				group_id: groupId
+			},
+			data: {
+				is_main_group: false
 			}
-		},
-		data: {
-			is_main_group: true
-		}
-	});
+		});
+		await db.groupMember.update({
+			where: {
+				user_id_group_id: {
+					user_id: userId,
+					group_id: groupId
+				}
+			},
+			data: {
+				is_main_group: true
+			}
+		});
+	}
 	return json({});
 }
 

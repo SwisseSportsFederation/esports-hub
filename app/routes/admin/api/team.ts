@@ -5,5 +5,5 @@ import { deleteEntity } from "~/services/admin/api/deleteEntity.server";
 export let loader: LoaderFunction = () => redirect("/admin");
 
 export const action: ActionFunction = async ({ request }) => {
-  return deleteEntity(request, 'TEAM');
+  return deleteEntity(request);
 };
