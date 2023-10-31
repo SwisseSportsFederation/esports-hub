@@ -8,18 +8,18 @@ import { RequestStatus } from "@prisma/client";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
-const acceptInvitation = async (team_id: number, organisation_id: number) => {
-  const currentTeam = await db.organisationTeam.findFirst({
+const acceptInvitation = async (child_id: number, parent_id: number) => {
+  const currentTeam = await db.groupToGroup.findFirst({
     where: {
-      team_id,
+      child_id,
       request_status: 'ACCEPTED'
     }});
   if(!currentTeam) {
-    await db.organisationTeam.update({
+    await db.groupToGroup.update({
       where: {
-        team_id_organisation_id: {
-          team_id,
-          organisation_id
+        child_id_parent_id: {
+          child_id,
+          parent_id
         }
       },
       data: {
@@ -31,42 +31,42 @@ const acceptInvitation = async (team_id: number, organisation_id: number) => {
   }
 }
 
-const declineInvitation = async (team_id: number, organisation_id: number) => {
-  await db.organisationTeam.delete({
+const declineInvitation = async (child_id: number, parent_id: number) => {
+  await db.groupToGroup.delete({
     where: {
-      team_id_organisation_id: {
-        team_id,
-        organisation_id
+      child_id_parent_id: {
+        child_id,
+        parent_id
       }
     }
   });
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  const { action, entityId: team_id, orgId: organisation_id } = await zx.parseForm(request, {
+  const { action, entityId: child_id, orgId: parent_id } = await zx.parseForm(request, {
     action: z.enum(['ACCEPT', 'DECLINE']),
     entityId: zx.NumAsString,
     orgId: zx.NumAsString
   });
   const user = await checkUserAuth(request);
-  const currentRequestStatus = await db.organisationTeam.findFirst({
+  const currentRequestStatus = await db.groupToGroup.findFirst({
     where: {
-      organisation_id,
-      team_id
+      parent_id,
+      child_id
     },
     select: {
       request_status: true
     }
   });
-  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_F) {
-    await checkIdAccessForEntity(user.db.id, team_id, 'TEAM', 'ADMINISTRATOR');
+  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_PARENT_GROUP) {
+    await checkIdAccessForEntity(user.db.id, child_id, 'ADMINISTRATOR');
   }
 
   try {
     if(action === 'ACCEPT') {
-      await acceptInvitation(team_id, organisation_id);
+      await acceptInvitation(child_id, parent_id);
     } else {
-      await declineInvitation(team_id, organisation_id);
+      await declineInvitation(child_id, parent_id);
     }
   } catch(error) {
     throw json({}, 400);

@@ -30,7 +30,7 @@ export function links() {
 
 const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: string, pending: boolean, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.map(invitation => {
-    let icons = <fetcher.Form method='post' action={`/admin/api/organisation/invitation`} className="flex space-x-2">
+    let icons = <fetcher.Form method='post' action={`/admin/api/invitation`} className="flex space-x-2">
       <input type='hidden' name='entityId' value={`${invitation.id}`}/>
       <input type='hidden' name='userId' value={userId}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>

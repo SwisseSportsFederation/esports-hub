@@ -37,11 +37,11 @@ const promoteUser = async (userId: number, newAdminUserId: string, teamId: numbe
   await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
   await checkIdAccessForEntity(newAdminUserId, teamId, 'MEMBER');
 
-  await db.teamMember.update({
+  await db.groupMember.update({
     where: {
-      user_id_team_id: {
+      user_id_group_id: {
         user_id: Number(newAdminUserId),
-        team_id: teamId
+        group_id: teamId
       }
     },
     data: {
@@ -53,7 +53,7 @@ const promoteUser = async (userId: number, newAdminUserId: string, teamId: numbe
 const leaveTeam = async (userId: number, teamId: number) => {
   await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
 
-  const team = await db.team.findFirst({
+  const team = await db.group.findFirst({
     where: {
       id: teamId
     },
@@ -63,7 +63,7 @@ const leaveTeam = async (userId: number, teamId: number) => {
   });
   // Set Team inactive if there is no more members
   if(team?.members.length === 1) {
-    await db.team.update({
+    await db.group.update({
       where: {
         id: teamId
       },
@@ -79,11 +79,11 @@ const leaveTeam = async (userId: number, teamId: number) => {
     }
   }
   // delete member from team
-  const teamMember = await db.teamMember.delete({
+  const teamMember = await db.groupMember.delete({
     where: {
-      user_id_team_id: {
+      user_id_group_id: {
         user_id: userId,
-        team_id: teamId
+        group_id: teamId
       }
     }
   });
@@ -102,11 +102,11 @@ const leaveTeam = async (userId: number, teamId: number) => {
 
 const updateTeam = async (userId: number, teamId: number, joinedAt: string) => {
   await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
-  await db.teamMember.update({
+  await db.groupMember.update({
     where: {
-      user_id_team_id: {
+      user_id_group_id: {
         user_id: userId,
-        team_id: teamId
+        group_id: teamId
       }
     },
     data: {
@@ -118,23 +118,23 @@ const updateTeam = async (userId: number, teamId: number, joinedAt: string) => {
 
 const changeMainTeam = async (userId: number, teamId: number) => {
   await checkIdAccessForEntity(userId.toString(), teamId, 'MEMBER');
-  await db.teamMember.updateMany({
+  await db.groupMember.updateMany({
     where: {
       user_id: userId
     },
     data: {
-      is_main_team: false
+      is_main_group: false
     }
   });
-  await db.teamMember.update({
+  await db.groupMember.update({
     where: {
-      user_id_team_id: {
+      user_id_group_id: {
         user_id: userId,
-        team_id: teamId
+        group_id: teamId
       }
     },
     data: {
-      is_main_team: true
+      is_main_group: true
     }
   });
   return json({});
@@ -262,7 +262,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: string, pending: boolean, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.map(invitation => {
-    let icons = <fetcher.Form method='post' action={`/admin/api/team/invitation`} className="flex space-x-2">
+    let icons = <fetcher.Form method='post' action={`/admin/api/invitation`} className="flex space-x-2">
       <input type='hidden' name='entityId' value={`${invitation.id}`}/>
       <input type='hidden' name='userId' value={userId}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
@@ -343,7 +343,7 @@ const SelectNewAdminModal = (
     { isOpen: boolean, handleClose: (value: boolean) => void, teamId: string, userId: string }) => {
   const fetcher = useFetcher();
   useEffect(() => {
-    fetcher.submit({ teamId, search: '' }, { method: 'post', action: '/admin/api/team/members' })
+    fetcher.submit({ teamId, search: '' }, { method: 'post', action: '/admin/api/group/members' })
   }, [teamId]);
   // @ts-ignore
   const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
@@ -359,7 +359,7 @@ const SelectNewAdminModal = (
   }
   return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
     <H1 className='text-2xl text-color'>Select new Administrator</H1>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/team/members'}>
+    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/group/members'}>
       <input type='hidden' name='teamId' value={teamId}/>
       <div className="max-w-sm md:max-w-lg">
         <TextInput id="search" label="Search" searchIcon={true}

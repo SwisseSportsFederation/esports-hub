@@ -35,8 +35,7 @@ const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType)
 const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], entity: EntityType, userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER && invitation.group_type === entity)
     .map(invitation => {
-      const path = entityToPathSegment(entity)
-      const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`} className="flex space-x-2">
+      const icons = <fetcher.Form method='post' action={`/admin/api/invitation`} className="flex space-x-2">
         <input type='hidden' name='entityId' value={`${invitation.id}`}/>
         <input type='hidden' name='userId' value={userId}/>
         <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>

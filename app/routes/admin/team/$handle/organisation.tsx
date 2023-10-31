@@ -75,7 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 const addInvitationIcons = (access: AccessRight, teaser: ITeaserProps, teamId: string, isInOrg: boolean) => {
   if(access === "ADMINISTRATOR") {
     const fetcher = useFetcher();
-    return <fetcher.Form method='post' action={'/admin/api/team/organisation/invitation'} encType='multipart/form-data' className="flex space-x-2">
+    return <fetcher.Form method='post' action={'/admin/api/group/parent/invitation'} encType='multipart/form-data' className="flex space-x-2">
       <input type='hidden' name='entityId' value={teamId}/>
       <input type='hidden' name='orgId' value={teaser.id}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT' disabled={isInOrg}/>

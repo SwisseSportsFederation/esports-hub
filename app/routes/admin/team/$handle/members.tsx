@@ -203,7 +203,7 @@ const SearchModal = ({
 }
 
 const addInvitationIcons = (teaser: ITeaserProps, teamId: string, fetcher: FetcherWithComponents<any>) => {
-  return <fetcher.Form method='post' action={'/admin/api/team/invitation'} encType='multipart/form-data'>
+  return <fetcher.Form method='post' action={'/admin/api/invitation'} encType='multipart/form-data'>
     <input type='hidden' name='entityId' value={teamId}/>
     <input type='hidden' name='userId' value={teaser.id}/>
     <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
