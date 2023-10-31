@@ -3,14 +3,14 @@ import { EntityType } from "@prisma/client";
 import { getOrganisationGames } from "./entityFilters";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 
-export const getTeamTeasers = (teams: (Group & { game: Game })[]): Omit<ITeaserProps, 'icons'>[] => {
+export const getTeamTeasers = (teams: (Group & { game: Game | null })[]): Omit<ITeaserProps, 'icons'>[] => {
   return teams.map((team) => {
     return {
       id: String(team.id),
       handle: team.handle,
       type: "TEAM" as EntityType,
       name: team.name || "",
-      games: [team.game],
+      games: [team.game || ""],
       avatarPath: team.image,
       team: ""
     };

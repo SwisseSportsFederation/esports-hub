@@ -10,7 +10,7 @@ import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
-import { AccessRight, RequestStatus, Organisation, VerificationLevel } from '@prisma/client';
+import { AccessRight, RequestStatus, Group, VerificationLevel } from '@prisma/client';
 import { AuthUser } from '~/services/auth.server';
 
 export function links() {
@@ -21,22 +21,22 @@ export function links() {
 }
 
 const createOrganisation = async (handle: string, name: string, description: string, user: AuthUser) => {
-  const organisation = await db.organisation.create({
+  const organisation = await db.group.create({
     data: {
       handle,
       name,
       description
     }
   });
-  await db.organisationMember.create({
+  await db.groupMember.create({
     data: {
       access_rights: AccessRight.ADMINISTRATOR,
-      is_main_organisation: false,
+      is_main_group: false,
       request_status: RequestStatus.ACCEPTED,
       joined_at: new Date(),
       role: "Admin",
       user: { connect: { id: BigInt(user.db.id) }},
-      organisation: { connect: { id: organisation.id }}
+      group: { connect: { id: organisation.id }}
     }
   })
   return organisation.id.toString();
@@ -70,7 +70,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   id = await createOrganisation(handle, name, description, user);
 
-  await db.organisation.update({
+  await db.group.update({
     where: {
       id: Number(id)
     },
@@ -107,7 +107,7 @@ export const action = async ({ request }: ActionArgs) => {
 
 export async function loader() {
   const accessRight = AccessRight.ADMINISTRATOR;
-  const organisation: Organisation = {
+  const organisation: Group = {
     id: BigInt(0),
     name: "",
     handle: "",
@@ -116,6 +116,8 @@ export async function loader() {
     image: null,
     street: null,
     zip: null,
+    game_id: null,
+    group_type: 'ORGANISATION',
     canton_id: null,
     verification_level: VerificationLevel.NOT_VERIFIED,
     is_active: true

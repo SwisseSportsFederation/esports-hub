@@ -10,7 +10,7 @@ import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
-import { AccessRight, RequestStatus, Team, VerificationLevel } from "@prisma/client";
+import { AccessRight, Group, RequestStatus, VerificationLevel } from "@prisma/client";
 import { AuthUser } from '~/services/auth.server';
 
 export function links() {
@@ -21,7 +21,7 @@ export function links() {
 }
 
 const createTeam = async (handle: string, name: string, description: string, game: number, user: AuthUser) => {
-  const team = await db.team.create({
+  const team = await db.group.create({
     data: {
       handle,
       name,
@@ -33,15 +33,15 @@ const createTeam = async (handle: string, name: string, description: string, gam
       },
     }
   });
-  await db.teamMember.create({
+  await db.groupMember.create({
     data: {
       access_rights: AccessRight.ADMINISTRATOR,
-      is_main_team: false,
+      is_main_group: false,
       request_status: RequestStatus.ACCEPTED,
       joined_at: new Date(),
       role: "Admin",
       user: { connect: { id: BigInt(user.db.id) } },
-      team: { connect: { id: team.id } }
+      group: { connect: { id: team.id } }
     }
   })
   return String(team.id);
@@ -63,7 +63,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   id = await createTeam(handle, name, description, game, user);
 
-  await db.team.update({
+  await db.group.update({
     where: {
       id: Number(id)
     },
@@ -102,7 +102,7 @@ export const action = async ({ request }: ActionArgs) => {
 
 export async function loader() {
   const accessRight = AccessRight.ADMINISTRATOR;
-  const team: Team = {
+  const team: Group = {
     id: BigInt(0),
     name: "",
     handle: "",
@@ -111,7 +111,9 @@ export async function loader() {
     image: null,
     canton_id: null,
     game_id: BigInt(0),
-    organisation_id: null,
+    group_type: 'TEAM',
+    street: null,
+    zip: null,
     verification_level: VerificationLevel.NOT_VERIFIED,
     is_active: true
   };

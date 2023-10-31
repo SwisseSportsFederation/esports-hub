@@ -33,10 +33,10 @@ export const action: ActionFunction = async ({ request }) => {
 
   const user = await checkUserAuth(request);
   if(entity !== 'USER') {
-    await checkIdAccessForEntity(user.db.id, entityId, entity, 'MODERATOR');
+    await checkIdAccessForEntity(user.db.id, entityId, 'MODERATOR');
   }
 
-  const entityIdName = entity === 'USER' ? 'user_id' : entity === 'TEAM' ? 'team_id' : 'organisation_id';
+  const entityIdName = entity === 'USER' ? 'user_id' : 'group_id';
 
   const data = Object.entries(socials as { [key: string]: string }).map(entry => ({
     [entityIdName]: entityId,

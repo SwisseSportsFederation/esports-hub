@@ -43,15 +43,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     case "INVITE_USER": {
       const { teamId, userId } = data;
       try {
-        await db.teamMember.create({
+        await db.groupMember.create({
           data: {
             joined_at: new Date(),
             access_rights: AccessRight.MEMBER,
             user_id: userId,
-            team_id: teamId,
+            group_id: teamId,
             request_status: RequestStatus.PENDING_USER,
             role: '',
-            is_main_team: false
+            is_main_group: false
           }
         });
       } catch(error) {
@@ -66,11 +66,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if(userId === Number(user.db.id)) {
         throw json({}, 403);
       }
-      await db.teamMember.delete({
+      await db.groupMember.delete({
         where: {
-          user_id_team_id: {
+          user_id_group_id: {
             user_id: userId,
-            team_id: teamId
+            group_id: teamId
           }
         }
       });
@@ -83,11 +83,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
         throw json({}, 403);
       }
 
-      await db.teamMember.update({
+      await db.groupMember.update({
         where: {
-          user_id_team_id: {
+          user_id_group_id: {
             user_id: userId,
-            team_id: teamId
+            group_id: teamId
           }
         },
         data: {
@@ -107,18 +107,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   })
   const user = await checkUserAuth(request);
 
-  const teamUser = await db.teamMember.findFirstOrThrow({
+  const teamUser = await db.groupMember.findFirstOrThrow({
     where: {
       user_id: Number(user.db.id),
-      team: {
+      group: {
         handle
       }
     }
   });
 
-  const allMembers = await db.teamMember.findMany({
+  const allMembers = await db.groupMember.findMany({
     where: {
-      team: {
+      group: {
         handle
       }
     },
@@ -131,7 +131,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     } } }
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
-  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_TEAM);
+  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_GROUP);
   const pending = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_USER);
 
   return json({

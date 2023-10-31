@@ -7,7 +7,7 @@ import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import { AccessRight, OrganisationTeam, RequestStatus } from "@prisma/client";
+import { AccessRight, GroupToGroup, OrganisationTeam, RequestStatus } from "@prisma/client";
 import { getOrganisationTeamTeasers } from "~/utils/teaserHelper";
 import ActionButton from "~/components/Button/ActionButton";
 import H1 from "~/components/Titles/H1";
@@ -30,11 +30,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 
   const { teamId, orgId } = data;
-  await db.organisationTeam.delete({
+  await db.groupToGroup.delete({
     where: {
-      team_id_organisation_id: {
-        team_id: teamId,
-        organisation_id: orgId
+      child_id_parent_id: {
+        child_id: teamId,
+        parent_id: orgId
       }
     }
   });
@@ -85,9 +85,9 @@ const addInvitationIcons = (access: AccessRight, teaser: ITeaserProps, teamId: s
   return null;
 };
 
-const addDeleteIcon = (access: AccessRight, orgTeam: OrganisationTeam, setDeleteModalOpen: Function) => {
+const addDeleteIcon = (access: AccessRight, orgTeam: GroupToGroup, setDeleteModalOpen: Function) => {
   if(access === "ADMINISTRATOR") {
-    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.organisation_id)}/>;
+    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.parent_id)}/>;
   }
   return null;
 }
@@ -109,8 +109,8 @@ export default function() {
         }
         {
           orgTeams.map(orgTeam => {
-            return <Teaser key={orgTeam.organisation_id} avatarPath={orgTeam.organisation.image} name={orgTeam.organisation.name}
-                            team={orgTeam.organisation.handle}
+            return <Teaser key={orgTeam.parent_id} avatarPath={orgTeam.parent.image} name={orgTeam.parent.name}
+                            team={orgTeam.parent.handle}
                             games={[team.game]} 
                             icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)}/>
           })

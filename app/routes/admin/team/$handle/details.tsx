@@ -36,7 +36,7 @@ export const action = async ({ request }: ActionArgs) => {
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
 
-  await db.team.update({
+  await db.group.update({
     where: {
       id: Number(id)
     },

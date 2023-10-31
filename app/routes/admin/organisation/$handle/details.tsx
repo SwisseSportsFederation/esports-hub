@@ -50,7 +50,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
 
-  await db.organisation.update({
+  await db.group.update({
     where: {
       id: Number(id)
     },

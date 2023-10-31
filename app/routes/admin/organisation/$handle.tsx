@@ -13,7 +13,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
   const user = await checkUserAuth(request);
   const accessRight = await checkHandleAccessForEntity(user.db.id, handle, 'MODERATOR')
-  const organisation = await db.organisation.findFirst({
+  const organisation = await db.group.findFirst({
     where: {
       handle
     },

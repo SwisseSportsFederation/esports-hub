@@ -18,7 +18,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const socials = await db.social.findMany({
     where: {
-      organisation: {
+      group: {
         handle
       }
     },

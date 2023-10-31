@@ -28,20 +28,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
   await checkUserAuth(request);
   try {
-    const { teams } = await db.organisation.findFirstOrThrow({
+    const { children } = await db.group.findFirstOrThrow({
       where: {
         handle
       },
-      include: { teams: { include: { team: { include: { game: true } } } } }
+      include: { children: { include: { child: { include: { game: true } } } } }
     });
-    const accepted = teams.filter(team => team.request_status === 'ACCEPTED');
-    const invitations = teams.filter(team => team.request_status === 'PENDING_ORG');
-    const pending = teams.filter(team => team.request_status === 'PENDING_TEAM');
+    const accepted = children.filter(team => team.request_status === 'ACCEPTED');
+    const invitations = children.filter(team => team.request_status === 'PENDING_PARENT_GROUP');
+    const pending = children.filter(team => team.request_status === 'PENDING_GROUP');
 
     return json({
-      accepted: getTeamTeasers(accepted.map(t => t.team)),
-      invitations: getTeamTeasers(invitations.map(t => t.team)),
-      pending: getTeamTeasers(pending.map(t => t.team))
+      accepted: getTeamTeasers(accepted.map(t => t.child)),
+      invitations: getTeamTeasers(invitations.map(t => t.child)),
+      pending: getTeamTeasers(pending.map(t => t.child))
     });
   } catch(error) {
     console.log(error);
@@ -62,18 +62,18 @@ export async function action({ request }: ActionFunctionArgs) {
     case "invitation":
       const { entityId, action } = data;
       if(action === 'ACCEPT') {
-        await db.organisationTeam.update({
+        await db.groupToGroup.update({
           where: {
-            team_id: entityId
+            child_id: entityId
           },
           data: {
             request_status: RequestStatus.ACCEPTED
           }
         })
       } else {
-        await db.organisationTeam.delete({
+        await db.groupToGroup.delete({
           where: {
-            team_id: entityId
+            child_id: entityId
           }
         });
       }
@@ -86,7 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
         mode: 'insensitive'
       });
       try {
-        const teams = await db.team.findMany({
+        const teams = await db.group.findMany({
           where: {
             OR: [
               { name: query() },
@@ -103,13 +103,13 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
     case 'inviteTeam':
-      const { entityId: team_id, organisationId: organisation_id } = data;
+      const { entityId: child_id, organisationId: parent_id } = data;
       try {
-        await db.organisationTeam.create({
+        await db.groupToGroup.create({
           data: {
-            team_id,
-            request_status: RequestStatus.PENDING_TEAM,
-            organisation_id
+            child_id,
+            request_status: RequestStatus.PENDING_GROUP,
+            parent_id
           }
         });
         const headers = await createFlashMessage(request, 'Team invited');
@@ -121,9 +121,9 @@ export async function action({ request }: ActionFunctionArgs) {
     case "removeTeam":
       const { entityId: teamIdToRemove } = data;
       try {
-        await db.organisationTeam.delete({
+        await db.groupToGroup.delete({
           where: {
-            team_id: teamIdToRemove
+            child_id: teamIdToRemove
           }
         });
         const headers = await createFlashMessage(request, 'Team removed');

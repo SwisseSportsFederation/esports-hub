@@ -7,6 +7,6 @@ export default function() {
   const { organisation, accessRight } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   const navigations = ["Details", "Socials", "Teams", "Members"];
   return <EditOverviewBlock entityId={String(organisation.id)} title={organisation.name}
-                            canDelete={accessRight === 'ADMINISTRATOR'} type='ORGANISATION'
+                            canDelete={accessRight === 'ADMINISTRATOR'} type={organisation.group_type}
                             navigations={navigations}/>;
 };

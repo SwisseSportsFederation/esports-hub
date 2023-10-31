@@ -45,15 +45,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     case "INVITE_USER": {
       const { orgId, userId } = data;
       try {
-        await db.organisationMember.create({
+        await db.groupMember.create({
           data: {
             joined_at: new Date(),
             access_rights: AccessRight.MEMBER,
             user_id: userId,
-            organisation_id: orgId,
+            group_id: orgId,
             request_status: RequestStatus.PENDING_USER,
             role: '',
-            is_main_organisation: false
+            is_main_group: false
           }
         });
       } catch(error) {
@@ -108,11 +108,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if(userId === Number(user.db.id)) {
         throw json({}, 403);
       }
-      await db.organisationMember.delete({
+      await db.groupMember.delete({
         where: {
-          user_id_organisation_id: {
+          user_id_group_id: {
             user_id: userId,
-            organisation_id: orgId
+            group_id: orgId
           }
         }
       });
@@ -124,11 +124,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if(userId === Number(user.db.id)) {
         throw json({}, 403);
       }
-      await db.organisationMember.update({
+      await db.groupMember.update({
         where: {
-          user_id_organisation_id: {
+          user_id_group_id: {
             user_id: userId,
-            organisation_id: orgId
+            group_id: orgId
           }
         },
         data: {
@@ -219,7 +219,7 @@ export default function() {
         {
           members.map(member => {
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
-                                     team={member.user.teams[0].team.handle}
+                                     team={member.user.groups[0].group.handle}
                                      games={member.user.games}>
               <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                 <input type='hidden' name='intent' value='UPDATE_USER'/>
