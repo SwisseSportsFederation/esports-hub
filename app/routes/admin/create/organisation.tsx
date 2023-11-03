@@ -10,7 +10,7 @@ import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
-import { AccessRight, RequestStatus, Group, VerificationLevel, EntityType } from '@prisma/client';
+import { AccessRight, EntityType, Group, RequestStatus, VerificationLevel } from "@prisma/client";
 import { AuthUser } from '~/services/auth.server';
 
 export function links() {
@@ -21,7 +21,7 @@ export function links() {
 }
 
 const createOrganisation = async (handle: string, name: string, description: string, user: AuthUser) => {
-  const organisation = await db.group.create({
+  const group = await db.group.create({
     data: {
       handle,
       name,
@@ -37,10 +37,10 @@ const createOrganisation = async (handle: string, name: string, description: str
       joined_at: new Date(),
       role: "Admin",
       user: { connect: { id: BigInt(user.db.id) }},
-      group: { connect: { id: organisation.id }}
+      group: { connect: { id: group.id }}
     }
   })
-  return organisation.id.toString();
+  return group.id.toString();
 }
 
 export const action = async ({ request }: ActionArgs) => {
@@ -79,9 +79,9 @@ export const action = async ({ request }: ActionArgs) => {
       handle,
       name,
       description,
-      street,
       ...(founded && ({ founded: new Date(founded) })),
       ...(!founded && ({ founded: null })),
+      street,
       zip,
       ...(canton && {
         canton: {
@@ -117,9 +117,9 @@ export async function loader() {
     image: null,
     street: null,
     zip: null,
+    canton_id: null,
     game_id: null,
     group_type: EntityType.ORGANISATION,
-    canton_id: null,
     verification_level: VerificationLevel.NOT_VERIFIED,
     is_active: true
   };

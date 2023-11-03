@@ -5,9 +5,9 @@ import { json, redirect } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
 import { AccessRight, EntityType, Group, RequestStatus, VerificationLevel } from "@prisma/client";
@@ -21,7 +21,7 @@ export function links() {
 }
 
 const createTeam = async (handle: string, name: string, description: string, game: number, user: AuthUser) => {
-  const team = await db.group.create({
+  const group = await db.group.create({
     data: {
       handle,
       name,
@@ -41,15 +41,24 @@ const createTeam = async (handle: string, name: string, description: string, gam
       request_status: RequestStatus.ACCEPTED,
       joined_at: new Date(),
       role: "Admin",
-      user: { connect: { id: BigInt(user.db.id) } },
-      group: { connect: { id: team.id } }
+      user: { connect: { id: BigInt(user.db.id) }},
+      group: { connect: { id: group.id }}
     }
   })
-  return String(team.id);
+  return group.id.toString();
 }
 
 export const action = async ({ request }: ActionArgs) => {
-  let { id, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
+  let {
+    id,
+    founded,
+    handle,
+    name,
+    description,
+    game,
+    canton,
+    languages
+  } = await zx.parseForm(request, {
     id: z.string(),
     handle: z.string().min(3),
     name: z.string().min(3),
@@ -110,11 +119,11 @@ export async function loader() {
     description: "",
     founded: new Date(),
     image: null,
+    street: null,
+    zip: null,
     canton_id: null,
     game_id: BigInt(0),
     group_type: EntityType.TEAM,
-    street: null,
-    zip: null,
     verification_level: VerificationLevel.NOT_VERIFIED,
     is_active: true
   };
