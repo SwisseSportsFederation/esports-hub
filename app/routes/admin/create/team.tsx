@@ -10,7 +10,7 @@ import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
-import { AccessRight, Group, RequestStatus, VerificationLevel } from "@prisma/client";
+import { AccessRight, EntityType, Group, RequestStatus, VerificationLevel } from "@prisma/client";
 import { AuthUser } from '~/services/auth.server';
 
 export function links() {
@@ -26,6 +26,7 @@ const createTeam = async (handle: string, name: string, description: string, gam
       handle,
       name,
       description,
+      group_type: EntityType.TEAM,
       game: {
         connect: {
           id: game
@@ -111,7 +112,7 @@ export async function loader() {
     image: null,
     canton_id: null,
     game_id: BigInt(0),
-    group_type: 'TEAM',
+    group_type: EntityType.TEAM,
     street: null,
     zip: null,
     verification_level: VerificationLevel.NOT_VERIFIED,

@@ -25,7 +25,8 @@ const createOrganisation = async (handle: string, name: string, description: str
     data: {
       handle,
       name,
-      description
+      description,
+      group_type: EntityType.ORGANISATION
     }
   });
   await db.groupMember.create({
