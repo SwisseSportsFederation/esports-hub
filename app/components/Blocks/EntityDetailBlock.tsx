@@ -81,6 +81,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         <Form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
           <input name="id" type="hidden" value={String(entityId)}/>
           <input name="oldHandle" type="hidden" value={handle}/>
+          <input name="entityType" type="hidden" value={entityType}/>
           <TextInput id="handle" label="Short Name" defaultValue={handle} required={true}/>
           <TextInput id="name" label="Name" defaultValue={name} required={true}/>
           {
