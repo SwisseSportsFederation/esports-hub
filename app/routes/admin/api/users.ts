@@ -27,9 +27,9 @@ export const action: ActionFunction = async ({ request }) => {
           { handle: query() }
         ],
       ...(notInTeam && {
-        teams: {
+        groups: {
           none: {
-            team_id: notInTeam
+            group_id: notInTeam
           }
         }
       })

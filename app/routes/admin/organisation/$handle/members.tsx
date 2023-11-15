@@ -1,6 +1,6 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { Form, useActionData, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import { Form, useActionData, useFetcher, useLoaderData, useOutletContext, useTransition } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
@@ -8,7 +8,7 @@ import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import type { Game, Prisma, User } from "@prisma/client";
+import type { Game, User } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
 import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
 import ActionButton from "~/components/Button/ActionButton";
@@ -17,7 +17,7 @@ import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import IconButton from "~/components/Button/IconButton";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TeaserList from "~/components/Teaser/TeaserList";
 import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
@@ -25,7 +25,7 @@ import TextInput from "~/components/Forms/TextInput";
 import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
 import { createFlashMessage } from "~/services/toast.server";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action ({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user.db.id, params.handle, 'MODERATOR');
   const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
@@ -37,11 +37,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       role: z.string()
     }),
     z.object({ intent: z.literal('INVITE_USER'), orgId: zx.NumAsString, userId: zx.NumAsString }),
-    z.object({ intent: z.literal('SEARCH'), search: z.string() }),
     z.object({ intent: z.literal('KICK_USER'), orgId: zx.NumAsString, userId: zx.NumAsString })
   ]));
 
-  switch(data.intent) {
+  switch (data.intent) {
     case "INVITE_USER": {
       const { orgId, userId } = data;
       try {
@@ -56,7 +55,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             is_main_group: false
           }
         });
-      } catch(error) {
+      } catch (error) {
         console.log(error);
         throw json({});
       }
@@ -64,48 +63,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const headers = await createFlashMessage(request, 'Member invited');
       return json({ searchResult: [] }, headers);
     }
-    case "SEARCH": {
-      const { search } = data;
-      const query = (): Prisma.StringFilter => ({
-        contains: search,
-        mode: 'insensitive'
-      });
-      try {
-        const users = await db.user.findMany({
-          where: {
-            OR: [
-              { name: query() },
-              { surname: query() },
-              { handle: query() }
-            ]
-          },
-          include: { games: {
-            where: {
-              is_active: true,
-            },
-          }}
-        });
-        const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
-          return users.map(user => ({
-            id: String(user.id),
-            team: '',
-            name: user.handle,
-            type: 'USER',
-            handle: user.handle,
-            games: user.games,
-            avatarPath: user.image
-          }));
-        };
-        return json({ searchResult: convert(users) });
-      } catch(error) {
-        console.log(error);
-        throw json({}, 500);
-      }
-
-    }
     case "KICK_USER": {
       const { orgId, userId } = data;
-      if(userId === Number(user.db.id)) {
+      if (userId === Number(user.db.id)) {
         throw json({}, 403);
       }
       await db.groupMember.delete({
@@ -121,7 +81,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     case "UPDATE_USER": {
       const { role, 'user-rights': userRights, orgId, userId } = data;
-      if(userId === Number(user.db.id)) {
+      if (userId === Number(user.db.id)) {
         throw json({}, 403);
       }
       await db.groupMember.update({
@@ -142,7 +102,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader ({ request, params }: LoaderFunctionArgs) {
   const { handle } = await zx.parseParams(params, {
     handle: z.string()
   })
@@ -153,18 +113,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         handle
       }
     },
-    include: { 
-      user: { 
-        include: { 
-          games: { 
+    include: {
+      user: {
+        include: {
+          games: {
             where: {
               is_active: true,
             },
-          }, 
-          groups: { include: { group: true } } 
-        } 
-      } 
-    } 
+          },
+          groups: { include: { group: true } }
+        }
+      }
+    }
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
   const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_GROUP);
@@ -177,16 +137,76 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 }
 
+const SearchModal = ({
+  isOpen,
+  handleClose,
+  orgId
+}: { isOpen: boolean, handleClose: (value: boolean) => void, orgId: string }) => {
+  const fetcher = useFetcher();
+  const transition = useTransition();
+  const manualSearch = useCallback(() => {
+    fetcher.submit({ notInTeam: orgId, search: '' }, { method: 'post', action: '/admin/api/users' });
+  }, []);
+  useEffect(() => {
+    manualSearch()
+  }, [manualSearch]);
+
+  useEffect(() => {
+    if (transition.state === 'loading') {
+      manualSearch();
+    }
+  }, [manualSearch, transition])
+  const addInviteIcons = (teaser: ITeaserProps) => <Form method='post'>
+    <input type='hidden' name='orgId' value={orgId} />
+    <input type='hidden' name='userId' value={teaser.id} />
+    <input type='hidden' name='intent' value='INVITE_USER' />
+    <IconButton icon='add' type='submit' />
+  </Form>;
+  const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
+    return users.map(user => ({
+      id: String(user.id),
+      team: '',
+      name: user.handle,
+      type: 'USER',
+      handle: user.handle,
+      games: user.games,
+      avatarPath: user.image
+    }));
+  };
+  // @ts-ignore
+  const searchTeaser = convert(fetcher.data?.users ?? []);
+  return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
+    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/users'}>
+      <input type='hidden' name='notInTeam' value={orgId} />
+      <div className="max-w-sm md:max-w-lg">
+        <TextInput id="search" label="Search" searchIcon={true}
+          buttonType="submit" defaultValue={""} />
+      </div>
+    </fetcher.Form>
+    <div className='max-h-[70vh]'>
+      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
+        iconFactory={addInviteIcons} />
+    </div>
+    {searchTeaser.length === 0 &&
+      <div className='w-full h-40 flex flex-col justify-center items-center'>
+        <Icons iconName='search' className='w-20 h-20 fill-white' />
+        <H1 className='text-color'>No results</H1>
+      </div>
+    }
+  </Modal>
+
+}
+
 const addInvitationIcons = (teaser: ITeaserProps, orgId: string, fetcher: FetcherWithComponents<any>) => {
   return <fetcher.Form method='post' action={'/admin/api/invitation'} encType='multipart/form-data' className="flex space-x-2">
-    <input type='hidden' name='entityId' value={orgId}/>
-    <input type='hidden' name='userId' value={teaser.id}/>
-    <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
-    <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
+    <input type='hidden' name='entityId' value={orgId} />
+    <input type='hidden' name='userId' value={teaser.id} />
+    <IconButton icon='accept' type='submit' name='action' value='ACCEPT' />
+    <IconButton icon='decline' type='submit' name='action' value='DECLINE' />
   </fetcher.Form>;
 };
 
-export default function() {
+export default function () {
   const { members, invited, pending } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
@@ -196,49 +216,37 @@ export default function() {
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
   const types = Object.keys(AccessRight);
-  const searchTeaser = (actionData?.searchResult ?? [])
-    .filter(user => ![...pending, ...invited].some(u => u.id === user.id))
-    .filter(user => !members.some(mem => mem.user_id === user.id));
-
-  const addSearchIcons = (teaser: ITeaserProps) => {
-    return <Form method='post' onSubmit={() => setInviteModalOpen(false)}>
-      <input type='hidden' name='orgId' value={organisation.id}/>
-      <input type='hidden' name='userId' value={teaser.id}/>
-      <input type='hidden' name='intent' value='INVITE_USER'/>
-      <IconButton icon='add' type='submit'/>
-    </Form>
-  }
 
   return <>
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
         <H1Nav path={'..'} title='Members'>
-          <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5'/>
+          <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5' />
         </H1Nav>
         <H1 className='px-2 mb-1 w-full'>Members</H1>
         {
           members.map(member => {
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
-                                     team={member.user.groups[0].group.handle}
-                                     games={member.user.games}>
+              team={member.user.groups[0].group.handle}
+              games={member.user.games}>
               <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
-                <input type='hidden' name='intent' value='UPDATE_USER'/>
-                <input type='hidden' name='orgId' value={organisation.id}/>
-                <TextInput id='role' label='Role' defaultValue={member.role}/>
-                <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights}/>
+                <input type='hidden' name='intent' value='UPDATE_USER' />
+                <input type='hidden' name='orgId' value={organisation.id} />
+                <TextInput id='role' label='Role' defaultValue={member.role} />
+                <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights} />
                 <div className='w-full flex flex-row space-x-4 justify-center'>
-                  <ActionButton content='Save' type='submit' name='userId' value={member.user.id}/>
-                  <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)}/>
+                  <ActionButton content='Save' type='submit' name='userId' value={member.user.id} />
+                  <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)} />
                 </div>
               </Form>
             </ExpandableTeaser>
           })
         }
         <TeaserList title={'Invitation Requests'} teasers={invited}
-                    iconFactory={(teaser) => addInvitationIcons(teaser, organisation.id, fetcher)}/>
+          iconFactory={(teaser) => addInvitationIcons(teaser, organisation.id, fetcher)} />
         <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
-          <Icons iconName='clock' className='h-8 w-8'/>
-        }/>
+          <Icons iconName='clock' className='h-8 w-8' />
+        } />
       </div>
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
@@ -246,29 +254,13 @@ export default function() {
         Remove User from Organisation?
       </div>
       <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='intent' value='KICK_USER'/>
-        <input type='hidden' name='orgId' value={organisation.id}/>
-        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='userId' value={deleteModalOpen}/>}
-        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
+        <input type='hidden' name='intent' value='KICK_USER' />
+        <input type='hidden' name='orgId' value={organisation.id} />
+        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='userId' value={deleteModalOpen} />}
+        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)} />
       </Form>
     </Modal>
-
-    <Modal isOpen={inviteModalOpen} handleClose={() => setInviteModalOpen(false)}>
-      <Form method="post" autoComplete={"on"} className='sticky top-0 z-50'>
-        <input type='hidden' name='intent' value='SEARCH'/>
-        <div className="max-w-sm md:max-w-lg">
-          <TextInput id="search" label="Search" searchIcon={true}
-                     buttonType="submit" defaultValue={""}/>
-        </div>
-      </Form>
-      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
-                  iconFactory={addSearchIcons}/>
-      {searchTeaser.length === 0 &&
-        <div className='w-full h-40 flex flex-col justify-center items-center'>
-          <Icons iconName='search' className='w-20 h-20 fill-white'/>
-          <H1 className='text-color'>No results</H1>
-        </div>
-      }
-    </Modal>
+    {inviteModalOpen &&
+      <SearchModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} orgId={organisation.id} />}
   </>;
 };
