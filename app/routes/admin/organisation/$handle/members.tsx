@@ -1,29 +1,29 @@
-import H1Nav from "~/components/Titles/H1Nav";
+import { AccessRight, RequestStatus } from "@prisma/client";
+import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { Form, useActionData, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import { json } from "@remix-run/node";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
-import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
-import { db } from "~/services/db.server";
-import { zx } from "zodix";
-import { z } from "zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import { AccessRight, RequestStatus } from "@prisma/client";
-import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
-import ActionButton from "~/components/Button/ActionButton";
-import H1 from "~/components/Titles/H1";
-import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
-import IconButton from "~/components/Button/IconButton";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
 import { useState } from "react";
-import TeaserList from "~/components/Teaser/TeaserList";
-import Icons from "~/components/Icons";
-import Modal from "~/components/Notifications/Modal";
-import TextInput from "~/components/Forms/TextInput";
+import { z } from "zod";
+import { zx } from "zodix";
+import ActionButton from "~/components/Button/ActionButton";
+import IconButton from "~/components/Button/IconButton";
 import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
-import { createFlashMessage } from "~/services/toast.server";
+import TextInput from "~/components/Forms/TextInput";
+import Icons from "~/components/Icons";
 import SearchModal from "~/components/Modals/SearchModal";
+import Modal from "~/components/Notifications/Modal";
+import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
+import TeaserList from "~/components/Teaser/TeaserList";
+import H1 from "~/components/Titles/H1";
+import H1Nav from "~/components/Titles/H1Nav";
+import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
+import { db } from "~/services/db.server";
+import { createFlashMessage } from "~/services/toast.server";
+import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
 
 export async function action ({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -33,23 +33,23 @@ export async function action ({ request, params }: ActionFunctionArgs) {
       intent: z.literal('UPDATE_USER'),
       'user-rights': z.enum(['MODERATOR', 'MEMBER', 'ADMINISTRATOR']),
       userId: zx.NumAsString,
-      orgId: zx.NumAsString,
+      groupId: zx.NumAsString,
       role: z.string()
     }),
-    z.object({ intent: z.literal('INVITE_USER'), orgId: zx.NumAsString, userId: zx.NumAsString }),
-    z.object({ intent: z.literal('KICK_USER'), orgId: zx.NumAsString, userId: zx.NumAsString })
+    z.object({ intent: z.literal('INVITE_USER'), groupId: zx.NumAsString, userId: zx.NumAsString }),
+    z.object({ intent: z.literal('KICK_USER'), groupId: zx.NumAsString, userId: zx.NumAsString })
   ]));
 
   switch (data.intent) {
     case "INVITE_USER": {
-      const { orgId, userId } = data;
+      const { groupId, userId } = data;
       try {
         await db.groupMember.create({
           data: {
             joined_at: new Date(),
             access_rights: AccessRight.MEMBER,
             user_id: userId,
-            group_id: orgId,
+            group_id: groupId,
             request_status: RequestStatus.PENDING_USER,
             role: '',
             is_main_group: false
@@ -64,7 +64,7 @@ export async function action ({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] }, headers);
     }
     case "KICK_USER": {
-      const { orgId, userId } = data;
+      const { groupId, userId } = data;
       if (userId === Number(user.db.id)) {
         throw json({}, 403);
       }
@@ -72,7 +72,7 @@ export async function action ({ request, params }: ActionFunctionArgs) {
         where: {
           user_id_group_id: {
             user_id: userId,
-            group_id: orgId
+            group_id: groupId
           }
         }
       });
@@ -80,7 +80,7 @@ export async function action ({ request, params }: ActionFunctionArgs) {
       return json({ searchResult: [] }, headers);
     }
     case "UPDATE_USER": {
-      const { role, 'user-rights': userRights, orgId, userId } = data;
+      const { role, 'user-rights': userRights, groupId, userId } = data;
       if (userId === Number(user.db.id)) {
         throw json({}, 403);
       }
@@ -88,7 +88,7 @@ export async function action ({ request, params }: ActionFunctionArgs) {
         where: {
           user_id_group_id: {
             user_id: userId,
-            group_id: orgId
+            group_id: groupId
           }
         },
         data: {
@@ -138,9 +138,9 @@ export async function loader ({ request, params }: LoaderFunctionArgs) {
 }
 
 
-const addInvitationIcons = (teaser: ITeaserProps, orgId: string, fetcher: FetcherWithComponents<any>) => {
+const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: FetcherWithComponents<any>) => {
   return <fetcher.Form method='post' action={'/admin/api/invitation'} encType='multipart/form-data' className="flex space-x-2">
-    <input type='hidden' name='entityId' value={orgId} />
+    <input type='hidden' name='entityId' value={groupId} />
     <input type='hidden' name='userId' value={teaser.id} />
     <IconButton icon='accept' type='submit' name='action' value='ACCEPT' />
     <IconButton icon='decline' type='submit' name='action' value='DECLINE' />
@@ -172,7 +172,7 @@ export default function () {
               games={member.user.games}>
               <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                 <input type='hidden' name='intent' value='UPDATE_USER' />
-                <input type='hidden' name='orgId' value={organisation.id} />
+                <input type='hidden' name='groupId' value={organisation.id} />
                 <TextInput id='role' label='Role' defaultValue={member.role} />
                 <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights} />
                 <div className='w-full flex flex-row space-x-4 justify-center'>
@@ -196,7 +196,7 @@ export default function () {
       </div>
       <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
         <input type='hidden' name='intent' value='KICK_USER' />
-        <input type='hidden' name='orgId' value={organisation.id} />
+        <input type='hidden' name='groupId' value={organisation.id} />
         {deleteModalOpen && <ActionButton content='Yes' type='submit' name='userId' value={deleteModalOpen} />}
         <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)} />
       </Form>

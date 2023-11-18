@@ -25,7 +25,7 @@ const SearchModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, handle
 	  }
 	}, [manualSearch, transition])
 	const addInviteIcons = (teaser: ITeaserProps) => <Form method='post'>
-	  <input type='hidden' name='orgId' value={groupId} />
+	  <input type='hidden' name='groupId' value={groupId} />
 	  <input type='hidden' name='userId' value={teaser.id} />
 	  <input type='hidden' name='intent' value='INVITE_USER' />
 	  <IconButton icon='add' type='submit' />
