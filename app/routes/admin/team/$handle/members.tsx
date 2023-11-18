@@ -23,6 +23,7 @@ import Modal from "~/components/Notifications/Modal";
 import TextInput from "~/components/Forms/TextInput";
 import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
 import { createFlashMessage } from "~/services/toast.server";
+import SearchModal from "~/components/Modals/SearchModal";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -142,66 +143,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 }
 
-const SearchModal = ({
-                       isOpen,
-                       handleClose,
-                       teamId
-                     }: { isOpen: boolean, handleClose: (value: boolean) => void, teamId: string }) => {
-  const fetcher = useFetcher();
-  const transition = useTransition();
-  const manualSearch = useCallback(() => {
-    fetcher.submit({ notInTeam: teamId, search: '' }, { method: 'post', action: '/admin/api/users' });
-  }, []);
-  useEffect(() => {
-    manualSearch()
-  }, [manualSearch]);
-
-  useEffect(() => {
-    if(transition.state === 'loading') {
-      manualSearch();
-    }
-  }, [manualSearch, transition])
-  const addInviteIcons = (teaser: ITeaserProps) => <Form method='post'>
-    <input type='hidden' name='teamId' value={teamId}/>
-    <input type='hidden' name='userId' value={teaser.id}/>
-    <input type='hidden' name='intent' value='INVITE_USER'/>
-    <IconButton icon='add' type='submit'/>
-  </Form>;
-  const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
-    return users.map(user => ({
-      id: String(user.id),
-      team: '',
-      name: user.handle,
-      type: 'USER',
-      handle: user.handle,
-      games: user.games,
-      avatarPath: user.image
-    }));
-  };
-  // @ts-ignore
-  const searchTeaser = convert(fetcher.data?.users ?? []);
-  return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/users'}>
-      <input type='hidden' name='notInTeam' value={teamId}/>
-      <div className="max-w-sm md:max-w-lg">
-        <TextInput id="search" label="Search" searchIcon={true}
-                   buttonType="submit" defaultValue={""}/>
-      </div>
-    </fetcher.Form>
-    <div className='max-h-[70vh]'>
-      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
-                  iconFactory={addInviteIcons}/>
-    </div>
-    {searchTeaser.length === 0 &&
-      <div className='w-full h-40 flex flex-col justify-center items-center'>
-        <Icons iconName='search' className='w-20 h-20 fill-white'/>
-        <H1 className='text-color'>No results</H1>
-      </div>
-    }
-  </Modal>
-
-}
-
 const addInvitationIcons = (teaser: ITeaserProps, teamId: string, fetcher: FetcherWithComponents<any>) => {
   return <fetcher.Form method='post' action={'/admin/api/invitation'} encType='multipart/form-data'>
     <input type='hidden' name='entityId' value={teamId}/>
@@ -268,6 +209,6 @@ export default function() {
       </Form>
     </Modal>
     {inviteModalOpen &&
-      <SearchModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} teamId={team.id}/>}
+      <SearchModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} groupId={team.id}/>}
   </>;
 };
