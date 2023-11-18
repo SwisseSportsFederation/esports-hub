@@ -9,7 +9,7 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import Icons from "~/components/Icons";
 import H1 from "~/components/Titles/H1";
 
-const SearchModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string }) => {
+const SearchMemberModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string }) => {
 	const fetcher = useFetcher();
 	const transition = useTransition();
 	const manualSearch = useCallback(() => {
@@ -24,12 +24,12 @@ const SearchModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, handle
 		manualSearch();
 	  }
 	}, [manualSearch, transition])
-	const addInviteIcons = (teaser: ITeaserProps) => <Form method='post'>
+	const addInviteIcons = (teaser: ITeaserProps) => <fetcher.Form method='post' action={'/admin/api/group/members'}>
 	  <input type='hidden' name='groupId' value={groupId} />
 	  <input type='hidden' name='userId' value={teaser.id} />
 	  <input type='hidden' name='intent' value='INVITE_USER' />
 	  <IconButton icon='add' type='submit' />
-	</Form>;
+	</fetcher.Form>;
 	const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
 	  return users.map(user => ({
 		id: String(user.id),
@@ -65,4 +65,4 @@ const SearchModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, handle
   
   }
 
-export default SearchModal;
+export default SearchMemberModal;

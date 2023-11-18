@@ -2,7 +2,7 @@ import { AccessRight, RequestStatus } from "@prisma/client";
 import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { Form, useActionData, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
 import { z } from "zod";
@@ -12,7 +12,7 @@ import IconButton from "~/components/Button/IconButton";
 import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
 import TextInput from "~/components/Forms/TextInput";
 import Icons from "~/components/Icons";
-import SearchModal from "~/components/Modals/SearchModal";
+import SearchMemberModal from "~/components/Modals/SearchMemberModal";
 import Modal from "~/components/Notifications/Modal";
 import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
@@ -21,86 +21,8 @@ import H1 from "~/components/Titles/H1";
 import H1Nav from "~/components/Titles/H1Nav";
 import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkUserAuth } from "~/utils/auth.server";
 import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
-
-export async function action ({ request, params }: ActionFunctionArgs) {
-  const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, params.handle, 'MODERATOR');
-  const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
-    z.object({
-      intent: z.literal('UPDATE_USER'),
-      'user-rights': z.enum(['MODERATOR', 'MEMBER', 'ADMINISTRATOR']),
-      userId: zx.NumAsString,
-      groupId: zx.NumAsString,
-      role: z.string()
-    }),
-    z.object({ intent: z.literal('INVITE_USER'), groupId: zx.NumAsString, userId: zx.NumAsString }),
-    z.object({ intent: z.literal('KICK_USER'), groupId: zx.NumAsString, userId: zx.NumAsString })
-  ]));
-
-  switch (data.intent) {
-    case "INVITE_USER": {
-      const { groupId, userId } = data;
-      try {
-        await db.groupMember.create({
-          data: {
-            joined_at: new Date(),
-            access_rights: AccessRight.MEMBER,
-            user_id: userId,
-            group_id: groupId,
-            request_status: RequestStatus.PENDING_USER,
-            role: '',
-            is_main_group: false
-          }
-        });
-      } catch (error) {
-        console.log(error);
-        throw json({});
-      }
-
-      const headers = await createFlashMessage(request, 'Member invited');
-      return json({ searchResult: [] }, headers);
-    }
-    case "KICK_USER": {
-      const { groupId, userId } = data;
-      if (userId === Number(user.db.id)) {
-        throw json({}, 403);
-      }
-      await db.groupMember.delete({
-        where: {
-          user_id_group_id: {
-            user_id: userId,
-            group_id: groupId
-          }
-        }
-      });
-      const headers = await createFlashMessage(request, 'Member kicked');
-      return json({ searchResult: [] }, headers);
-    }
-    case "UPDATE_USER": {
-      const { role, 'user-rights': userRights, groupId, userId } = data;
-      if (userId === Number(user.db.id)) {
-        throw json({}, 403);
-      }
-      await db.groupMember.update({
-        where: {
-          user_id_group_id: {
-            user_id: userId,
-            group_id: groupId
-          }
-        },
-        data: {
-          role,
-          access_rights: userRights,
-        }
-      });
-      const headers = await createFlashMessage(request, 'Member updated');
-      return json({ searchResult: [] }, headers);
-    }
-  }
-}
 
 export async function loader ({ request, params }: LoaderFunctionArgs) {
   const { handle } = await zx.parseParams(params, {
@@ -149,7 +71,6 @@ const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: Fetc
 
 export default function () {
   const { members, invited, pending } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
 
   const fetcher = useFetcher();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>()
@@ -167,11 +88,11 @@ export default function () {
         <H1 className='px-2 mb-1 w-full'>Members</H1>
         {
           members.map(member => {
+            // Update Member
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
               team={member.user.groups[0].group.handle}
               games={member.user.games}>
-              <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
-                <input type='hidden' name='intent' value='UPDATE_USER' />
+              <fetcher.Form method='put' action={'/admin/api/group/members'} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                 <input type='hidden' name='groupId' value={organisation.id} />
                 <TextInput id='role' label='Role' defaultValue={member.role} />
                 <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights} />
@@ -179,7 +100,7 @@ export default function () {
                   <ActionButton content='Save' type='submit' name='userId' value={member.user.id} />
                   <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)} />
                 </div>
-              </Form>
+              </fetcher.Form>
             </ExpandableTeaser>
           })
         }
@@ -194,14 +115,13 @@ export default function () {
       <div className="flex justify-center text-center text-2xl mb-8 text-color">
         Remove User from Organisation?
       </div>
-      <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='intent' value='KICK_USER' />
+      <fetcher.Form className='flex justify-between gap-2' method="delete" action={'/admin/api/group/members'} onSubmit={() => setDeleteModalOpen(null)}>
         <input type='hidden' name='groupId' value={organisation.id} />
         {deleteModalOpen && <ActionButton content='Yes' type='submit' name='userId' value={deleteModalOpen} />}
         <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)} />
-      </Form>
+      </fetcher.Form>
     </Modal>
     {inviteModalOpen &&
-      <SearchModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} groupId={organisation.id} />}
+      <SearchMemberModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} groupId={organisation.id} />}
   </>;
 };

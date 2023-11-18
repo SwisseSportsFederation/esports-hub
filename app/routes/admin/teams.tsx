@@ -343,7 +343,7 @@ const SelectNewAdminModal = (
     { isOpen: boolean, handleClose: (value: boolean) => void, teamId: string, userId: string }) => {
   const fetcher = useFetcher();
   useEffect(() => {
-    fetcher.submit({ teamId, search: '' }, { method: 'post', action: '/admin/api/group/members' })
+    fetcher.submit({ teamId, search: '' }, { method: 'get', action: '/admin/api/group/members' })
   }, [teamId]);
   // @ts-ignore
   const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
@@ -359,7 +359,7 @@ const SelectNewAdminModal = (
   }
   return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
     <H1 className='text-2xl text-color'>Select new Administrator</H1>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/group/members'}>
+    <fetcher.Form method="get" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/group/members'}>
       <input type='hidden' name='teamId' value={teamId}/>
       <div className="max-w-sm md:max-w-lg">
         <TextInput id="search" label="Search" searchIcon={true}
