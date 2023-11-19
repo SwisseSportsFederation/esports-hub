@@ -26,7 +26,7 @@ const promoteUser = async (userId: number, newAdminUserId: string, groupId: numb
 	// todo: potentially send email
 }
 
-const leaveOrganisation = async (userId: number, groupId: number) => {
+const leaveGroup = async (userId: number, groupId: number) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 
 	const group = await db.group.findFirst({
@@ -37,7 +37,7 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 			members: true
 		}
 	});
-	// Set Organisation inactive if there is no more members
+	// Set Group inactive if there is no more members
 	if (group?.members.length === 1) {
 		await db.group.update({
 			where: {
@@ -51,10 +51,10 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 		// Set new admin if member is last admin
 		const admins = group?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
 		if (admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
-			return json({ selectAdminOrgId: groupId })
+			return json({ selectAdminGroupId: groupId })
 		}
 	}
-	// delete member from organisation
+	// delete member from group
 	const groupMember = await db.groupMember.delete({
 		where: {
 			user_id_group_id: {
@@ -77,7 +77,7 @@ const leaveOrganisation = async (userId: number, groupId: number) => {
 	return json({});
 }
 
-const updateOrganisation = async (userId: number, groupId: number, joinedAt: string) => {
+const updateGroup = async (userId: number, groupId: number, joinedAt: string) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 	await db.groupMember.update({
 		where: {
@@ -93,7 +93,7 @@ const updateOrganisation = async (userId: number, groupId: number, joinedAt: str
 	return json({});
 }
 
-const changeMainOrganisation = async (userId: number, groupId: number) => {
+const changeMainGroup = async (userId: number, groupId: number) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 	const group = await db.group.findUnique({
 		where: {
@@ -103,6 +103,7 @@ const changeMainOrganisation = async (userId: number, groupId: number) => {
 			group_type: true
 		}
 	})
+	// TODO: Fix me that only groups are being changed that have the same entitytype as the one requested.
 	if(group?.group_type === EntityType.ORGANISATION) {
 		await db.groupMember.updateMany({
 			where: {
@@ -173,7 +174,7 @@ export const action: ActionFunction = async ({ request }) => {
 	const user = await checkUserAuth(request);
 	const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
 		z.object({
-			intent: z.literal('UPDATE_ORGANISATION'),
+			intent: z.literal('UPDATE_GROUP'),
 			userId: zx.NumAsString,
 			groupId: zx.NumAsString,
 			joinedAt: z.string()
@@ -181,9 +182,9 @@ export const action: ActionFunction = async ({ request }) => {
 		z.object({
 			intent: z.literal('PROMOTE_USER'), groupId: zx.NumAsString, userId: zx.NumAsString, newAdminUserId: z.string()
 		}),
-		z.object({ intent: z.literal('LEAVE_ORGANISATION'), groupId: zx.NumAsString, userId: zx.NumAsString }),
+		z.object({ intent: z.literal('LEAVE_GROUP'), groupId: zx.NumAsString, userId: zx.NumAsString }),
 		z.object({
-			intent: z.literal('CHANGE_MAIN_ORGANISATION'),
+			intent: z.literal('CHANGE_MAIN_GROUP'),
 			userId: zx.NumAsString,
 			groupId: zx.NumAsString
 		}),
@@ -220,21 +221,21 @@ export const action: ActionFunction = async ({ request }) => {
 			promoteUser(userId, newAdminUserId, groupId);
 			// purpose fallthrough
 		}
-		case "LEAVE_ORGANISATION": {
+		case "LEAVE_GROUP": {
 			const { groupId } = data;
-			return leaveOrganisation(userId, groupId);
+			return leaveGroup(userId, groupId);
 		}
-		case "UPDATE_ORGANISATION": {
+		case "UPDATE_GROUP": {
 			const { joinedAt, groupId } = data;
 			if (joinedAt) {
-				return updateOrganisation(userId, groupId, joinedAt);
+				return updateGroup(userId, groupId, joinedAt);
 			} else {
 				throw json({}, 400);
 			}
 		}
-		case "CHANGE_MAIN_ORGANISATION": {
+		case "CHANGE_MAIN_GROUP": {
 			const { groupId } = data;
-			return changeMainOrganisation(userId, groupId);
+			return changeMainGroup(userId, groupId);
 		}
 		case "UPDATE_FORMER_TEAM": {
 			const { name, from, to, formerTeamName } = data;

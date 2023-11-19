@@ -67,7 +67,7 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
 
 const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, userId: string, fetcher: FetcherWithComponents<any>) =>
   <fetcher.Form method='post' action={`/admin/api/groupMember`} className={isMainOrg ? 'text-yellow-400' : 'text-gray-3'}>
-    <input type='hidden' name='intent' value='CHANGE_MAIN_ORGANISATION'/>
+    <input type='hidden' name='intent' value='CHANGE_MAIN_GROUP'/>
     <input type='hidden' name='userId' value={userId}/>
     <IconButton icon='star' type='submit' name='groupId' value={groupId} className="rounded-none mx-1"/>
   </fetcher.Form>;
@@ -95,7 +95,7 @@ const SelectNewAdminModal = (
     </fetcher.Form>
   }
   return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <H1 className='text-2xl text-white'>Select new Administrator</H1>
+    <H1 className='text-2xl text-color'>Select new Administrator</H1>
     <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/group/members'}>
       <input type='hidden' name='intent' value="SEARCH"/>
       <input type='hidden' name='groupId' value={groupId}/>
@@ -109,7 +109,7 @@ const SelectNewAdminModal = (
     {(!fetcher.data || fetcher.data?.members?.length === 0) &&
       <div className='w-full h-40 flex flex-col justify-center items-center'>
         <Icons iconName='search' className='w-20 h-20 fill-white'/>
-        <H1 className='text-white'>No results</H1>
+        <H1 className='text-color'>No results</H1>
       </div>
     }
   </Modal>
@@ -128,7 +128,7 @@ export default function() {
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
   const [selectAdminOpen, setSelectAdminOpen] = useState(false);
   useEffect(() => {
-    if(fetcher.data && fetcher.data.selectAdminOrgId) {
+    if(fetcher.data && fetcher.data.selectAdminGroupId) {
       setSelectAdminOpen(true)
     }
   }, [fetcher.data]);
@@ -153,7 +153,7 @@ export default function() {
                                          games={member.game ? [member.game] : []}
                                          additionalIcons={mainOrgIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
                   <fetcher.Form method='post' action={`/admin/api/groupMember`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
-                    <input type='hidden' name='intent' value='UPDATE_ORGANISATION'/>
+                    <input type='hidden' name='intent' value='UPDATE_GROUP'/>
                     <input type='hidden' name='userId' value={user.db.id}/>
                     <DateInput name='joinedAt' label='Joined at' value={new Date(member.joined_at)}/>
                     <div className='w-full flex flex-row space-x-4 justify-center'>
@@ -168,8 +168,8 @@ export default function() {
 
       </div>
     </div>
-    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the organisation?', 'LEAVE_ORGANISATION', 'groupId', user.db.id, fetcher)}
-    {fetcher.data?.selectAdminOrgId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
-                                                           groupId={fetcher.data.selectAdminOrgId} userId={user.db.id}/>}
+    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the organisation?', 'LEAVE_GROUP', 'groupId', user.db.id, fetcher)}
+    {fetcher.data?.selectAdminGroupId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
+                                                           groupId={fetcher.data.selectAdminGroupId} userId={user.db.id}/>}
   </>;
 };
