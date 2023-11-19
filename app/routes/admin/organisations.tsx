@@ -1,9 +1,8 @@
-import { AccessRight, EntityType, RequestStatus } from "@prisma/client";
-import { json } from "@remix-run/node";
+import { EntityType, RequestStatus } from "@prisma/client";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { Form, useActionData, useFetcher, useOutletContext } from "@remix-run/react";
+import { useFetcher, useOutletContext } from "@remix-run/react";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
 import DateInput from "~/components/Forms/DateInput";
@@ -19,8 +18,6 @@ import type { StringOrNull } from "~/db/queries.server";
 import type { loader as adminLoader } from "~/routes/admin";
 import type { Membership } from "~/services/admin/index.server";
 import dateInputStyles from "~/styles/date-input.css";
-
-// TODO: Check if API Works
 
 export function links() {
   return [
@@ -79,9 +76,12 @@ const SelectNewAdminModal = (
   { isOpen, handleClose, groupId, userId }:
     { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string, userId: string }) => {
   const fetcher = useFetcher();
-  useEffect(() => {
-    fetcher.submit({ groupId, search: '' }, { method: 'post', action: '/admin/api/organisation/members' })
-  }, [groupId]);
+	const manualSearch = useCallback(() => {
+    fetcher.submit({ intent: 'SEARCH', groupId, search: '' }, { method: 'post', action: '/admin/api/group/members' })
+	}, []);
+	useEffect(() => {
+	  manualSearch()
+	}, [manualSearch]);
   // @ts-ignore
   const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
 
@@ -96,7 +96,8 @@ const SelectNewAdminModal = (
   }
   return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
     <H1 className='text-2xl text-white'>Select new Administrator</H1>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/organisation/members'}>
+    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/group/members'}>
+      <input type='hidden' name='intent' value="SEARCH"/>
       <input type='hidden' name='groupId' value={groupId}/>
       <div className="max-w-sm md:max-w-lg">
         <TextInput id="search" label="Search" searchIcon={true}
@@ -105,7 +106,7 @@ const SelectNewAdminModal = (
     </fetcher.Form>
     <TeaserList type='Static' title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-white'
                 iconFactory={addAsAdminIcon}/>
-    {(!fetcher.data || fetcher.data?.members.length === 0) &&
+    {(!fetcher.data || fetcher.data?.members?.length === 0) &&
       <div className='w-full h-40 flex flex-col justify-center items-center'>
         <Icons iconName='search' className='w-20 h-20 fill-white'/>
         <H1 className='text-white'>No results</H1>
@@ -115,23 +116,22 @@ const SelectNewAdminModal = (
 };
 
 export default function() {
-  const actionData = useActionData<{ selectAdminOrgId: StringOrNull }>();
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
   const organisations = memberships.groups.filter(group => group.group_type === EntityType.ORGANISATION);
 
-  const invitedOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_USER && e.group_type === EntityType.ORGANISATION})
-  const pendingOrganisations = memberships.groupInvitations.filter(e => {e.request_status === RequestStatus.PENDING_GROUP && e.group_type === EntityType.ORGANISATION}) //pending org
+  const invitedOrganisations = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER && e.group_type === EntityType.ORGANISATION)
+  const pendingOrganisations = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_GROUP && e.group_type === EntityType.ORGANISATION) //pending org
 
   const invited = getInvitationTeaser(invitedOrganisations, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingOrganisations, user.db.id, true, fetcher);
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
   const [selectAdminOpen, setSelectAdminOpen] = useState(false);
   useEffect(() => {
-    if(actionData?.selectAdminOrgId) {
+    if(fetcher.data && fetcher.data.selectAdminOrgId) {
       setSelectAdminOpen(true)
     }
-  }, [actionData]);
+  }, [fetcher.data]);
   return <>
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto flex flex-col items-center">
@@ -169,7 +169,7 @@ export default function() {
       </div>
     </div>
     {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the organisation?', 'LEAVE_ORGANISATION', 'groupId', user.db.id, fetcher)}
-    {actionData?.selectAdminOrgId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
-                                                           groupId={actionData?.selectAdminOrgId} userId={user.db.id}/>}
+    {fetcher.data?.selectAdminOrgId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
+                                                           groupId={fetcher.data.selectAdminOrgId} userId={user.db.id}/>}
   </>;
 };

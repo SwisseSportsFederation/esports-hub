@@ -8,24 +8,27 @@ import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { AccessRight, RequestStatus } from "@prisma/client";
 import { createFlashMessage } from "~/services/toast.server";
 import { AuthUser } from "~/services/auth.server";
-
-export let loader: LoaderFunction = () => redirect("/admin");
+import { Params } from "@remix-run/react";
 
 export const action: ActionFunction = async ({ request }) => {
   const user = await checkUserAuth(request);
 
   switch (request.method) {
     case "POST": {
-      return inviteUser(request, user)
+      const { intent } = await zx.parseForm(request, {
+        intent: z.enum(['INVITE_USER', 'SEARCH'])
+      });
+      if(intent === "INVITE_USER") {
+        return inviteUser(request, user)
+      } else if (intent === "SEARCH") {
+        return search(request)
+      }
     }
     case "DELETE": {
       return kickUser(request, user)
     }
     case "PUT": {
       return updateUser(request, user)
-    }
-    case "GET": {
-      return search(request)
     }
   }
   return json({}, 404);
@@ -113,8 +116,8 @@ const updateUser = async (request: Request, user: AuthUser) => {
 }
 
 const search = async (request: Request) => {
-  const { teamId, search } = await zx.parseForm(request, {
-    teamId: zx.NumAsString,
+  const { groupId, search } = await zx.parseForm(request, {
+    groupId: zx.NumAsString,
     search: z.string()
   });
   const query = (): Prisma.StringFilter => ({
@@ -123,7 +126,7 @@ const search = async (request: Request) => {
   });
   const members = await db.groupMember.findMany({
     where: {
-      group_id: teamId,
+      group_id: groupId,
       request_status: RequestStatus.ACCEPTED,
       user: {
         OR: [
