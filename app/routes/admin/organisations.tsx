@@ -76,12 +76,9 @@ const SelectNewAdminModal = (
   { isOpen, handleClose, groupId, userId }:
     { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string, userId: string }) => {
   const fetcher = useFetcher();
-	const manualSearch = useCallback(() => {
-    fetcher.submit({ intent: 'SEARCH', groupId, search: '' }, { method: 'post', action: '/admin/api/group/members' })
-	}, []);
 	useEffect(() => {
-	  manualSearch()
-	}, [manualSearch]);
+    fetcher.submit({ intent: 'SEARCH', groupId, search: '' }, { method: 'post', action: '/admin/api/group/members' })
+	}, [groupId]);
   // @ts-ignore
   const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
 

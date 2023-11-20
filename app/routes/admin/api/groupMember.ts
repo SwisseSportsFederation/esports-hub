@@ -37,42 +37,46 @@ const leaveGroup = async (userId: number, groupId: number) => {
 			members: true
 		}
 	});
-	// Set Group inactive if there is no more members
-	if (group?.members.length === 1) {
-		await db.group.update({
-			where: {
-				id: groupId
-			},
-			data: {
-				is_active: false
-			}
-		});
-	} else {
-		// Set new admin if member is last admin
-		const admins = group?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
-		if (admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
-			return json({ selectAdminGroupId: groupId })
-		}
-	}
-	// delete member from group
-	const groupMember = await db.groupMember.delete({
-		where: {
-			user_id_group_id: {
-				user_id: userId,
-				group_id: groupId
+	if(group) {
+		const activeMembers = group.members.filter(m => m.request_status === RequestStatus.ACCEPTED)
+		// Set Group inactive if there is no more members
+		if (activeMembers.length === 1) {
+			await db.group.update({
+				where: {
+					id: groupId
+				},
+				data: {
+					is_active: false
+				}
+			});
+		} else {
+			// Set new admin if member is last admin
+			const admins = activeMembers.filter(m => m.access_rights === AccessRight.ADMINISTRATOR);
+			if (admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
+				return json({ selectAdminGroupId: groupId })
 			}
 		}
-	});
 
-	if (group && group.group_type === EntityType.TEAM) {
-		await db.formerTeam.create({
-			data: {
-				user_id: userId,
-				name: group.name,
-				from: groupMember.joined_at,
-				to: new Date(),
+		// delete member from group
+		const groupMember = await db.groupMember.delete({
+			where: {
+				user_id_group_id: {
+					user_id: userId,
+					group_id: groupId
+				}
 			}
 		});
+
+		if (group.group_type === EntityType.TEAM) {
+			await db.formerTeam.create({
+				data: {
+					user_id: userId,
+					name: group.name,
+					from: groupMember.joined_at,
+					to: new Date(),
+				}
+			});
+		}
 	}
 	return json({});
 }
