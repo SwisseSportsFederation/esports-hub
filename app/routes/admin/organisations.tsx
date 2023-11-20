@@ -2,12 +2,12 @@ import { EntityType, RequestStatus } from "@prisma/client";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useOutletContext } from "@remix-run/react";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
 import DateInput from "~/components/Forms/DateInput";
-import TextInput from "~/components/Forms/TextInput";
 import Icons from "~/components/Icons";
+import SelectNewAdminModal from "~/components/Modals/SelectNewAdminModal";
 import Modal from "~/components/Notifications/Modal";
 import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
@@ -39,7 +39,7 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: s
     }
 
     return {
-      type: 'ORGANISATION',
+      type: EntityType.ORGANISATION,
       id: String(invitation.id),
       handle: invitation.handle,
       avatarPath: invitation.image ?? null,
@@ -53,10 +53,9 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: s
 
 const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: string, intent: string, submitName: string, userId: string, fetcher: FetcherWithComponents<any>) =>
   <Modal isOpen={!!isOpen} handleClose={() => activeFunction(null)}>
-    <div className="flex justify-center text-center text-2xl mb-8 text-white">
+    <div className="flex justify-center text-center text-2xl mb-8 text-color">
       {text}
     </div>
-    {/** TODO: Check if onSubmit() activeFunction still is being done (closing the modal) */}
     <fetcher.Form method='post' action={`/admin/api/groupMember`} className='flex justify-between gap-2' onSubmit={() => activeFunction(null)}>
       <input type='hidden' name='intent' value={intent}/>
       <input type='hidden' name='userId' value={userId}/>
@@ -72,45 +71,6 @@ const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, userId: string,
     <IconButton icon='star' type='submit' name='groupId' value={groupId} className="rounded-none mx-1"/>
   </fetcher.Form>;
 
-const SelectNewAdminModal = (
-  { isOpen, handleClose, groupId, userId }:
-    { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string, userId: string }) => {
-  const fetcher = useFetcher();
-	useEffect(() => {
-    fetcher.submit({ intent: 'SEARCH', groupId, search: '' }, { method: 'post', action: '/admin/api/group/members' })
-	}, [groupId]);
-  // @ts-ignore
-  const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
-
-  const addAsAdminIcon = (teaser: ITeaserProps) => {
-    return <fetcher.Form method='post' action={`/admin/api/groupMember`} onSubmit={() => handleClose(false)}>
-      <input type='hidden' name='groupId' value={groupId}/>
-      <input type='hidden' name='newAdminUserId' value={teaser.id}/>
-      <input type='hidden' name='userId' value={userId}/>
-      <input type='hidden' name='intent' value='PROMOTE_USER'/>
-      <IconButton icon='accept' type='submit'/>
-    </fetcher.Form>
-  }
-  return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <H1 className='text-2xl text-color'>Select new Administrator</H1>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/group/members'}>
-      <input type='hidden' name='intent' value="SEARCH"/>
-      <input type='hidden' name='groupId' value={groupId}/>
-      <div className="max-w-sm md:max-w-lg">
-        <TextInput id="search" label="Search" searchIcon={true}
-                   buttonType="submit" defaultValue={""}/>
-      </div>
-    </fetcher.Form>
-    <TeaserList type='Static' title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-white'
-                iconFactory={addAsAdminIcon}/>
-    {(!fetcher.data || fetcher.data?.members?.length === 0) &&
-      <div className='w-full h-40 flex flex-col justify-center items-center'>
-        <Icons iconName='search' className='w-20 h-20 fill-white'/>
-        <H1 className='text-color'>No results</H1>
-      </div>
-    }
-  </Modal>
-};
 
 export default function() {
   const fetcher = useFetcher();
@@ -125,7 +85,7 @@ export default function() {
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
   const [selectAdminOpen, setSelectAdminOpen] = useState(false);
   useEffect(() => {
-    if(fetcher.data && fetcher.data.selectAdminGroupId) {
+    if(fetcher.data?.selectAdminGroupId) {
       setSelectAdminOpen(true)
     }
   }, [fetcher.data]);
