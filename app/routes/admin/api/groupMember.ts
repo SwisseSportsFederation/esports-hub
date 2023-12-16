@@ -107,11 +107,19 @@ const changeMainGroup = async (userId: number, groupId: number) => {
 			group_type: true
 		}
 	})
-	// TODO: Fix me that only groups are being changed that have the same entitytype as the one requested.
-	if(group?.group_type === EntityType.ORGANISATION) {
+	if(!!group) {
 		await db.groupMember.updateMany({
 			where: {
-				user_id: userId,
+				AND: [
+					{
+						user_id: userId,
+					},
+					{
+						group: {
+							group_type: group.group_type
+						}
+					}
+				]
 			},
 			data: {
 				is_main_group: false
