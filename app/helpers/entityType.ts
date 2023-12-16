@@ -1,12 +1,6 @@
-export type EntityType = 'USER' | 'TEAM' | 'ORG';
+import { EntityType } from "@prisma/client";
 
 export const entityToPathSegment = (entity: EntityType) => {
-  switch(entity) {
-    case 'ORG':
-      return 'organisation';
-    case 'TEAM':
-      return 'team';
-    default:
-      return 'user';
-  }
+  return entity.toLowerCase();
 }
+

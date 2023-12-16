@@ -25,23 +25,23 @@ export const action = async ({ request, params }: ActionArgs) => {
   });
   const user = await checkUserAuth(request);
   try {
-    const team = await db.team.findUniqueOrThrow({
+    const group = await db.group.findUniqueOrThrow({
       where: {
         handle
       }
     });
-    await db.teamMember.create({
+    await db.groupMember.create({
       data: {
         access_rights: AccessRight.MEMBER,
-        request_status: RequestStatus.PENDING_TEAM,
+        request_status: RequestStatus.PENDING_GROUP,
         joined_at: new Date(),
-        is_main_team: false,
+        is_main_group: false,
         role: "Member",
         user: { connect: { id: BigInt(user.db.id) }},
-        team: { connect: { id: team.id }}
+        group: { connect: { id: group.id }}
       }
     })
-    console.log(`user ${user.db.id} applied for team ${team.id}`)
+    console.log(`user ${user.db.id} applied for team ${group.id}`)
   } catch(error) {
     console.log(error);
     const headers = await createFlashMessage(request, 'Error while applying for team');
@@ -57,14 +57,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   });
 
-  const team = await db.team.findUniqueOrThrow({
+  const team = await db.group.findUniqueOrThrow({
     where: {
       handle
     },
     include: {
-      organisation: {
+      parent: {
         include: {
-          organisation: true
+          parent: true
         }
       },
       game: true,
@@ -129,9 +129,9 @@ export default function() {
     });
   }
 
-  const orgHeaderProps = (team.organisation && team.organisation.organisation) ? {
-    parentLink: `/detail/${entityToPathSegment('ORG')}/${team.organisation.organisation.handle}`,
-    parentName: team.organisation.organisation.name
+  const orgHeaderProps = (team.parent && team.parent.parent) ? {
+    parentLink: `/detail/${entityToPathSegment('ORGANISATION')}/${team.parent.parent.handle}`,
+    parentName: team.parent.parent.name
   } : {};
 
   return <div className="mx-3 py-7">
@@ -141,7 +141,7 @@ export default function() {
                       {...orgHeaderProps}
                       imagePath={team.image}
                       entitySocials={team.socials}
-                      games={[team.game]}
+                      games={team.game ? [team.game] : undefined}
                       isActive={team.is_active}
                       showApply={showApply}
                       onApply={handleActionClick}/>

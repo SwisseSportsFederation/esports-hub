@@ -26,8 +26,8 @@ enum SocialPlatform {
 enum RequestStatus {
   ACCEPTED
   PENDING_USER
-  PENDING_TEAM
-  PENDING_ORG
+  PENDING_GROUP
+  PENDING_PARENT_GROUP
 }
 
 enum VerificationLevel {
@@ -42,7 +42,145 @@ enum AccessRight {
   ADMINISTRATOR
 }
 
+enum EntityType {
+  USER
+  TEAM
+  ORGANISATION
+}
+
 // models
+
+model Group {
+  id                 BigInt            @id @default(autoincrement())
+  name               String
+  handle             String            @unique
+  description        String
+  founded            DateTime?
+  image              String?
+  street             String?
+  zip                String?
+  canton_id          BigInt?
+  game_id            BigInt?
+  verification_level VerificationLevel @default(NOT_VERIFIED)
+  group_type         EntityType        @default(TEAM)
+  is_active          Boolean           @default(true)
+  canton             Canton?           @relation(fields: [canton_id], references: [id])
+  game               Game?             @relation(fields: [game_id], references: [id])
+  languages          Language[]
+  members            GroupMember[]
+  parent             GroupToGroup?     @relation("GroupToGroup_child")
+  children           GroupToGroup[]    @relation("GroupToGroup_parent")
+  socials            Social[]
+
+  @@map("group")
+}
+
+model GroupToGroup {
+  child_id       BigInt        @unique
+  parent_id      BigInt
+  request_status RequestStatus
+  parent         Group         @relation("GroupToGroup_parent", fields: [parent_id], references: [id], onDelete: Cascade)
+  child          Group         @relation("GroupToGroup_child", fields: [child_id], references: [id], onDelete: Cascade)
+
+  @@id([child_id, parent_id])
+  @@map("group_to_group")
+}
+
+model GroupMember {
+  user_id        BigInt
+  group_id       BigInt
+  is_main_group  Boolean
+  joined_at      DateTime      @db.Timestamptz(6)
+  role           String
+  request_status RequestStatus
+  access_rights  AccessRight
+  group          Group         @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, group_id])
+  @@map("group_member")
+}
+
+model FormerTeam {
+  id      BigInt   @id @default(autoincrement())
+  user_id BigInt
+  name    String
+  from    DateTime @db.Timestamptz(6)
+  to      DateTime @db.Timestamptz(6)
+  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, name], map: "userID_name")
+  @@map("former_team")
+}
+
+model User {
+  id                 BigInt            @id @default(autoincrement())
+  auth_id            String?           @unique(map: "idx_users_auth_id")
+  email              String
+  handle             String            @unique
+  name               String
+  surname            String
+  birth_date         DateTime?         @db.Timestamptz(6)
+  description        String
+  image              String?
+  canton_id          BigInt?
+  verification_level VerificationLevel @default(NOT_VERIFIED)
+  is_active          Boolean           @default(true)
+  canton             Canton?           @relation(fields: [canton_id], references: [id])
+  former_teams       FormerTeam[]
+  groups             GroupMember[]
+  games              Game[]
+  languages          Language[]
+  socials            Social[]
+  is_superadmin      Boolean?          @default(false)
+
+  @@map("user")
+}
+
+model Canton {
+  id     BigInt  @id @default(autoincrement())
+  name   String
+  groups Group[]
+  users  User[]
+
+  @@index([name], map: "idx_cantons_name")
+  @@map("canton")
+}
+
+model Language {
+  id     BigInt  @id @default(autoincrement())
+  name   String
+  groups Group[]
+  users  User[]
+
+  @@index([name], map: "idx_languages_name")
+  @@map("language")
+}
+
+model Game {
+  id        BigInt  @id @default(autoincrement())
+  name      String
+  groups    Group[]
+  users     User[]
+  is_active Boolean @default(false)
+
+  @@index([name], map: "idx_games_name")
+  @@map("game")
+}
+
+model Social {
+  id       BigInt         @id @default(autoincrement())
+  name     String
+  platform SocialPlatform
+  group    Group?         @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user     User?          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  group_id BigInt?
+  user_id  BigInt?
+
+  @@map("social")
+}
+
+// not used
 
 model Organisation {
   id                 BigInt               @id @default(autoincrement())
@@ -56,11 +194,11 @@ model Organisation {
   canton_id          BigInt?
   verification_level VerificationLevel    @default(NOT_VERIFIED)
   is_active          Boolean              @default(true)
-  canton             Canton?              @relation(fields: [canton_id], references: [id])
-  languages          Language[]
+  //canton             Canton?              @relation(fields: [canton_id], references: [id])
+  //languages          Language[]
   members            OrganisationMember[]
   teams              OrganisationTeam[]
-  socials            Social[]
+  //socials            Social[]
 
   @@map("organisation")
 }
@@ -74,41 +212,41 @@ model OrganisationMember {
   request_status       RequestStatus
   access_rights        AccessRight
   organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
-  user                 User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  //user                 User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, organisation_id])
   @@map("organisation_member")
 }
 
 model OrganisationTeam {
-  team_id              BigInt
-  organisation_id      BigInt
-  request_status       RequestStatus
-  organisation         Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
-  team                 Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
+  team_id         BigInt
+  organisation_id BigInt
+  request_status  RequestStatus
+  organisation    Organisation  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
+  team            Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
 
   @@id([team_id, organisation_id])
   @@map("organisation_team")
 }
 
 model Team {
-  id                 BigInt            @id @default(autoincrement())
+  id                 BigInt             @id @default(autoincrement())
   name               String
-  handle             String            @unique
+  handle             String             @unique
   description        String
   image              String?
   founded            DateTime?
   canton_id          BigInt?
   game_id            BigInt
   organisation_id    BigInt?
-  verification_level VerificationLevel @default(NOT_VERIFIED)
-  is_active          Boolean           @default(true)
-  canton             Canton?           @relation(fields: [canton_id], references: [id])
-  game               Game              @relation(fields: [game_id], references: [id])
+  verification_level VerificationLevel  @default(NOT_VERIFIED)
+  is_active          Boolean            @default(true)
+  //canton             Canton?           @relation(fields: [canton_id], references: [id])
+  //game               Game              @relation(fields: [game_id], references: [id])
   organisation       OrganisationTeam[]
-  languages          Language[]
+  //languages          Language[]
   members            TeamMember[]
-  socials            Social[]
+  //socials            Social[]
 
   @@map("team")
 }
@@ -122,92 +260,8 @@ model TeamMember {
   request_status RequestStatus
   access_rights  AccessRight
   team           Team          @relation(fields: [team_id], references: [id], onDelete: Cascade)
-  user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  //user           User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([user_id, team_id])
   @@map("team_member")
-}
-
-model FormerTeam {
-  id      BigInt    @id @default(autoincrement())
-  user_id BigInt
-  name    String
-  from    DateTime  @db.Timestamptz(6)
-  to      DateTime  @db.Timestamptz(6)
-  user    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, name], map: "userID_name")
-  @@map("former_team")
-}
-
-model User {
-  id                 BigInt               @id @default(autoincrement())
-  auth_id            String?              @unique(map: "idx_users_auth_id")
-  email              String
-  handle             String               @unique
-  name               String
-  surname            String
-  birth_date         DateTime?            @db.Timestamptz(6)
-  description        String
-  image              String?
-  canton_id          BigInt?
-  verification_level VerificationLevel    @default(NOT_VERIFIED)
-  is_active          Boolean              @default(true)
-  canton             Canton?              @relation(fields: [canton_id], references: [id])
-  former_teams       FormerTeam[]
-  organisations      OrganisationMember[]
-  teams              TeamMember[]
-  games              Game[]
-  languages          Language[]
-  socials            Social[]
-  is_superadmin      Boolean?             @default(false)
-
-  @@map("user")
-}
-
-model Canton {
-  id            BigInt         @id @default(autoincrement())
-  name          String
-  organisations Organisation[]
-  teams         Team[]
-  users         User[]
-
-  @@index([name], map: "idx_cantons_name")
-  @@map("canton")
-}
-
-model Language {
-  id            BigInt         @id @default(autoincrement())
-  name          String
-  organisations Organisation[]
-  teams         Team[]
-  users         User[]
-
-  @@index([name], map: "idx_languages_name")
-  @@map("language")
-}
-
-model Game {
-  id    BigInt @id @default(autoincrement())
-  name  String
-  teams Team[]
-  users User[]
-  is_active Boolean             @default(false)
-
-  @@index([name], map: "idx_games_name")
-  @@map("game")
-}
-
-model Social {
-  id              BigInt         @id @default(autoincrement())
-  name            String
-  platform        SocialPlatform
-  organisation    Organisation?  @relation(fields: [organisation_id], references: [id], onDelete: Cascade)
-  team            Team?          @relation(fields: [team_id], references: [id], onDelete: Cascade)
-  user            User?          @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  organisation_id BigInt?
-  team_id         BigInt?
-  user_id         BigInt?
-
-  @@map("social")
 }

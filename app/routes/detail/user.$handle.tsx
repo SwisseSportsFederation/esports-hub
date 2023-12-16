@@ -5,7 +5,7 @@ import { getOrganisationTeasers } from "~/utils/teaserHelper";
 import TeaserList from "~/components/Teaser/TeaserList";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { RequestStatus, Prisma } from "@prisma/client";
+import { RequestStatus, Prisma, EntityType } from "@prisma/client";
 import TeamHistory from "~/components/Blocks/TeamHistory";
 import { zx } from "zodix";
 import { z } from "zod";
@@ -30,21 +30,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
       },
       canton: true,
       languages: true,
-      organisations: {
-        where: {
-          request_status: RequestStatus.ACCEPTED
-        },
-        include: { organisation: { include: { teams: { include: { team: { include: { game: true } } } } } } }
-      },
-      teams: {
+      groups: {
         where: {
           request_status: {
             equals: RequestStatus.ACCEPTED
           }
-        },
-        include: {
-          team: true
-        }
+        },        
+        include: { group: { include: { children: { include: { child: { include: { game: true } } } } } } }
       }
     }
   }).catch((e) => {
@@ -69,9 +61,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const { former_teams: formerTeams } = user;
 
-  const organisations = user.organisations.map((mem) => mem.organisation);
-  const teamMemberships = user.teams;
-  const organisationTeasers = getOrganisationTeasers(organisations);
+  const groups = user.groups.map((mem) => mem.group);
+  const teamMemberships = user.groups.filter(group => group.group.group_type === EntityType.TEAM);
+  const organisationTeasers = getOrganisationTeasers(groups.filter(group => group.group_type === EntityType.ORGANISATION));
   return json({
     user,
     teamMemberships,

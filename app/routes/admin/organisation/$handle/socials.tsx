@@ -18,7 +18,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const socials = await db.social.findMany({
     where: {
-      organisation: {
+      group: {
         handle
       }
     },
@@ -39,7 +39,7 @@ export default function() {
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
       <H1Nav path={'..'} title='Socials'/>
-      <SocialSelect id={Number(organisation.id)} entityType='ORG' socials={socials}/>
+      <SocialSelect id={Number(organisation.id)} entityType='ORGANISATION' socials={socials}/>
     </div>
   </div>;
 };

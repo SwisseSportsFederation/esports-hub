@@ -23,12 +23,12 @@ const deleteAction = async (request: Request) => {
   const { entityId, entity, imageId } = await zx.parseForm(request, {
     entityId: zx.NumAsString,
     imageId: z.string(),
-    entity: z.enum(["USER", "TEAM", "ORG"])
+    entity: z.enum(["USER", "TEAM", "ORGANISATION"])
   });
 
   const user = await checkUserAuth(request);
   if (entity !== 'USER') {
-    await checkIdAccessForEntity(user.db.id, entityId, entity, 'ADMINISTRATOR');
+    await checkIdAccessForEntity(user.db.id, entityId, 'ADMINISTRATOR');
   }
   try {
     const checkQuery = {
@@ -39,10 +39,8 @@ const deleteAction = async (request: Request) => {
     let result;
     if (entity === 'USER') {
       result = await db.user.findFirstOrThrow(checkQuery);
-    } else if (entity === 'TEAM') {
-      result = await db.team.findFirstOrThrow(checkQuery);
-    } else if (entity === 'ORG') {
-      result = await db.organisation.findFirstOrThrow(checkQuery);
+    } else {
+      result = await db.group.findFirstOrThrow(checkQuery);
     }
 
     if (result?.image === null || result?.image !== imageId) {
@@ -60,10 +58,8 @@ const deleteAction = async (request: Request) => {
     };
     if (entity === 'USER') {
       await db.user.update(updateQuery)
-    } else if (entity === 'TEAM') {
-      await db.team.update(updateQuery)
-    } else if (entity === 'ORG') {
-      await db.organisation.update(updateQuery)
+    } else {
+      await db.group.update(updateQuery)
     }
 
 
@@ -80,12 +76,12 @@ const putAction = async (request: Request) => {
   const { entityId, entity, crop } = await zx.parseForm(request, {
     entityId: zx.NumAsString,
     crop: z.string(),
-    entity: z.enum(["USER", "TEAM", "ORG"])
+    entity: z.enum(["USER", "TEAM", "ORGANISATION"])
   });
   const cropData = JSON.parse(crop);
   const user = await checkUserAuth(request);
   if (entity !== 'USER') {
-    await checkIdAccessForEntity(user.db.id, entityId, entity, 'ADMINISTRATOR');
+    await checkIdAccessForEntity(user.db.id, entityId, 'ADMINISTRATOR');
   }
   try {
     const existingImageQuery = {
@@ -99,10 +95,8 @@ const putAction = async (request: Request) => {
     let image: { image: StringOrNull } = { image: null };
     if (entity === 'USER') {
       image = await db.user.findFirstOrThrow(existingImageQuery)
-    } else if (entity === 'TEAM') {
-      image = await db.team.findFirstOrThrow(existingImageQuery)
-    } else if (entity === 'ORG') {
-      image = await db.organisation.findFirstOrThrow(existingImageQuery)
+    } else {
+      image = await db.group.findFirstOrThrow(existingImageQuery)
     }
 
     await deleteImage(image.image);
@@ -119,10 +113,8 @@ const putAction = async (request: Request) => {
 
     if (entity === 'USER') {
       await db.user.update(query)
-    } else if (entity === 'TEAM') {
-      await db.team.update(query)
-    } else if (entity === 'ORG') {
-      await db.organisation.update(query)
+    } else {
+      await db.group.update(query)
     }
   } catch (error) {
     console.log(error);

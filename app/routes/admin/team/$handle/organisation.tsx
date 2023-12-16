@@ -7,7 +7,7 @@ import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import { AccessRight, OrganisationTeam, RequestStatus } from "@prisma/client";
+import { AccessRight, GroupToGroup, OrganisationTeam, RequestStatus } from "@prisma/client";
 import { getOrganisationTeamTeasers } from "~/utils/teaserHelper";
 import ActionButton from "~/components/Button/ActionButton";
 import H1 from "~/components/Titles/H1";
@@ -24,17 +24,17 @@ import { createFlashMessage } from "~/services/toast.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'ADMINISTRATOR');
+  await checkHandleAccessForEntity(user.db.id, params.handle, 'ADMINISTRATOR');
   const data = await zx.parseForm(request, 
     z.object({ teamId: zx.NumAsString, orgId: zx.NumAsString })
   );
 
   const { teamId, orgId } = data;
-  await db.organisationTeam.delete({
+  await db.groupToGroup.delete({
     where: {
-      team_id_organisation_id: {
-        team_id: teamId,
-        organisation_id: orgId
+      child_id_parent_id: {
+        child_id: teamId,
+        parent_id: orgId
       }
     }
   });
@@ -47,22 +47,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     handle: z.string()
   })
   const user = await checkUserAuth(request);
-  const access = await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'MODERATOR');
+  const access = await checkHandleAccessForEntity(user.db.id, params.handle, 'MODERATOR');
 
-  const allOrgs = await db.organisationTeam.findMany({
+  const allOrgs = await db.groupToGroup.findMany({
     where: {
-      team: {
+      child: {
         handle
       }
     },
     include: {
-      organisation: { include: { teams: { include: { team: { include: { game: true }}}}}},
-      team: true
+      parent: { include: { children: { include: { child: { include: { game: true }}}}}},
+      child: true
     }
   });
   const orgTeams = allOrgs.filter(org => org.request_status === RequestStatus.ACCEPTED);
-  const invited = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_TEAM);
-  const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_ORG);
+  const invited = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_GROUP);
+  const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_PARENT_GROUP);
 
   return json({
     access,
@@ -75,7 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 const addInvitationIcons = (access: AccessRight, teaser: ITeaserProps, teamId: string, isInOrg: boolean) => {
   if(access === "ADMINISTRATOR") {
     const fetcher = useFetcher();
-    return <fetcher.Form method='post' action={'/admin/api/team/organisation/invitation'} encType='multipart/form-data' className="flex space-x-2">
+    return <fetcher.Form method='post' action={'/admin/api/group/parent/invitation'} encType='multipart/form-data' className="flex space-x-2">
       <input type='hidden' name='entityId' value={teamId}/>
       <input type='hidden' name='orgId' value={teaser.id}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT' disabled={isInOrg}/>
@@ -85,9 +85,9 @@ const addInvitationIcons = (access: AccessRight, teaser: ITeaserProps, teamId: s
   return null;
 };
 
-const addDeleteIcon = (access: AccessRight, orgTeam: OrganisationTeam, setDeleteModalOpen: Function) => {
+const addDeleteIcon = (access: AccessRight, orgTeam: GroupToGroup, setDeleteModalOpen: Function) => {
   if(access === "ADMINISTRATOR") {
-    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.organisation_id)}/>;
+    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.parent_id)}/>;
   }
   return null;
 }
@@ -109,8 +109,8 @@ export default function() {
         }
         {
           orgTeams.map(orgTeam => {
-            return <Teaser key={orgTeam.organisation_id} avatarPath={orgTeam.organisation.image} name={orgTeam.organisation.name}
-                            team={orgTeam.organisation.handle}
+            return <Teaser key={orgTeam.parent_id} avatarPath={orgTeam.parent.image} name={orgTeam.parent.name}
+                            team={orgTeam.parent.handle}
                             games={[team.game]} 
                             icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)}/>
           })

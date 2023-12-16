@@ -48,9 +48,9 @@ export const action = async ({ request }: ActionArgs) => {
 
   const user = await checkUserAuth(request);
 
-  await checkHandleAccessForEntity(user.db.id, oldHandle, 'ORG', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
 
-  await db.organisation.update({
+  await db.group.update({
     where: {
       id: Number(id)
     },
@@ -94,7 +94,7 @@ export async function loader() {
 export default function() {
   const { searchParams } = useLoaderData<typeof loader>();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
-  return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORG'
+  return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORGANISATION'
                             entityBirthday={organisation.founded} imageId={organisation.image}
                             searchParams={searchParams}/>;
 }

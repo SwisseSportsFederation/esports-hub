@@ -1,9 +1,9 @@
 import { db } from "~/services/db.server";
-import { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 
 export type StringOrNull = string | null;
 
-type EntityQuery = {
+export type EntityQuery = {
   id: bigint,
   image: StringOrNull,
   handle: string,
@@ -19,10 +19,10 @@ const excludeAllText = (text: string | undefined): string => {
   return '%'
 }
 
-const typeCheck = (type: string | undefined, wantedType: string): number => {
+const typeCheck = (type: string | undefined, wantedType: string): boolean => {
   if(type === undefined)
-    return 1
-  return (type === wantedType || type === 'All') ? 1 : 0;
+    return true
+  return (type === wantedType || type === 'All') ? true : false;
 }
 
 const searchQuery = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): Promise<EntityQuery[]> => {
@@ -30,9 +30,9 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
   const gameString = `${excludeAllText(game)}`;
   const cantonString = `${excludeAllText(canton)}`;
   const langString = `${excludeAllText(language)}`;
-  let showUser = typeCheck(type, 'User');
-  let showTeam = typeCheck(type, 'Team');
-  let showOrg = typeCheck(type, 'Organisation');
+  let showUser = typeCheck(type, 'User') ? 1 : 0;
+  let showTeam = typeCheck(type, 'Team') ? 'TEAM' : '';
+  let showOrg = typeCheck(type, 'Organisation') ? 'ORGANISATION' : '';
   return db.$queryRaw<EntityQuery[]>`
   -- *********************************
   -- ENTITY 
@@ -53,7 +53,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               usr.handle           AS handle,
               usr.image            AS image,
               array_agg(DISTINCT gam.name)  AS games,    -- ARRAY ARGUMENTS
-              tea1.name             AS team,
+              gro1.name             AS team,
               'USER'               AS entity_type
          FROM
               "user" usr 
@@ -91,20 +91,20 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
           ON ltu."A" = lang1.id
           AND lang1.name LIKE ${langString}
               --
-              -- team_member
+              -- group_member
               --
         LEFT OUTER JOIN
-              "team_member" tem 
-           ON usr.id = tem.user_id 
-           AND tem.is_main_team = true
-           AND tem.request_status = 'ACCEPTED'
+              "group_member" grm1
+           ON usr.id = grm1.user_id 
+           AND grm1.is_main_group = true
+           AND grm1.request_status = 'ACCEPTED'
               --
-              -- team
+              -- group
               --
         LEFT OUTER JOIN
-              "team" tea1 
-           ON tea1.id = tem.team_id
-           AND tea1.is_active = TRUE
+              "group" gro1
+           ON gro1.id = grm1.group_id
+           AND gro1.is_active = TRUE
               --
               -- WHERE 
               --      
@@ -128,134 +128,72 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
              -- ---------------------------------
        UNION ALL
              -- *********************************
-             -- TEAM
+             -- GROUP
              -- *********************************
         SELECT
-              tea.id              AS id,
-              tea.handle          AS handle,
-              tea.image           AS image,
+              gro2.id              AS id,
+              gro2.handle          AS handle,
+              gro2.image           AS image,
               array_agg(DISTINCT gam2.name) AS games,    -- ARRAY ARGUMENTS
               ''                  AS team,
-              'TEAM'              AS entity_type 
+              gro2.group_type     AS entity_type 
          FROM
-              "team" tea
+              "group" gro2
               --
               -- game
               --
+        LEFT OUTER JOIN
+              "group_to_group" gtg 
+              ON gro2.id = gtg.parent_id
+        LEFT OUTER JOIN
+              "group" child
+              ON gtg.child_id = child.id
         INNER JOIN
               "game" gam2
-           ON tea.game_id = gam2.id
+           ON (gro2.game_id = gam2.id
+           OR child.game_id = gam2.id)
            AND gam2.name LIKE ${gameString}
               --
               -- canton
               --
         INNER JOIN
               "canton" can2
-          ON tea.canton_id = can2.id
+          ON gro2.canton_id = can2.id
           AND can2.name LIKE ${cantonString}
               --
-              -- _LanguageToTeam
+              -- _GroupToLanguage
               --
         LEFT OUTER JOIN
-              "_LanguageToTeam" ltt
-          ON tea.id = ltt."B"
+              "_GroupToLanguage" ltg
+          ON gro2.id = ltg."A"
               --
               -- language
               --
         INNER JOIN
               "language" lang2
-          ON ltt."A" = lang2.id
+          ON ltg."B" = lang2.id
           AND lang2.name LIKE ${langString}
               --
               -- WHERE
               --
         WHERE
-            1 = ${showTeam}
+            (gro2.group_type::text = ${showTeam}
+            OR 
+            gro2.group_type::text = ${showOrg})
         AND
-            tea.is_active = TRUE
+            gro2.is_active = TRUE
         AND
-            LOWER(tea.handle) LIKE ${searchString}
+            LOWER(gro2.handle) LIKE ${searchString}
               --
               --   GROUP BY
               --
         GROUP BY
               1,
               2,
-              3
-             -- ---------------------------------
-             -- UNION ALL
-             -- ---------------------------------
-       UNION ALL
-             -- *********************************
-             -- ORGANISATION
-             -- *********************************  
-        SELECT
-              org.id              AS id,
-              org.handle          AS handle,
-              org.image           AS image,
-              array_agg(DISTINCT gam3.name) AS games,    -- ARRAY ARGUMENTS
-              ''                  AS team,
-              'ORG'               AS entity_type 
-         FROM
-              "organisation" AS org 
-        --
-        -- canton
-        --
-        INNER JOIN
-              "canton" can3
-           ON org.canton_id = can3.id
-           AND can3.name LIKE ${cantonString}
-        --
-        -- organisation_team
-        -- 
-        LEFT OUTER JOIN
-              "organisation_team" ogt 
-           ON org.id = ogt.organisation_id 
-           AND ogt.request_status = 'ACCEPTED'
-          --
-          -- team
-          --
-       LEFT OUTER JOIN
-             "team" tea2
-          ON ogt.team_id = tea2.id
-          AND tea2.is_active = TRUE
-         --
-         -- game
-         --
-       LEFT OUTER JOIN
-             "game" gam3
-          ON tea2.game_id = gam3.id
-        --
-        -- _LanguageToOrg
-        --
-        INNER JOIN
-              "_LanguageToOrganisation" lto
-          ON org.id = lto."B"
-        --
-        -- language
-        --
-        INNER JOIN
-              "language" lang3
-          ON lto."A" = lang3.id
-          AND lang3.name LIKE ${langString}
-         --
-         -- WHERE
-         --
-        WHERE
-            1 = ${showOrg}
-        AND
-            org.is_active = TRUE
-        AND
-            LOWER(org.handle) LIKE ${searchString}
-        AND
-            ((gam3.name IS NULL AND ${gameString} = '%') OR (gam3.name IS NOT NULL AND gam3.name LIKE ${gameString}))
-         --
-         -- GROUP BY
-         --
-       GROUP BY
-            1,
-            2,
-            3
+              3,
+              -- 4, ignore games
+              -- 5, ignore team
+              6
         ) AS ent
     ORDER BY ent.handle
     LIMIT 15

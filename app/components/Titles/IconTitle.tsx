@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import type { IconType } from "../Icons";
 import Icon from "../Icons";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 
 interface IIconTitleProps {
   type: EntityType
@@ -10,7 +10,7 @@ interface IIconTitleProps {
 
 const IconTitle = ({ type, children, className = '' }: PropsWithChildren<PropsWithClassName<IIconTitleProps>>) => {
 
-  const icon: IconType = type == 'USER' ? "user" : type === 'ORG' ? 'organisation' : 'team';
+  const icon: IconType = type == 'USER' ? "user" : type === 'ORGANISATION' ? 'organisation' : 'team';
   return (
     <>
       <h1 className={`font-bold text-2xl ${className} mb-5`}>

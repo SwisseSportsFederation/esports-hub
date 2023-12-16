@@ -34,9 +34,9 @@ export const action = async ({ request }: ActionArgs) => {
   });
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
   const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, oldHandle, 'TEAM', 'MODERATOR');
+  await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
 
-  await db.team.update({
+  await db.group.update({
     where: {
       id: Number(id)
     },

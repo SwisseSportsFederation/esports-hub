@@ -1,17 +1,16 @@
-import { AccessRight, RequestStatus } from "@prisma/client";
+import { EntityType, RequestStatus } from "@prisma/client";
 import { json } from "@remix-run/node";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { Form, useActionData, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
+import { useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useEffect, useState } from "react";
-import { z } from "zod";
-import { zx } from "zodix";
 import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
 import DateInput from "~/components/Forms/DateInput";
 import TextInput from "~/components/Forms/TextInput";
 import Icons from "~/components/Icons";
+import SelectNewAdminModal from "~/components/Modals/SelectNewAdminModal";
 import Modal from "~/components/Notifications/Modal";
 import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
@@ -23,7 +22,7 @@ import type { loader as adminLoader } from "~/routes/admin";
 import type { Membership } from "~/services/admin/index.server";
 import { db } from "~/services/db.server";
 import dateInputStyles from "~/styles/date-input.css";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { checkUserAuth } from "~/utils/auth.server";
 
 export function links() {
   return [
@@ -31,236 +30,9 @@ export function links() {
   ];
 }
 
-const promoteUser = async (userId: number, newAdminUserId: string, teamId: number) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
-  await checkIdAccessForEntity(newAdminUserId, teamId, 'TEAM', 'MEMBER');
-
-  await db.teamMember.update({
-    where: {
-      user_id_team_id: {
-        user_id: Number(newAdminUserId),
-        team_id: teamId
-      }
-    },
-    data: {
-      access_rights: AccessRight.ADMINISTRATOR
-    }
-  });
-  // potentially send email
-}
-const leaveTeam = async (userId: number, teamId: number) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
-
-  const team = await db.team.findFirst({
-    where: {
-      id: teamId
-    },
-    include: {
-      members: true
-    }
-  });
-  // Set Team inactive if there is no more members
-  if(team?.members.length === 1) {
-    await db.team.update({
-      where: {
-        id: teamId
-      },
-      data: {
-        is_active: false
-      }
-    });
-  } else {
-    // Set new admin if member is last admin
-    const admins = team?.members.filter(m => m.request_status === RequestStatus.ACCEPTED && m.access_rights === AccessRight.ADMINISTRATOR);
-    if(admins?.length === 1 && admins[0].user_id === BigInt(userId)) {
-      return json({ selectAdminTeamId: teamId })
-    }
-  }
-  // delete member from team
-  const teamMember = await db.teamMember.delete({
-    where: {
-      user_id_team_id: {
-        user_id: userId,
-        team_id: teamId
-      }
-    }
-  });
-  if(team) {
-    await db.formerTeam.create({
-      data: {
-        user_id: userId,
-        name: team.name,
-        from: teamMember.joined_at,
-        to: new Date(),
-      }
-    });
-  }
-  return json({});
-}
-
-const updateTeam = async (userId: number, teamId: number, joinedAt: string) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
-  await db.teamMember.update({
-    where: {
-      user_id_team_id: {
-        user_id: userId,
-        team_id: teamId
-      }
-    },
-    data: {
-      ...(joinedAt && ({ joined_at: new Date(joinedAt) })),
-    }
-  });
-  return json({});
-}
-
-const changeMainTeam = async (userId: number, teamId: number) => {
-  await checkIdAccessForEntity(userId.toString(), teamId, 'TEAM', 'MEMBER');
-  await db.teamMember.updateMany({
-    where: {
-      user_id: userId
-    },
-    data: {
-      is_main_team: false
-    }
-  });
-  await db.teamMember.update({
-    where: {
-      user_id_team_id: {
-        user_id: userId,
-        team_id: teamId
-      }
-    },
-    data: {
-      is_main_team: true
-    }
-  });
-  return json({});
-}
-
-const updateFormerTeam = async (userId: number, name: string, from: string, to: string, formerTeamName: string) => {
-  await db.formerTeam.update({
-    where: {
-      user_id_name: {
-        user_id: userId,
-        name: formerTeamName
-      }
-    },
-    data: {
-      name,
-      from: new Date(from),
-      to: new Date(to)
-    }
-  });
-  return json({});
-}
-
-const createFormerTeam = async (userId: number, name: string, from: string, to: string) => {
-  await db.formerTeam.create({
-    data: {
-      user_id: userId,
-      name,
-      from: new Date(from),
-      to: new Date(to)
-    }
-  });
-  return json({});
-}
-
-
-const leaveFormerTeam = async (userId: number, formerTeamName: string) => {
-  await db.formerTeam.delete({
-    where: {
-      user_id_name: {
-        user_id: userId,
-        name: formerTeamName
-      }
-    }
-  });
-  return json({});
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const user = await checkUserAuth(request);
-  const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
-    z.object({
-      intent: z.literal('UPDATE_TEAM'),
-      userId: zx.NumAsString,
-      teamId: zx.NumAsString,
-      joinedAt: z.string()
-    }),
-    z.object({
-      intent: z.literal('PROMOTE_USER'), teamId: zx.NumAsString, userId: zx.NumAsString, newAdminUserId: z.string()
-    }),
-    z.object({ intent: z.literal('LEAVE_TEAM'), teamId: zx.NumAsString, userId: zx.NumAsString }),
-    z.object({
-      intent: z.literal('CHANGE_MAIN_TEAM'),
-      userId: zx.NumAsString,
-      teamId: zx.NumAsString
-    }),
-    z.object({
-      intent: z.literal('UPDATE_FORMER_TEAM'),
-      userId: zx.NumAsString,
-      formerTeamName: z.string(),
-      from: z.string(),
-      to: z.string(),
-      name: z.string()
-    }),
-    z.object({
-      intent: z.literal('CREATE_FORMER_TEAM'),
-      userId: zx.NumAsString,
-      from: z.string(),
-      to: z.string(),
-      name: z.string()
-    }),
-    z.object({
-      intent: z.literal('LEAVE_FORMER_TEAM'),
-      userId: zx.NumAsString,
-      formerTeamName: z.string(),
-    }),
-  ]));
-
-  const { userId } = data;
-  if(userId !== Number(user.db.id)) {
-    throw json({}, 403);
-  }
-
-  switch(data.intent) {
-    case "PROMOTE_USER": {
-      const { newAdminUserId, teamId } = data;
-      promoteUser(userId, newAdminUserId, teamId);
-      // purpose fallthrough
-    }
-    case "LEAVE_TEAM": {
-      const { teamId } = data;
-      return leaveTeam(userId, teamId);
-    }
-    case "UPDATE_TEAM": {
-      const { joinedAt, teamId } = data;
-      return updateTeam(userId, teamId, joinedAt);
-    }
-    case "CHANGE_MAIN_TEAM": {
-      const { teamId } = data;
-      return changeMainTeam(userId, teamId);
-    }
-    case "UPDATE_FORMER_TEAM": {
-      const { name, from, to, formerTeamName } = data;
-      return updateFormerTeam(userId, name, from, to, formerTeamName);
-    }
-    case "CREATE_FORMER_TEAM": {
-      const { name, from, to } = data;
-      return createFormerTeam(userId, name, from, to);
-    }
-    case "LEAVE_FORMER_TEAM": {
-      const { formerTeamName } = data;
-      return leaveFormerTeam(userId, formerTeamName);
-    }
-  }
-}
-
 const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: string, pending: boolean, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.map(invitation => {
-    let icons = <fetcher.Form method='post' action={`/admin/api/team/invitation`} className="flex space-x-2">
+    let icons = <fetcher.Form method='post' action={`/admin/api/invitation`} className="flex space-x-2">
       <input type='hidden' name='entityId' value={`${invitation.id}`}/>
       <input type='hidden' name='userId' value={userId}/>
       <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
@@ -272,7 +44,7 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: s
     }
 
     return {
-      type: 'TEAM',
+      type: EntityType.TEAM,
       id: String(invitation.id),
       handle: invitation.handle,
       avatarPath: invitation.image ?? null,
@@ -299,30 +71,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: string, intent: string, submitName: string, userId: string) =>
+const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: string, intent: string, submitName: string, userId: string, fetcher: FetcherWithComponents<any>) =>
   <Modal isOpen={!!isOpen} handleClose={() => activeFunction(null)}>
     <div className="flex justify-center text-center text-2xl mb-8 text-color">
       {text}
     </div>
-    <Form className='flex justify-between gap-2' method="post" onSubmit={() => activeFunction(null)}>
+    <fetcher.Form method='post' action={`/admin/api/groupMember`} className='flex justify-between gap-2' onSubmit={() => activeFunction(null)}>
       <input type='hidden' name='intent' value={intent}/>
       <input type='hidden' name='userId' value={userId}/>
       {isOpen && <ActionButton content='Yes' type='submit' name={submitName} value={isOpen}/>}
       <ActionButton className='bg-gray-3' content='No' action={() => activeFunction(null)}/>
-    </Form>
+    </fetcher.Form>
   </Modal>;
 
-const mainTeamIcon = (teamId: string, isMainTeam: boolean | null, userId: string) =>
-  <Form method='post' className={isMainTeam ? 'text-yellow-400' : 'text-gray-3'}>
-    <input type='hidden' name='intent' value='CHANGE_MAIN_TEAM'/>
+const mainTeamIcon = (groupId: string, isMainTeam: boolean | null, userId: string, fetcher: FetcherWithComponents<any>) =>
+  <fetcher.Form method='post' action={`/admin/api/groupMember`} className={isMainTeam ? 'text-yellow-400' : 'text-gray-3'}>
+    <input type='hidden' name='intent' value='CHANGE_MAIN_GROUP'/>
     <input type='hidden' name='userId' value={userId}/>
-    <IconButton icon='star' type='submit' name='teamId' value={teamId} className="rounded-none mx-1"/>
-  </Form>;
+    <IconButton icon='star' type='submit' name='groupId' value={groupId} className="rounded-none mx-1"/>
+  </fetcher.Form>;
 
-const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void, userId: string) =>
+const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void, userId: string, fetcher: FetcherWithComponents<any>) =>
   <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
     <H1 className='text-2xl text-color'>Add new Former Team</H1>
-    <Form id="createFormerTeamForm" method='post' onSubmit={() => handleClose(false)}
+    <fetcher.Form method='post' action={`/admin/api/groupMember`} id="createFormerTeamForm" onSubmit={() => handleClose(false)}
           className='flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
       <input type='hidden' name='intent' value='CREATE_FORMER_TEAM'/>
       <input type='hidden' name='userId' value={userId}/>
@@ -333,56 +105,17 @@ const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void,
         <ActionButton content='Create' type='submit'/>
         <ActionButton content='Cancel' action={() => handleClose(false)}/>
       </div>
-    </Form>
-  </Modal>;
-
-const SelectNewAdminModal = (
-  { isOpen, handleClose, teamId, userId }:
-    { isOpen: boolean, handleClose: (value: boolean) => void, teamId: string, userId: string }) => {
-  const fetcher = useFetcher();
-  useEffect(() => {
-    fetcher.submit({ teamId, search: '' }, { method: 'post', action: '/admin/api/team/members' })
-  }, [teamId]);
-  // @ts-ignore
-  const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
-
-  const addAsAdminIcon = (teaser: ITeaserProps) => {
-    return <Form method='post' onSubmit={() => handleClose(false)}>
-      <input type='hidden' name='teamId' value={teamId}/>
-      <input type='hidden' name='newAdminUserId' value={teaser.id}/>
-      <input type='hidden' name='userId' value={userId}/>
-      <input type='hidden' name='intent' value='PROMOTE_USER'/>
-      <IconButton icon='accept' type='submit'/>
-    </Form>
-  }
-  return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <H1 className='text-2xl text-color'>Select new Administrator</H1>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/team/members'}>
-      <input type='hidden' name='teamId' value={teamId}/>
-      <div className="max-w-sm md:max-w-lg">
-        <TextInput id="search" label="Search" searchIcon={true}
-                   buttonType="submit" defaultValue={""}/>
-      </div>
     </fetcher.Form>
-    <TeaserList type='Static' title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
-                iconFactory={addAsAdminIcon}/>
-    {(!fetcher.data || fetcher.data?.members.length === 0) &&
-      <div className='w-full h-40 flex flex-col justify-center items-center'>
-        <Icons iconName='search' className='w-20 h-20 fill-white'/>
-        <H1 className='text-color'>No results</H1>
-      </div>
-    }
-  </Modal>
-};
+  </Modal>;
 
 export default function() {
   const { formerTeams } = useLoaderData<typeof loader>();
-  const actionData = useActionData<{ selectAdminTeamId: StringOrNull }>();
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
+  const teams = memberships.groups.filter(group => group.group_type === EntityType.TEAM);
 
-  const invitedTeams = memberships.teamInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER)
-  const pendingTeams = memberships.teamInvitations.filter(e => e.request_status === RequestStatus.PENDING_TEAM)
+  const invitedTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER && e.group_type === "TEAM")
+  const pendingTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_GROUP && e.group_type === "TEAM")
 
   const invited = getInvitationTeaser(invitedTeams, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingTeams, user.db.id, true, fetcher);
@@ -391,10 +124,10 @@ export default function() {
   const [formerTeamCreateOpen, setFormerTeamCreateOpen] = useState(false);
   const [selectAdminOpen, setSelectAdminOpen] = useState(false);
   useEffect(() => {
-    if(actionData?.selectAdminTeamId) {
+    if(fetcher.data?.selectAdminGroupId) {
       setSelectAdminOpen(true)
     }
-  }, [actionData]);
+  }, [fetcher.data]);
   return <>
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto flex flex-col items-center">
@@ -404,27 +137,27 @@ export default function() {
         <div className='flex flex-col gap-4 w-full mt-8'>
           <H1 className='px-2 mb-1 w-full'>Active</H1>
           {
-            memberships.teams.length === 0 &&
+            teams.length === 0 &&
             <H1 className='text-center text-base'>
               You are currently in no team
             </H1>
           }
           {
-            memberships.teams
+            teams
               .map(member => {
                 return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
                                          team={member.handle}
                                          games={member.game ? [member.game] : []}
-                                         additionalIcons={mainTeamIcon(member.id, member.is_main_team, user.db.id)}>
-                  <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
-                    <input type='hidden' name='intent' value='UPDATE_TEAM'/>
+                                         additionalIcons={mainTeamIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
+                  <fetcher.Form method='post' action={`/admin/api/groupMember`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
+                    <input type='hidden' name='intent' value='UPDATE_GROUP'/>
                     <input type='hidden' name='userId' value={user.db.id}/>
                     <DateInput name='joinedAt' label='Joined at' value={new Date(member.joined_at)}/>
                     <div className='w-full flex flex-row space-x-4 justify-center'>
-                      <ActionButton content='Save' type='submit' name='teamId' value={member.id}/>
+                      <ActionButton content='Save' type='submit' name='groupId' value={member.id}/>
                       <ActionButton content='Leave' action={() => setDeleteModalOpen(member.id)}/>
                     </div>
-                  </Form>
+                  </fetcher.Form>
                 </ExpandableTeaser>
               })
           }
@@ -439,7 +172,7 @@ export default function() {
               return <ExpandableTeaser key={formerTeam.id} avatarPath={null} name={formerTeam.name}
                                        team={""}
                                        games={[]}>
-                <Form method='post' className='p-5 flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
+                <fetcher.Form method='post' action={`/admin/api/groupMember`} className='p-5 flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
                   <input type='hidden' name='intent' value='UPDATE_FORMER_TEAM'/>
                   <input type='hidden' name='userId' value={user.db.id}/>
                   <TextInput id='name' label='Team name' defaultValue={formerTeam.name}/>
@@ -449,17 +182,17 @@ export default function() {
                     <ActionButton content='Save' type='submit' name='formerTeamName' value={formerTeam.name}/>
                     <ActionButton content='Remove' action={() => setDeleteFormerModalOpen(formerTeam.name)}/>
                   </div>
-                </Form>
+                </fetcher.Form>
               </ExpandableTeaser>
             })
           }
         </div>
       </div>
     </div>
-    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the team?', 'LEAVE_TEAM', 'teamId', user.db.id)}
-    {deleteModal(deleteFormerModalOpen, setDeleteFormerModalOpen, 'Do you want to delete the former team?', 'LEAVE_FORMER_TEAM', 'formerTeamName', user.db.id)}
-    {formerTeamModal(formerTeamCreateOpen, setFormerTeamCreateOpen, user.db.id)}
-    {actionData?.selectAdminTeamId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
-                                                           teamId={actionData?.selectAdminTeamId} userId={user.db.id}/>}
+    {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the team?', 'LEAVE_GROUP', 'groupId', user.db.id, fetcher)}
+    {deleteModal(deleteFormerModalOpen, setDeleteFormerModalOpen, 'Do you want to delete the former team?', 'LEAVE_FORMER_TEAM', 'formerTeamName', user.db.id, fetcher)}
+    {formerTeamModal(formerTeamCreateOpen, setFormerTeamCreateOpen, user.db.id, fetcher)}
+    {fetcher.data?.selectAdminGroupId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
+                                                           groupId={fetcher.data?.selectAdminGroupId} userId={user.db.id}/>}
   </>;
 };

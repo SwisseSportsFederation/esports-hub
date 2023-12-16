@@ -1,8 +1,8 @@
 import getCache from "~/services/cache.server";
 import { db } from "~/services/db.server";
-import { searchQuery } from "~/db/queries.server";
+import { searchQuery, EntityQuery } from "~/db/queries.server";
 import type { Game } from "@prisma/client";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 
 export type IdValue = { name: string, id: string };
 

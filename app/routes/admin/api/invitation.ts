@@ -9,44 +9,45 @@ import { RequestStatus } from "@prisma/client";
 export let loader: LoaderFunction = () => redirect("/admin");
 
 export const action: ActionFunction = async ({ request }) => {
-  const { action, entityId: team_id, userId: user_id } = await zx.parseForm(request, {
+  const { action, entityId: group_id, userId: user_id } = await zx.parseForm(request, {
     action: z.enum(['ACCEPT', 'DECLINE']),
     entityId: zx.NumAsString,
     userId: zx.NumAsString
   });
   const user = await checkUserAuth(request);
-  const currentRequestStatus = await db.teamMember.findFirst({
+
+  const currentRequestStatus = await db.groupMember.findFirst({
     where: {
       user_id,
-      team_id
+      group_id
     },
     select: {
       request_status: true
     }
   });
   if(currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
-    await checkIdAccessForEntity(user.db.id, team_id, 'TEAM', 'MODERATOR');
+    await checkIdAccessForEntity(user.db.id, group_id, 'MODERATOR');
   }
-
   try {
     if(action === 'ACCEPT') {
-      await db.teamMember.update({
+      await db.groupMember.update({
         where: {
-          user_id_team_id: {
+          user_id_group_id: {
             user_id,
-            team_id
+            group_id
           }
         },
         data: {
           request_status: 'ACCEPTED'
         }
       });
+
     } else {
-      await db.teamMember.delete({
+      await db.groupMember.delete({
         where: {
-          user_id_team_id: {
+          user_id_group_id: {
             user_id,
-            team_id
+            group_id
           }
         }
       });

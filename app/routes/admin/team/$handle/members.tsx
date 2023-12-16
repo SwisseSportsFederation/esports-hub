@@ -1,105 +1,28 @@
-import H1Nav from "~/components/Titles/H1Nav";
-import type { FetcherWithComponents } from "@remix-run/react";
-import { Form, useFetcher, useLoaderData, useOutletContext, useTransition } from "@remix-run/react";
+import { AccessRight, RequestStatus } from "@prisma/client";
 import { json } from "@remix-run/node";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
-import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
-import { db } from "~/services/db.server";
-import { zx } from "zodix";
-import { z } from "zod";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
-import { AccessRight, Game, RequestStatus, User } from "@prisma/client";
-import { getTeamMemberTeasers } from "~/utils/teaserHelper";
-import ActionButton from "~/components/Button/ActionButton";
-import H1 from "~/components/Titles/H1";
-import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
-import IconButton from "~/components/Button/IconButton";
+import type { FetcherWithComponents } from "@remix-run/react";
+import { Form, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import type { loader as handleLoader } from "~/routes/admin/team/$handle";
-import { useCallback, useEffect, useState } from "react";
-import TeaserList from "~/components/Teaser/TeaserList";
-import Icons from "~/components/Icons";
-import Modal from "~/components/Notifications/Modal";
-import TextInput from "~/components/Forms/TextInput";
+import { useState } from "react";
+import { z } from "zod";
+import { zx } from "zodix";
+import ActionButton from "~/components/Button/ActionButton";
+import IconButton from "~/components/Button/IconButton";
 import RadioButtonGroup from "~/components/Forms/RadioButtonGroup";
-import { createFlashMessage } from "~/services/toast.server";
-
-export async function action({ request, params }: ActionFunctionArgs) {
-  const user = await checkUserAuth(request);
-  await checkHandleAccessForEntity(user.db.id, params.handle, 'TEAM', 'MODERATOR');
-  const data = await zx.parseForm(request, z.discriminatedUnion('intent', [
-    z.object({
-      intent: z.literal('UPDATE_USER'),
-      'user-rights': z.enum(['MODERATOR', 'MEMBER', 'ADMINISTRATOR']),
-      userId: zx.NumAsString,
-      teamId: zx.NumAsString,
-      role: z.string()
-    }),
-    z.object({ intent: z.literal('INVITE_USER'), teamId: zx.NumAsString, userId: zx.NumAsString }),
-    z.object({ intent: z.literal('KICK_USER'), teamId: zx.NumAsString, userId: zx.NumAsString })
-  ]));
-
-  switch(data.intent) {
-    case "INVITE_USER": {
-      const { teamId, userId } = data;
-      try {
-        await db.teamMember.create({
-          data: {
-            joined_at: new Date(),
-            access_rights: AccessRight.MEMBER,
-            user_id: userId,
-            team_id: teamId,
-            request_status: RequestStatus.PENDING_USER,
-            role: '',
-            is_main_team: false
-          }
-        });
-      } catch(error) {
-        console.log(error);
-        throw json({});
-      }
-      const headers = await createFlashMessage(request, 'User invited');
-      return json({}, headers);
-    }
-    case "KICK_USER": {
-      const { teamId, userId } = data;
-      if(userId === Number(user.db.id)) {
-        throw json({}, 403);
-      }
-      await db.teamMember.delete({
-        where: {
-          user_id_team_id: {
-            user_id: userId,
-            team_id: teamId
-          }
-        }
-      });
-      const headers = await createFlashMessage(request, 'User kicked');
-      return json({}, headers);
-    }
-    case "UPDATE_USER": {
-      const { role, 'user-rights': userRights, teamId, userId } = data;
-      if(userId === Number(user.db.id)) {
-        throw json({}, 403);
-      }
-
-      await db.teamMember.update({
-        where: {
-          user_id_team_id: {
-            user_id: userId,
-            team_id: teamId
-          }
-        },
-        data: {
-          role,
-          access_rights: userRights,
-        }
-      });
-      const headers = await createFlashMessage(request, 'User updated');
-      return json({}, headers);
-    }
-  }
-}
+import TextInput from "~/components/Forms/TextInput";
+import Icons from "~/components/Icons";
+import SearchMemberModal from "~/components/Modals/SearchMemberModal";
+import Modal from "~/components/Notifications/Modal";
+import ExpandableTeaser from "~/components/Teaser/ExpandableTeaser";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
+import TeaserList from "~/components/Teaser/TeaserList";
+import H1 from "~/components/Titles/H1";
+import H1Nav from "~/components/Titles/H1Nav";
+import type { loader as handleLoader } from "~/routes/admin/team/$handle";
+import { db } from "~/services/db.server";
+import { checkUserAuth } from "~/utils/auth.server";
+import { getTeamMemberTeasers } from "~/utils/teaserHelper";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = await zx.parseParams(params, {
@@ -107,18 +30,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   })
   const user = await checkUserAuth(request);
 
-  const teamUser = await db.teamMember.findFirstOrThrow({
+  const teamUser = await db.groupMember.findFirstOrThrow({
     where: {
       user_id: Number(user.db.id),
-      team: {
+      group: {
         handle
       }
     }
   });
 
-  const allMembers = await db.teamMember.findMany({
+  const allMembers = await db.groupMember.findMany({
     where: {
-      team: {
+      group: {
         handle
       }
     },
@@ -131,7 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     } } }
   });
   const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
-  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_TEAM);
+  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_GROUP);
   const pending = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_USER);
 
   return json({
@@ -142,69 +65,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 }
 
-const SearchModal = ({
-                       isOpen,
-                       handleClose,
-                       teamId
-                     }: { isOpen: boolean, handleClose: (value: boolean) => void, teamId: string }) => {
-  const fetcher = useFetcher();
-  const transition = useTransition();
-  const manualSearch = useCallback(() => {
-    fetcher.submit({ notInTeam: teamId, search: '' }, { method: 'post', action: '/admin/api/users' });
-  }, []);
-  useEffect(() => {
-    manualSearch()
-  }, [manualSearch]);
-
-  useEffect(() => {
-    if(transition.state === 'loading') {
-      manualSearch();
-    }
-  }, [manualSearch, transition])
-  const addInviteIcons = (teaser: ITeaserProps) => <Form method='post'>
-    <input type='hidden' name='teamId' value={teamId}/>
-    <input type='hidden' name='userId' value={teaser.id}/>
-    <input type='hidden' name='intent' value='INVITE_USER'/>
-    <IconButton icon='add' type='submit'/>
-  </Form>;
-  const convert = (users: (User & { games: Game[] })[]): Omit<ITeaserProps, 'icons'>[] => {
-    return users.map(user => ({
-      id: String(user.id),
-      team: '',
-      name: user.handle,
-      type: 'USER',
-      handle: user.handle,
-      games: user.games,
-      avatarPath: user.image
-    }));
-  };
-  // @ts-ignore
-  const searchTeaser = convert(fetcher.data?.users ?? []);
-  return <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
-    <fetcher.Form method="post" autoComplete={"on"} className='sticky top-0 z-50' action={'/admin/api/users'}>
-      <input type='hidden' name='notInTeam' value={teamId}/>
-      <div className="max-w-sm md:max-w-lg">
-        <TextInput id="search" label="Search" searchIcon={true}
-                   buttonType="submit" defaultValue={""}/>
-      </div>
-    </fetcher.Form>
-    <div className='max-h-[70vh]'>
-      <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
-                  iconFactory={addInviteIcons}/>
-    </div>
-    {searchTeaser.length === 0 &&
-      <div className='w-full h-40 flex flex-col justify-center items-center'>
-        <Icons iconName='search' className='w-20 h-20 fill-white'/>
-        <H1 className='text-color'>No results</H1>
-      </div>
-    }
-  </Modal>
-
-}
-
-const addInvitationIcons = (teaser: ITeaserProps, teamId: string, fetcher: FetcherWithComponents<any>) => {
-  return <fetcher.Form method='post' action={'/admin/api/team/invitation'} encType='multipart/form-data'>
-    <input type='hidden' name='entityId' value={teamId}/>
+const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: FetcherWithComponents<any>) => {
+  return <fetcher.Form method='post' action={'/admin/api/invitation'} encType='multipart/form-data'>
+    <input type='hidden' name='entityId' value={groupId}/>
     <input type='hidden' name='userId' value={teaser.id}/>
     <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
     <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
@@ -231,21 +94,21 @@ export default function() {
         </H1Nav>
         <H1 className='px-4 mb-1 w-full'>Members</H1>
         {
+          // Update Member
           members.map(member => {
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
                                      team={team.handle}
                                      games={member.user.games}
                                      expandable={allowedTypes.some(type => type === member.access_rights) && member.user.id !== teamUser.user_id}>
-              <Form method='post' className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
-                <input type='hidden' name='intent' value='UPDATE_USER'/>
-                <input type='hidden' name='teamId' value={team.id}/>
+              <fetcher.Form method='put' action={'/admin/api/group/members'} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
+                <input type='hidden' name='groupId' value={team.id}/>
                 <TextInput id='role' label='Role' defaultValue={member.role}/>
                 <RadioButtonGroup values={allowedTypes} id={`user-rights`} selected={member.access_rights}/>
                 <div className='w-full flex flex-row space-x-4 justify-center'>
                   <ActionButton content='Save' type='submit' name='userId' value={member.user.id}/>
                   <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)}/>
                 </div>
-              </Form>
+              </fetcher.Form>
             </ExpandableTeaser>
           })
         }
@@ -260,14 +123,13 @@ export default function() {
       <div className="flex justify-center text-center text-2xl mb-8 text-color">
         Remove User from Team?
       </div>
-      <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='intent' value='KICK_USER'/>
-        <input type='hidden' name='teamId' value={team.id}/>
+      <fetcher.Form className='flex justify-between gap-2' method="delete" action={'/admin/api/group/members'} onSubmit={() => setDeleteModalOpen(null)}>
+        <input type='hidden' name='groupId' value={team.id}/>
         {deleteModalOpen && <ActionButton content='Yes' type='submit' name='userId' value={deleteModalOpen}/>}
         <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
-      </Form>
+      </fetcher.Form>
     </Modal>
     {inviteModalOpen &&
-      <SearchModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} teamId={team.id}/>}
+      <SearchMemberModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} groupId={team.id}/>}
   </>;
 };

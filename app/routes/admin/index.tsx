@@ -5,7 +5,7 @@ import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import type { Membership } from "~/services/admin/index.server";
-import type { EntityType } from "~/helpers/entityType";
+import { EntityType } from "@prisma/client";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import classNames from "classnames";
@@ -14,7 +14,7 @@ import type { loader as adminLoader } from "~/routes/admin";
 import { RequestStatus } from "@prisma/client";
 
 const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType): ITeaserProps[] => {
-  return memberships.map((mem: SerializeFrom<Membership>) => {
+  return memberships.filter(mem => mem.group_type === entity).map((mem: SerializeFrom<Membership>) => {
     const pathSegment = entityToPathSegment(entity);
     const canEdit = ['MODERATOR', 'ADMINISTRATOR'].includes(mem.access_rights)
     const icons = canEdit ?
@@ -32,11 +32,10 @@ const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType)
   });
 };
 
-const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], type: EntityType, userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
-  return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER)
+const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], entity: EntityType, userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
+  return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER && invitation.group_type === entity)
     .map(invitation => {
-      const path = entityToPathSegment(type)
-      const icons = <fetcher.Form method='post' action={`/admin/api/${path}/invitation`} className="flex space-x-2">
+      const icons = <fetcher.Form method='post' action={`/admin/api/invitation`} className="flex space-x-2">
         <input type='hidden' name='entityId' value={`${invitation.id}`}/>
         <input type='hidden' name='userId' value={userId}/>
         <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
@@ -44,7 +43,7 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], type: Ent
       </fetcher.Form>;
 
       return {
-        type,
+        type: entity,
         id: String(invitation.id),
         handle: invitation.handle,
         avatarPath: invitation.image ?? null,
@@ -59,11 +58,11 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], type: Ent
 export default function() {
   const { memberships, user } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const fetcher = useFetcher();
-  const teamsTeaser = getTeaser(memberships.teams, 'TEAM');
-  const orgTeaser = getTeaser(memberships.orgs, 'ORG');
+  const teamsTeaser = getTeaser(memberships.groups, 'TEAM');
+  const orgTeaser = getTeaser(memberships.groups, 'ORGANISATION');
 
-  const teamInvitationTeaser = getInvitationTeaser(memberships.teamInvitations, 'TEAM', user.db.id, fetcher);
-  const orgInvitationTeaser = getInvitationTeaser(memberships.orgInvitations, 'ORG', user.db.id, fetcher);
+  const teamInvitationTeaser = getInvitationTeaser(memberships.groupInvitations, 'TEAM', user.db.id, fetcher);
+  const orgInvitationTeaser = getInvitationTeaser(memberships.groupInvitations, 'ORGANISATION', user.db.id, fetcher);
   const invitationsLength = teamInvitationTeaser.length + orgInvitationTeaser.length;
   const addOrgClassNames = classNames({
     'mb-4': invitationsLength > 0,
