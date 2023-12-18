@@ -1,14 +1,13 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { db } from "~/services/db.server";
-import { zx } from 'zodix';
-import type { Prisma} from "@prisma/client";
-import { z } from "zod";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import type { Prisma } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
-import { createFlashMessage } from "~/services/toast.server";
+import type { ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { z } from "zod";
+import { zx } from 'zodix';
 import { AuthUser } from "~/services/auth.server";
-import { Params } from "@remix-run/react";
+import { db } from "~/services/db.server";
+import { createFlashMessage } from "~/services/toast.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const user = await checkUserAuth(request);

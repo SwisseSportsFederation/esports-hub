@@ -1,7 +1,7 @@
-import { Prisma, RequestStatus } from "@prisma/client";
+import { AccessRight, Prisma, RequestStatus } from "@prisma/client";
 import type { ActionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/router";
 import { z } from "zod";
 import { zx } from "zodix";
@@ -15,8 +15,6 @@ import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { isTeamMember } from "~/utils/entityFilters";
 import { getTeamMemberTeasers } from "~/utils/teaserHelper";
-import { AccessRight } from "@prisma/client";
-import { useFetcher } from "@remix-run/react";
 
 export const action = async ({ request, params }: ActionArgs) => {
   /* Apply for Team */
