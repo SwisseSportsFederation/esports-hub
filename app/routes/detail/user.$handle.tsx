@@ -16,29 +16,50 @@ export async function loader({ params }: LoaderFunctionArgs) {
     handle: z.string()
   });
 
+  const select = {
+    id: true,
+    handle: true,
+    name: true,
+    surname: true,
+    description: true,
+    image: true,
+    verification_level: true,
+    is_active: true,
+    former_teams: true,
+    socials: true,
+    games: {
+      where: {
+        is_active: true
+      }
+    },
+    canton: true,
+    languages: true,
+    groups: {
+      where: {
+        request_status: {
+          equals: RequestStatus.ACCEPTED
+        }
+      },
+      select: {
+        group: {
+          select: {
+            id: true,
+            name: true,
+            group_type: true,
+            handle: true,
+            image: true,
+            children: { select: { child: { select: { game: true } } } }
+          }
+        }
+      }
+    },
+  }
+
   const user = await db.user.findUniqueOrThrow({
     where: {
       handle
     },
-    include: {
-      former_teams: true,
-      socials: true,
-      games: {
-        where: {
-          is_active: true,
-        },
-      },
-      canton: true,
-      languages: true,
-      groups: {
-        where: {
-          request_status: {
-            equals: RequestStatus.ACCEPTED
-          }
-        },        
-        include: { group: { include: { children: { include: { child: { include: { game: true } } } } } } }
-      }
-    }
+    select: select,
   }).catch((e) => {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === 'P2015') {
