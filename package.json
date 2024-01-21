@@ -1,6 +1,7 @@
 {
   "private": true,
   "sideEffects": false,
+  "type": "module",
   "scripts": {
     "build": "remix build",
     "dev": "remix dev --manual",
@@ -35,7 +36,6 @@
     "@remix-run/dev": "2.5.1",
     "@remix-run/eslint-config": "2.5.1",
     "@remix-run/serve": "2.5.1",
-    "@remix-run/v1-route-convention": "^0.1.4",
     "@types/auth0": "^2.35.8",
     "@types/react": "^18.0.25",
     "@types/react-calendar": "^3.9.0",
@@ -49,7 +49,7 @@
     "vercel": "^28.10.1"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "prisma": {
     "seed": "node --require esbuild-register prisma/seed.ts"
