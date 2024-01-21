@@ -5,6 +5,7 @@
   "scripts": {
     "build": "remix build",
     "dev": "remix dev --manual",
+    "start": "remix-serve ./build/index.js",
     "typecheck": "tsc -b"
   },
   "dependencies": {
@@ -12,7 +13,8 @@
     "@prisma/client": "^4.8.0",
     "@remix-run/node": "2.5.1",
     "@remix-run/react": "2.5.1",
-    "@remix-run/server-runtime": "2.5.1",
+    "@remix-run/serve": "^2.5.1",
+    "@vercel/analytics": "^1.1.2",
     "@vercel/remix": "^2.5.1",
     "auth0": "^3.0.1",
     "buffer-image-size": "^0.6.4",
@@ -35,7 +37,6 @@
     "@faker-js/faker": "^7.6.0",
     "@remix-run/dev": "2.5.1",
     "@remix-run/eslint-config": "2.5.1",
-    "@remix-run/serve": "2.5.1",
     "@types/auth0": "^2.35.8",
     "@types/react": "^18.0.25",
     "@types/react-calendar": "^3.9.0",
