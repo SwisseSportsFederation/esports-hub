@@ -9,12 +9,12 @@ import { zx } from 'zodix';
 import { z } from "zod";
 import ActionButton from "~/components/Button/ActionButton";
 import { createFlashMessage } from "~/services/toast.server";
-import { ActionArgs } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import ComboboxAdder from "~/components/Forms/ComboboxAdder";
 import type { IdValue } from "~/services/search.server";
 import { useState } from "react";
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const { games } = await zx.parseForm(request, {
     games: z.string()
   });
