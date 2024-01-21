@@ -61,14 +61,14 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
   const form = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
-    if(fetcher.type !== 'done') {
+    if(!(fetcher.state === 'idle' && fetcher.data != null)) {
       return;
     }
     if(Object.keys(fetcher.data).length === 0) {
       setEdit(false);
       setSocials(rawSocials);
     }
-  }, [rawSocials, fetcher.type, fetcher.data]);
+  }, [rawSocials, fetcher.state, fetcher.data]);
 
   const selectables = getSelectableSocials(socials);
   const addLocalSocial = (platform: SocialPlatform) => {

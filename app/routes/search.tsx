@@ -33,7 +33,7 @@ export default function() {
   }
 
   useEffect(() => {
-    if(fetcher.type === 'done') {
+    if(fetcher.state === 'idle' && fetcher.data != null) {
       const newResults = fetcher.data.searchResults.results;
       checkHasNext(newResults);
       setResults([...results, ...newResults]);

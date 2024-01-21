@@ -2211,21 +2211,6 @@
   dependencies:
     "@remix-run/node" "2.5.1"
 
-"@remix-run/node@1.19.3":
-  version "1.19.3"
-  resolved "https://registry.yarnpkg.com/@remix-run/node/-/node-1.19.3.tgz#d27e2f742fc45379525cb3fca466a883ca06d6c9"
-  integrity sha512-z5qrVL65xLXIUpU4mkR4MKlMeKARLepgHAk4W5YY3IBXOreRqOGUC70POViYmY7x38c2Ia1NwqL80H+0h7jbMw==
-  dependencies:
-    "@remix-run/server-runtime" "1.19.3"
-    "@remix-run/web-fetch" "^4.3.6"
-    "@remix-run/web-file" "^3.0.3"
-    "@remix-run/web-stream" "^1.0.4"
-    "@web3-storage/multipart-parser" "^1.0.0"
-    abort-controller "^3.0.0"
-    cookie-signature "^1.1.0"
-    source-map-support "^0.5.21"
-    stream-slice "^0.1.2"
-
 "@remix-run/node@2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@remix-run/node/-/node-2.5.1.tgz#f511cb9e84b4bf12bfb9690866cb78420011e27c"
@@ -2260,11 +2245,6 @@
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.3.3.tgz#d6d531d69c0fa3a44fda7dc00b20d49b44549164"
   integrity sha512-YRHie1yQEj0kqqCTCJEfHqYSSNlZQ696QJG+MMiW4mxSl9I0ojz/eRhJS4fs88Z5i6D1SmoF9d3K99/QOhI8/w==
 
-"@remix-run/router@1.7.2":
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.7.2.tgz#cba1cf0a04bc04cb66027c51fa600e9cbc388bc8"
-  integrity sha512-7Lcn7IqGMV+vizMPoEl5F0XDshcdDYtMI6uJLQdQz5CfZAwy3vvGKYSUk789qndt5dEC4HfSjviSYlSoHGL2+A==
-
 "@remix-run/serve@2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@remix-run/serve/-/serve-2.5.1.tgz#80411c5908af739b45807144a02794ef4fe00697"
@@ -2292,18 +2272,6 @@
     set-cookie-parser "^2.4.8"
     source-map "^0.7.3"
 
-"@remix-run/server-runtime@1.19.3":
-  version "1.19.3"
-  resolved "https://registry.yarnpkg.com/@remix-run/server-runtime/-/server-runtime-1.19.3.tgz#206b55337c266c5bc254878f8ff3cd5677cc60fb"
-  integrity sha512-KzQ+htUsKqpBgKE2tWo7kIIGy3MyHP58Io/itUPvV+weDjApwr9tQr9PZDPA3yAY6rAzLax7BU0NMSYCXWFY5A==
-  dependencies:
-    "@remix-run/router" "1.7.2"
-    "@types/cookie" "^0.4.1"
-    "@web3-storage/multipart-parser" "^1.0.0"
-    cookie "^0.4.1"
-    set-cookie-parser "^2.4.8"
-    source-map "^0.7.3"
-
 "@remix-run/server-runtime@2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@remix-run/server-runtime/-/server-runtime-2.5.1.tgz#6db6f264ff260527f0f762a36b838d0a42b0a55d"
@@ -2323,13 +2291,6 @@
   dependencies:
     minimatch "^7.4.3"
 
-"@remix-run/vercel@1.19.3":
-  version "1.19.3"
-  resolved "https://registry.yarnpkg.com/@remix-run/vercel/-/vercel-1.19.3.tgz#7613ec11366a8a03f292f5275d0e70632f5a8e3d"
-  integrity sha512-LoWffUns8u9oqOHSvZtH0LMXWm4NuZ2hUldLx7TAw19lfif1liwa8WrqxRyMItuUp1xEo6shTDCNEUNdQtsEGg==
-  dependencies:
-    "@remix-run/node" "1.19.3"
-
 "@remix-run/web-blob@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@remix-run/web-blob/-/web-blob-3.1.0.tgz#e0c669934c1eb6028960047e57a13ed38bbfb434"
@@ -2338,7 +2299,7 @@
     "@remix-run/web-stream" "^1.1.0"
     web-encoding "1.1.5"
 
-"@remix-run/web-fetch@^4.3.6", "@remix-run/web-fetch@^4.4.2":
+"@remix-run/web-fetch@^4.4.2":
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/@remix-run/web-fetch/-/web-fetch-4.4.2.tgz#ce7aedef72cc26e15060e8cf84674029f92809b6"
   integrity sha512-jgKfzA713/4kAW/oZ4bC3MoLWyjModOVDjFPNseVqcJKSafgIscrYL9G50SurEYLswPuoU3HzSbO0jQCMYWHhA==
@@ -2352,7 +2313,7 @@
     data-uri-to-buffer "^3.0.1"
     mrmime "^1.0.0"
 
-"@remix-run/web-file@^3.0.3", "@remix-run/web-file@^3.1.0":
+"@remix-run/web-file@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@remix-run/web-file/-/web-file-3.1.0.tgz#07219021a2910e90231bc30ca1ce693d0e9d3825"
   integrity sha512-dW2MNGwoiEYhlspOAXFBasmLeYshyAyhIdrlXBi06Duex5tDr3ut2LFKVj7tyHLmn8nnNwFf1BjNbkQpygC2aQ==
@@ -2366,7 +2327,7 @@
   dependencies:
     web-encoding "1.1.5"
 
-"@remix-run/web-stream@^1.0.4", "@remix-run/web-stream@^1.1.0":
+"@remix-run/web-stream@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@remix-run/web-stream/-/web-stream-1.1.0.tgz#b93a8f806c2c22204930837c44d81fdedfde079f"
   integrity sha512-KRJtwrjRV5Bb+pM7zxcTJkhIqWWSy+MYsIxHK+0m5atcznsf15YwUBWHWulZerV2+vvHH1Lp1DD7pw6qKW8SgA==
@@ -2564,7 +2525,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/cookie@^0.4.0", "@types/cookie@^0.4.1":
+"@types/cookie@^0.4.0":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.4.1.tgz#bfd02c1f2224567676c1545199f87c3a861d878d"
   integrity sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==
@@ -3078,7 +3039,7 @@
   resolved "https://registry.yarnpkg.com/@vercel/node-bridge/-/node-bridge-3.1.14.tgz#992b8715ca8537a190ff58aa828aca679290da0b"
   integrity sha512-TAbo0rwBenmWywcEup+5lZgr6ILPPq55P33JRX+oJJuTxYib0NqVj47gEvLTxaj3MoJFgp0iDlC9A0uAf4ykxQ==
 
-"@vercel/node@2.9.12", "@vercel/node@^2.6.2":
+"@vercel/node@2.9.12":
   version "2.9.12"
   resolved "https://registry.yarnpkg.com/@vercel/node/-/node-2.9.12.tgz#dd7ed54076314ed4e324d0ae59e68eaef6214fb6"
   integrity sha512-NGbOK9bl7Lhnr1OfB+iz2yIOuMhOQKZz66jn11153mDqqlQ93i7cNcQeMU61A1waJj1KubqViMGWKgxO7QTCUw==
@@ -3119,6 +3080,15 @@
     "@vercel/static-config" "2.0.13"
     path-to-regexp "6.2.1"
     ts-morph "12.0.0"
+
+"@vercel/remix@^2.5.1":
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/@vercel/remix/-/remix-2.5.1.tgz#f20583697823bdf080a56b55217cb99bf80a4301"
+  integrity sha512-b38Av3htXlF5L/Gy0vufWtSPLQOCKTYGLANWIrpLnB2m3Ro8Q56SgkBE1iMqVnHQ6A32fyAXg9y0BrVRRLhy6A==
+  dependencies:
+    "@remix-run/node" "2.5.1"
+    "@remix-run/server-runtime" "2.5.1"
+    isbot "^3.6.8"
 
 "@vercel/routing-utils@2.1.10":
   version "2.1.10"
@@ -6787,6 +6757,11 @@ isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==
+
+isbot@^3.6.8:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/isbot/-/isbot-3.8.0.tgz#b1f8e3d19aca0961b5ed27b62bb8bb0a275781e4"
+  integrity sha512-vne1mzQUTR+qsMLeCBL9+/tgnDXRyc2pygLGl/WsgA+EZKIiB5Ehu0CiVTHIIk30zhJ24uGz4M5Ppse37aR0Hg==
 
 isbot@latest:
   version "3.6.7"

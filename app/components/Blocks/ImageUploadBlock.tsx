@@ -26,10 +26,10 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
   const ref = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if(fetcher.type === 'done') {
+    if(fetcher.state === 'idle' && fetcher.data != null) {
       resetModal();
     }
-  }, [fetcher.type])
+  }, [fetcher.state])
 
   const resetModal = () => {
     setImgSrc(undefined);
