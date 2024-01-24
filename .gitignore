@@ -3,7 +3,6 @@ node_modules
 .idea
 .cache
 .env
-/app/styles/tailwind.css
 .vscode
 .vercel
 .output
