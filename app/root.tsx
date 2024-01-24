@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction, LinksFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Link,
@@ -13,7 +13,7 @@ import {
   useRouteError,
   isRouteErrorResponse
 } from "@remix-run/react";
-import styles from "./styles/app.css";
+import styles from "./styles/tailwind.css";
 import { authenticator } from "~/services/auth.server";
 import Header from "~/components/Header/Header";
 import Footer from "~/components/Footer";
@@ -25,9 +25,9 @@ import Toast from "~/components/Notifications/Toast";
 import { ThemeHead, ThemeBody, ThemeProvider, useTheme } from "~/context/theme-provider";
 import { getThemeSession } from "~/services/theme.server";
 
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: styles },
+];
 
 export const meta: MetaFunction = () => {
   return [
