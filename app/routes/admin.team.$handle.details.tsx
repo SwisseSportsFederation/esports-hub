@@ -1,15 +1,15 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import { useLoaderData, useOutletContext } from "@remix-run/react";
-import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
-import type { ActionArgs } from "@remix-run/node";
+import type { loader as handleLoader } from "~/routes/admin/team/$handle";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
+import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import { zx } from "zodix";
 import dateInputStyles from "~/styles/date-input.css";
 import { createFlashMessage } from "~/services/toast.server";
 
@@ -20,34 +20,20 @@ export function links() {
   ];
 }
 
-export const action = async ({ request }: ActionArgs) => {
-  const {
-    id,
-    oldHandle,
-    founded,
-    handle,
-    name,
-    description,
-    street,
-    zip,
-    canton,
-    languages
-  } = await zx.parseForm(request, {
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
     id: z.string(),
     oldHandle: z.string(),
     handle: z.string().min(3),
     name: z.string().min(3),
     founded: z.string().optional(),
-    street: z.string().optional(),
-    zip: z.string().optional(),
+    game: zx.NumAsString,
     description: z.string(),
     canton: zx.NumAsString.optional(),
     languages: z.string()
   });
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
-
   const user = await checkUserAuth(request);
-
   await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
 
   await db.group.update({
@@ -58,10 +44,13 @@ export const action = async ({ request }: ActionArgs) => {
       handle,
       name,
       description,
-      street,
       ...(founded && ({ founded: new Date(founded) })),
       ...(!founded && ({ founded: null })),
-      zip,
+      game: {
+        connect: {
+          id: Number(game)
+        }
+      },
       ...(canton && {
         canton: {
           connect: {
@@ -80,9 +69,8 @@ export const action = async ({ request }: ActionArgs) => {
     }
   });
 
-  const headers = await createFlashMessage(request, 'Organisation update is done');
-
-  return redirect(`/admin/organisation/${handle}/details`, headers);
+  const headers = await createFlashMessage(request, 'Team update is done');
+  return redirect(`/admin/team/${handle}/details`, headers);
 };
 
 export async function loader() {
@@ -93,8 +81,8 @@ export async function loader() {
 
 export default function() {
   const { searchParams } = useLoaderData<typeof loader>();
-  const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
-  return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORGANISATION'
-                            entityBirthday={organisation.founded} imageId={organisation.image}
-                            searchParams={searchParams}/>;
+  const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
+
+  return <EntityDetailBlock {...team} entityId={team.id} entityType='TEAM' entityBirthday={team.founded}
+                            imageId={team.image} searchParams={searchParams}/>
 }

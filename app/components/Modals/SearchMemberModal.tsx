@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import IconButton from "~/components/Button/IconButton";
-import { Form, useFetcher, useTransition } from "@remix-run/react";
+import { Form, useFetcher, useNavigation } from "@remix-run/react";
 import type { Game, User } from "@prisma/client";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import Modal from "~/components/Notifications/Modal";
@@ -11,7 +11,7 @@ import H1 from "~/components/Titles/H1";
 
 const SearchMemberModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, handleClose: (value: boolean) => void, groupId: string }) => {
 	const fetcher = useFetcher();
-	const transition = useTransition();
+	const navigation = useNavigation();
 	const manualSearch = useCallback(() => {
 	  fetcher.submit({ notInTeam: groupId, search: '' }, { method: 'post', action: '/admin/api/users' });
 	}, []);
@@ -20,10 +20,10 @@ const SearchMemberModal = ({ isOpen, handleClose, groupId }: { isOpen: boolean, 
 	}, [manualSearch]);
   
 	useEffect(() => {
-	  if (transition.state === 'loading') {
+	  if (navigation.state === 'loading') {
 		manualSearch();
 	  }
-	}, [manualSearch, transition])
+	}, [manualSearch, navigation])
 	const addInviteIcons = (teaser: ITeaserProps) => <fetcher.Form method='post' action={'/admin/api/group/members'}>
 	  <input type='hidden' name='groupId' value={groupId} />
 	  <input type='hidden' name='userId' value={teaser.id} />

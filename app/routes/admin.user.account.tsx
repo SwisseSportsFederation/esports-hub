@@ -1,6 +1,6 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import dateInputStyles from "~/styles/date-input.css";
-import type { ActionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
@@ -19,7 +19,7 @@ export function links() {
   ];
 }
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const { handle, name, surname, birthDate, description, canton, languages } = await zx.parseForm(request, {
     handle: z.string().min(4),
     name: z.string().min(3),

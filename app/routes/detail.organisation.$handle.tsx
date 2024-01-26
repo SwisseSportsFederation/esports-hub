@@ -1,5 +1,5 @@
 import { AccessRight, Prisma, RequestStatus } from "@prisma/client";
-import type { ActionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/router";
@@ -16,7 +16,7 @@ import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilter
 import { getOrganisationMemberTeasers, getTeamTeasers } from "~/utils/teaserHelper";
 import { useFetcher } from "@remix-run/react";
 
-export const action = async ({ request, params }: ActionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   /* Apply for Organisation */
   const { handle } = zx.parseParams(params, {
     handle: z.string()

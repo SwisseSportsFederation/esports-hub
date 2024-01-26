@@ -4,7 +4,8 @@ import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
 import H1 from "~/components/Titles/H1";
 import type { Crop } from "react-image-crop";
-import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import ReactCrop from "react-image-crop";
+import pkg from "react-image-crop";
 import { useFetcher } from "@remix-run/react";
 import ActionButton from "~/components/Button/ActionButton";
 import { EntityType } from "@prisma/client";
@@ -17,6 +18,9 @@ type ImageUploadBlockPropTypes = {
   imageId: StringOrNull
 }
 
+// @ts-ignore
+const { centerCrop, makeAspectCrop } = pkg;
+
 const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTypes) => {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [deleteImageOpen, setDeleteImageOpen] = useState(false);
@@ -26,10 +30,10 @@ const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTyp
   const ref = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if(fetcher.type === 'done') {
+    if(fetcher.state === 'idle' && fetcher.data != null) {
       resetModal();
     }
-  }, [fetcher.type])
+  }, [fetcher.state])
 
   const resetModal = () => {
     setImgSrc(undefined);
