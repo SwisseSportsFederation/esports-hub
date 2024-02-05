@@ -62,5 +62,6 @@ export default function() {
       <input type="hidden" name="offset" value={results.length ?? 0}/>
       <ActionButton type="submit" content="Load more"/>
     </fetcher.Form>}
+    {results && results.length === 0 && <div className="text-center mt-4">No results found</div>}
   </div>;
 }
