@@ -148,11 +148,10 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         LEFT OUTER JOIN
               "group" child
               ON gtg.child_id = child.id
-        INNER JOIN
+        LEFT OUTER JOIN
               "game" gam2
            ON (gro2.game_id = gam2.id
            OR child.game_id = gam2.id)
-           AND gam2.name LIKE ${gameString}
               --
               -- canton
               --
@@ -184,6 +183,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             gro2.is_active = TRUE
         AND
             LOWER(gro2.handle) LIKE ${searchString}
+        AND gam2.name LIKE ${gameString} OR ${gameString} = '%'
               --
               --   GROUP BY
               --

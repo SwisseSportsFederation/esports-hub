@@ -95,10 +95,10 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
             entityType === EntityType.TEAM &&
             <div className="relative w-full max-w-sm lg:max-w-full">
               <label>
-                <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game</span>
+                <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game *</span>
               </label>
               <DropdownInput name="game" selected={game ?? null} inputs={searchParams.games} isBig={true}
-                             className="mt-1 block" showDefaultOption={false}/>
+                             className="mt-1 block" showDefaultOption={false} />
             </div>
           }
 
