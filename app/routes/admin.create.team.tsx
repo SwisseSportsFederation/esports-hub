@@ -1,6 +1,5 @@
 import { AccessRight, EntityType, Group, VerificationLevel } from "@prisma/client";
-import type { DataFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { DataFunctionArgs, json } from '@remix-run/node';
 import { useLoaderData } from "@remix-run/react";
 import styles from 'react-image-crop/dist/ReactCrop.css';
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
@@ -45,7 +44,7 @@ export async function loader() {
 
 export default function() {
   const { searchParams, team } = useLoaderData<typeof loader>();
-  return <EntityDetailBlock {...team} canton={null} languages={[]} entityId={team.id} entityType='TEAM'
+  return <EntityDetailBlock {...team} canton={null} languages={[]} create={true} entityId={team.id} entityType='TEAM'
                             entityBirthday={team.founded}
                             imageId={team.image} searchParams={searchParams}/>
 }

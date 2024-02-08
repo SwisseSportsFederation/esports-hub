@@ -92,7 +92,7 @@ const putAction = async (request: Request) => {
         image: true
       }
     };
-    let image: { image: StringOrNull } = { image: null };
+    let image: { image: StringOrNull };
     if (entity === 'USER') {
       image = await db.user.findFirstOrThrow(existingImageQuery)
     } else {
