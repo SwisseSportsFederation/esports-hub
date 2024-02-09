@@ -22,8 +22,7 @@ const DateInput = ({ label, name, value: defaultValue, min, max, className }: Pr
       <label className={`absolute text-xs -top-5 left-4 text-color`}>{label}</label>
       <div className={`text-black h-10 text-md px-4 cursor-pointer 
                        relative inline-flex items-center justify-between
-                       rounded-xl bg-white borderborder-gray-300 w-full`}
-           onClick={() => setIsOpen(true)}>
+                       rounded-xl bg-white borderborder-gray-300 w-full`}>
         <input type="date" name={name} 
           value={value ? toISODateString(value) : ""}
           onChange={(el) => onChange(new Date(el.target.value))}
