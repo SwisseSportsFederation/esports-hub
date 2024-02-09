@@ -1,6 +1,3 @@
-import { useState } from "react";
-import classNames from "classnames";
-
 interface ITextareaInputProps {
   id: string,
   label: string,
@@ -15,28 +12,13 @@ const TextareaInput = (props: ITextareaInputProps) => {
     value,
     required = false
   } = props;
-  const [check, setCheck] = useState(false);
-
-  const handleBlur = () => {
-    setCheck(value.length > 0);
-  };
-  const handleFocus = () => {
-    setCheck(false);
-  };
-
-  const labelInvalid = classNames({
-    'is-dirty': check,
-    'text-color': !!value,
-    'text-black': !value
-  });
 
   return (
     <div className="w-full max-w-sm lg:max-w-full relative">
       <label>
       <textarea name={id} defaultValue={value} required={required} placeholder=" "
-                onBlur={handleBlur} onFocus={handleFocus}
                 className={`bg-white rounded-xl h-48 min-h-[150px] w-full mt-3 px-4 py-3 text-black focus:outline-none border border-gray-6 dark:border-white resize-y`}/>
-        <span className={`absolute left-4 top-6 transition-all ${labelInvalid}`}>{label}</span>
+        <span className={`absolute left-4 top-6 transition-all`}>{label}</span>
       </label>
     </div>
   );
