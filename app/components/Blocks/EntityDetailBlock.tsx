@@ -17,7 +17,7 @@ import { EntityType } from '@prisma/client';
 import { entityToPathSegment } from '~/helpers/entityType';
 import type { IdValue, SearchParams } from '~/services/search.server';
 import H1 from '../Titles/H1';
-import ImageCropBlock from '~/components/Blocks/ImageCropBlock';
+import ImageCropBlock from '~/components/Blocks/ImageBlock/ImageCropBlock';
 
 type EntityDetailBlockProps = {
   entityId: number,
@@ -57,6 +57,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     create = false,
   } = props;
   const [modalOpen, setModalOpen] = useState(false);
+  const [profilePicReady, setProfilePicReady] = useState(true);
   const fetcher = useFetcher();
   const handleDelete = () => {
     setModalOpen(false);
@@ -83,7 +84,8 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         </div>
         <Form method="post" className="space-y-6 flex flex-col items-center max-w-md mx-auto"
               encType="multipart/form-data">
-          {create && <ImageCropBlock/>}
+          {create && <ImageCropBlock profilePicReady={profilePicReady}
+                                     setProfilePicReady={setProfilePicReady}/>}
           <input name="id" type="hidden" value={String(entityId)}/>
           <input name="oldHandle" type="hidden" value={handle}/>
           <input name="entityType" type="hidden" value={entityType}/>
@@ -103,7 +105,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
                       <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game *</span>
                   </label>
                   <DropdownInput name="game" selected={game ?? null} inputs={searchParams.games} isBig={true}
-                                 className="mt-1 block" showDefaultOption={false} />
+                                 className="mt-1 block" showDefaultOption={false}/>
               </div>
           }
 
@@ -126,7 +128,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           </div>
           <DropDownAdder name="languages" label="Language" values={searchParams.languages}
                          defaultValues={languages}/>
-          <ActionButton content="Save" type="submit"/>
+          <ActionButton content="Save" type="submit" disabled={!profilePicReady}/>
         </Form>
       </div>
     </div>

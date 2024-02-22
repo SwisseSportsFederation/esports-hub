@@ -17,6 +17,7 @@
     "@vercel/analytics": "^1.1.2",
     "@vercel/remix": "^2.5.1",
     "auth0": "^3.0.1",
+    "browser-image-compression": "^2.0.2",
     "buffer-image-size": "^0.6.4",
     "classnames": "^2.3.2",
     "isbot": "latest",

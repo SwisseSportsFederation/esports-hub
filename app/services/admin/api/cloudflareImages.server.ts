@@ -3,8 +3,7 @@ import type { Crop } from "react-image-crop";
 import sizeOf from 'buffer-image-size';
 import type { StringOrNull } from "~/db/queries.server";
 
-export const resize = async (file: File, cropData: Crop): Promise<File> => {
-  const original = Buffer.from(await file.arrayBuffer());
+export const resize = async (original: Buffer, cropData: Crop): Promise<File> => {
   const { width, height } = sizeOf(original);
   const region = {
     top: Math.round(height / 100 * cropData.y),
@@ -20,7 +19,7 @@ export const resize = async (file: File, cropData: Crop): Promise<File> => {
     })
     .webp()
     .toBuffer();
-  return new File([buffer], file.name)
+  return new File([buffer], 'image')
 };
 
 export const deleteImage = async (imageId: StringOrNull) => {

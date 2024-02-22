@@ -100,7 +100,8 @@ const putAction = async (request: Request) => {
     }
 
     await deleteImage(image.image);
-    const croppedImage = await resize(file, cropData);
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const croppedImage = await resize(buffer, cropData);
     const { result } = await upload(croppedImage);
     const query = {
       where: {

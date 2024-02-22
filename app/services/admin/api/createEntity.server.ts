@@ -33,7 +33,6 @@ const createGroup = async (handle: string, name: string, description: string, en
 
 export const createEntity = async (request: Request) => {
   const form = await request.clone().formData();
-  const file = form.get('file') as File;
   let {
     id,
     founded,
@@ -47,6 +46,7 @@ export const createEntity = async (request: Request) => {
     languages,
     entityType,
     crop,
+    image
   } = await zx.parseForm(request, {
     id: z.string(),
     handle: z.string().min(3),
@@ -60,6 +60,7 @@ export const createEntity = async (request: Request) => {
     languages: z.string(),
     entityType: z.string(),
     crop: z.string().optional(),
+    image: z.string().optional()
   });
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({id: Number(langId)}));
 
@@ -67,9 +68,11 @@ export const createEntity = async (request: Request) => {
 
   id = await createGroup(handle, name, description, entityType as EntityType, user);
   let imageId: string | undefined = undefined;
-  if (crop && file) {
+  if (crop && image) {
     const cropData = JSON.parse(crop);
-    const croppedImage = await resize(file, cropData);
+    const base64 = image.split('base64,')[1]
+    const original = Buffer.from(base64, 'base64');
+    const croppedImage = await resize(original, cropData);
     const {result} = await upload(croppedImage);
     imageId = result.id;
   }
