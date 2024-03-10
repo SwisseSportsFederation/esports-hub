@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect } from "@vercel/remix";
 
 import { getThemeSession } from "~/services/theme.server";
 import { isTheme } from "~/context/theme-provider";

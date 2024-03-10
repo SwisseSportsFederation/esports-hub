@@ -1,9 +1,8 @@
 import type { MetaFunction, LinksFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import {
   Link,
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -13,7 +12,7 @@ import {
   useRouteError,
   isRouteErrorResponse
 } from "@remix-run/react";
-import styles from "./styles/tailwind.css";
+import styles from "./styles/tailwind.css?url";
 import { authenticator } from "~/services/auth.server";
 import Header from "~/components/Header/Header";
 import Footer from "~/components/Footer";
@@ -89,7 +88,6 @@ function App() {
     </div>
     <ScrollRestoration/>
     <Scripts/>
-    <LiveReload/>
     <ThemeBody ssrTheme={Boolean(loaderTheme)}/>
     </body>
     </html>
@@ -136,7 +134,6 @@ export function ErrorBoundary() {
       </div>
       <ScrollRestoration/>
       <Scripts/>
-      <LiveReload/>
       </body>
       </html>
     );

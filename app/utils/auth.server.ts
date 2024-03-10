@@ -3,7 +3,7 @@ import { authenticator } from "~/services/auth.server";
 import { db } from "~/services/db.server";
 import type { AccessRight } from "@prisma/client";
 import { RequestStatus } from "@prisma/client";
-import { redirect } from "@remix-run/node";
+import { redirect } from "@vercel/remix";
 
 export function logout(request: Request, path: string = ''): Promise<void> {
   const url = new URL(request.url);

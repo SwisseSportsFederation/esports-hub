@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { Outlet, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
 import { checkUserAuth, checkUserValid, checkSuperAdmin } from "~/utils/auth.server";

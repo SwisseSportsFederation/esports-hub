@@ -1,6 +1,6 @@
 import { AccessRight, Prisma, RequestStatus } from "@prisma/client";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/router";
 import { z } from "zod";

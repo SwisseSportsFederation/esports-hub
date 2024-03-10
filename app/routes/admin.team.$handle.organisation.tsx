@@ -1,5 +1,5 @@
 import { AccessRight, GroupToGroup, RequestStatus } from "@prisma/client";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { Form, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";

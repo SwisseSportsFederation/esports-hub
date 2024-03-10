@@ -1,5 +1,5 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { redirect } from "@vercel/remix";
 import { deleteEntity } from "~/services/admin/api/deleteEntity.server";
 import { createEntity } from "~/services/admin/api/createEntity.server";
 

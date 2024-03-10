@@ -2,7 +2,7 @@ import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
 import { logout } from "~/utils/auth.server";
 import type { LoaderFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { redirect } from "@vercel/remix";
 
 export let loader: LoaderFunction = async ({ request }) => {
   let user;

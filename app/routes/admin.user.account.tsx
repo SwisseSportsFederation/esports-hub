@@ -1,7 +1,7 @@
 import styles from 'react-image-crop/dist/ReactCrop.css'
 import dateInputStyles from "~/styles/date-input.css";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";

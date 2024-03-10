@@ -1,6 +1,6 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import { useLoaderData, Form, useFetcher } from "@remix-run/react";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import type { LoaderFunctionArgs } from "@remix-run/router";

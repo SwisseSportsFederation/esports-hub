@@ -1,5 +1,5 @@
 import { EntityType, RequestStatus } from "@prisma/client";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/router";

@@ -1,6 +1,6 @@
 import { logout } from "~/utils/auth.server";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { redirect } from "@vercel/remix";
 
 export let loader: LoaderFunction = () => redirect("/");
 

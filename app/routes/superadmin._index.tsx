@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";

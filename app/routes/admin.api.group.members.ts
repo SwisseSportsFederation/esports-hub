@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
 import type { ActionFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { z } from "zod";
 import { zx } from 'zodix';
 import { AuthUser } from "~/services/auth.server";

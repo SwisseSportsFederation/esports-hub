@@ -2,7 +2,7 @@ import { zx } from 'zodix';
 import { z } from 'zod';
 import { checkUserAuth } from '~/utils/auth.server';
 import { db } from '~/services/db.server';
-import { redirect } from '@remix-run/node';
+import { redirect } from '@vercel/remix';
 import { createFlashMessage } from '~/services/toast.server';
 import { AccessRight, EntityType, RequestStatus } from '@prisma/client';
 import { AuthUser } from '~/services/auth.server';

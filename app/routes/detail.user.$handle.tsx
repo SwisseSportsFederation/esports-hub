@@ -1,6 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { getOrganisationTeasers } from "~/utils/teaserHelper";
 import TeaserList from "~/components/Teaser/TeaserList";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";

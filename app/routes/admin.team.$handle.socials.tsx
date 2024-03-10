@@ -2,7 +2,7 @@ import H1Nav from "~/components/Titles/H1Nav";
 import SocialSelect from "~/components/SocialSelect";
 import { useLoaderData, useOutletContext } from "@remix-run/react";
 import type { loader as handleLoader } from "~/routes/admin/team/$handle";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";

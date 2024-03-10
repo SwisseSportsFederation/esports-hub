@@ -1,5 +1,5 @@
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import auth0 from 'auth0';
 import * as process from "process";
