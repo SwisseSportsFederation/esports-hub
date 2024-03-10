@@ -18,7 +18,7 @@ import Header from "~/components/Header/Header";
 import Footer from "~/components/Footer";
 import Icon from "~/components/Icons";
 import LinkButton from "./components/Button/LinkButton";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
 import { ThemeHead, ThemeBody, ThemeProvider, useTheme } from "~/context/theme-provider";

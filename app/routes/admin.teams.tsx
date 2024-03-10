@@ -1,8 +1,7 @@
-import { EntityType, RequestStatus } from "@prisma/client";
 import { json } from "@vercel/remix";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useEffect, useState } from "react";
 import ActionButton from "~/components/Button/ActionButton";
@@ -23,6 +22,7 @@ import type { Membership } from "~/services/admin/index.server";
 import { db } from "~/services/db.server";
 import dateInputStyles from "~/styles/date-input.css?url";
 import { checkUserAuth } from "~/utils/auth.server";
+import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
 
 export function links() {
   return [
@@ -44,7 +44,7 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: s
     }
 
     return {
-      type: EntityType.TEAM,
+      type: EntityTypeValue.TEAM,
       id: String(invitation.id),
       handle: invitation.handle,
       avatarPath: invitation.image ?? null,
@@ -112,10 +112,10 @@ export default function() {
   const { formerTeams } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
-  const teams = memberships.groups.filter(group => group.group_type === EntityType.TEAM);
+  const teams = memberships.groups.filter(group => group.group_type === EntityTypeValue.TEAM);
 
-  const invitedTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_USER && e.group_type === "TEAM")
-  const pendingTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatus.PENDING_GROUP && e.group_type === "TEAM")
+  const invitedTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatusValue.PENDING_USER && e.group_type === "TEAM")
+  const pendingTeams = memberships.groupInvitations.filter(e => e.request_status === RequestStatusValue.PENDING_GROUP && e.group_type === "TEAM")
 
   const invited = getInvitationTeaser(invitedTeams, user.db.id, false, fetcher);
   const pending = getInvitationTeaser(pendingTeams, user.db.id, true, fetcher);

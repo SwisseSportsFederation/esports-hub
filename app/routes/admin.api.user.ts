@@ -1,48 +1,49 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunction, LoaderFunction } from '@remix-run/node';
+import { json, redirect } from '@vercel/remix';
 import { zx } from 'zodix';
-import { z } from "zod";
-import { checkUserAuth, logout } from "~/utils/auth.server";
-import auth0 from 'auth0';
-import { db } from "~/services/db.server";
+import { z } from 'zod';
+import { checkUserAuth, logout } from '~/utils/auth.server';
+import { ManagementClient } from 'auth0';
+import { db } from '~/services/db.server';
 
-export let loader: LoaderFunction = () => redirect("/admin");
+export let loader: LoaderFunction = () => redirect('/admin');
 
-export const action: ActionFunction = async ({ request }) => {
-  if(request.method !== "DELETE") {
+export const action: ActionFunction = async ({request}) => {
+  if (request.method !== 'DELETE') {
     throw json({}, 404);
   }
-  const { entityId } = await zx.parseForm(request, {
+  const {entityId} = await zx.parseForm(request, {
     entityId: z.string(),
   });
   const user = await checkUserAuth(request);
   const user_id = Number(entityId);
-  if(user_id !== Number(user.db.id)) {
-    throw json({}, 403)
+  if (user_id !== Number(user.db.id)) {
+    throw json({}, 403);
   }
 
-  if(!user.db.auth_id) {
+  if (!user.db.auth_id) {
     throw json({}, 500);
   }
 
   try {
-    const test = new auth0.ManagementClient({
+
+    const test = new ManagementClient({
       clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID,
       clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET,
-      scope: 'delete:users',
       domain: process.env.AUTH0_DOMAIN,
     });
 
     await db.user.delete({
       where: {
-        id: user_id
-      }
+        id: user_id,
+      },
     });
 
-    await test.deleteUser({ id: user.db.auth_id });
-    return logout(request, '/')
-  } catch(error) {
+    await test.users.delete({id: user.db.auth_id});
+
+    return logout(request, '/');
+  } catch (error) {
     console.log(error);
-    throw json({}, 500)
+    throw json({}, 500);
   }
 };

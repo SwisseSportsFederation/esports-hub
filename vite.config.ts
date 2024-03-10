@@ -19,7 +19,6 @@ export default defineConfig({
       ],
     }),
     remix({
-        ignoredRouteFiles: ['**/.*'],
         presets: [vercelPreset()],
       },
     ),

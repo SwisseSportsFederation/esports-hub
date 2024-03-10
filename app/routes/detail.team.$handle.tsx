@@ -1,8 +1,8 @@
-import { AccessRight, Prisma, RequestStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@vercel/remix";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { z } from "zod";
 import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
@@ -15,6 +15,7 @@ import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { isTeamMember } from "~/utils/entityFilters";
 import { getTeamMemberTeasers } from "~/utils/teaserHelper";
+import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   /* Apply for Team */
@@ -30,8 +31,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
     await db.groupMember.create({
       data: {
-        access_rights: AccessRight.MEMBER,
-        request_status: RequestStatus.PENDING_GROUP,
+        access_rights: AccessRightValue.MEMBER,
+        request_status: RequestStatusValue.PENDING_GROUP,
         joined_at: new Date(),
         is_main_group: false,
         role: "Member",
@@ -68,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       game: true,
       members: {
         where: {
-          request_status: RequestStatus.ACCEPTED
+          request_status: RequestStatusValue.ACCEPTED
         },
         include: { user: { include: { games: {
           where: {

@@ -5,13 +5,13 @@ import IconButton from "~/components/Button/IconButton";
 import BlockTeaser from "~/components/Teaser/BlockTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import type { Membership } from "~/services/admin/index.server";
-import { EntityType } from "@prisma/client";
+import type { EntityType  } from "@prisma/client";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import classNames from "classnames";
-import { SerializeFrom } from "@remix-run/server-runtime";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 import type { loader as adminLoader } from "~/routes/admin";
-import { RequestStatus } from "@prisma/client";
+import { RequestStatusValue } from '~/models/database.model';
 
 const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType): ITeaserProps[] => {
   return memberships.filter(mem => mem.group_type === entity).map((mem: SerializeFrom<Membership>) => {
@@ -33,7 +33,7 @@ const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType)
 };
 
 const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], entity: EntityType, userId: string, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
-  return invitations.filter(invitation => invitation.request_status === RequestStatus.PENDING_USER && invitation.group_type === entity)
+  return invitations.filter(invitation => invitation.request_status === RequestStatusValue.PENDING_USER && invitation.group_type === entity)
     .map(invitation => {
       const icons = <fetcher.Form method='post' action={`/admin/api/invitation`} className="flex space-x-2">
         <input type='hidden' name='entityId' value={`${invitation.id}`}/>
@@ -93,4 +93,4 @@ export default function() {
       <TeaserList title="Organisation Invitations" teasers={orgInvitationTeaser}/>
     }
   </div>;
-};
+}

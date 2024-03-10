@@ -1,8 +1,7 @@
-import { AccessRight, RequestStatus } from "@prisma/client";
 import { json } from "@vercel/remix";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
 import { z } from "zod";
@@ -23,9 +22,10 @@ import type { loader as handleLoader } from "~/routes/admin/organisation/$handle
 import { db } from "~/services/db.server";
 import { checkUserAuth } from "~/utils/auth.server";
 import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
+import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 
 export async function loader ({ request, params }: LoaderFunctionArgs) {
-  const { handle } = await zx.parseParams(params, {
+  const { handle } = zx.parseParams(params, {
     handle: z.string()
   })
   await checkUserAuth(request);
@@ -48,9 +48,9 @@ export async function loader ({ request, params }: LoaderFunctionArgs) {
       }
     }
   });
-  const members = allMembers.filter(mem => mem.request_status === RequestStatus.ACCEPTED);
-  const invited = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_GROUP);
-  const pending = allMembers.filter(mem => mem.request_status === RequestStatus.PENDING_USER);
+  const members = allMembers.filter(mem => mem.request_status === RequestStatusValue.ACCEPTED);
+  const invited = allMembers.filter(mem => mem.request_status === RequestStatusValue.PENDING_GROUP);
+  const pending = allMembers.filter(mem => mem.request_status === RequestStatusValue.PENDING_USER);
 
   return json({
     members: members,
@@ -77,7 +77,7 @@ export default function () {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
-  const types = Object.keys(AccessRight);
+  const types = Object.keys(AccessRightValue);
 
   return <>
     <div className="mx-3">

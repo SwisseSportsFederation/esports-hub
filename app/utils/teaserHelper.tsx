@@ -1,14 +1,14 @@
 import type { Game, Group, User, GroupMember, GroupToGroup } from "@prisma/client";
-import { EntityType } from "@prisma/client";
 import { getOrganisationGames } from "./entityFilters";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
+import { EntityTypeValue } from '~/models/database.model';
 
 export const getTeamTeasers = (teams: (Group & { game: Game | null })[]): Omit<ITeaserProps, 'icons'>[] => {
   return teams.map((team) => {
     return {
       id: String(team.id),
       handle: team.handle,
-      type: EntityType.TEAM,
+      type: EntityTypeValue.TEAM,
       name: team.name || "",
       games: [team.game],
       avatarPath: team.image,
@@ -22,7 +22,7 @@ export const getOrganisationTeasers = (groups: GroupWithTeamGames[]): Omit<ITeas
   return groups.map((organisation) => ({
       id: String(organisation.id),
       handle: organisation.handle,
-      type: EntityType.ORGANISATION,
+      type: EntityTypeValue.ORGANISATION,
       avatarPath: organisation.image,
       name: organisation.name,
       games: getOrganisationGames(organisation),
@@ -41,7 +41,7 @@ export const getTeamMemberTeasers = (teamName: string, members: GroupMemberWithU
     return {
       id: String(member.user.id),
       handle: member.user.handle,
-      type: EntityType.USER,
+      type: EntityTypeValue.USER,
       name: member.user.handle,
       team: teamName,
       games: member.user.games || [],
@@ -55,7 +55,7 @@ export const getOrganisationMemberTeasers = (members: GroupMemberWithUser[]): Om
     return {
       id: String(member.user.id),
       handle: member.user.handle,
-      type: EntityType.USER,
+      type: EntityTypeValue.USER,
       name: member.user.handle,
       team: member.role,
       games: member.user.games || [],

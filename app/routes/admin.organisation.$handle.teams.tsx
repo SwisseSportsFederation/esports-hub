@@ -1,5 +1,4 @@
 import type { Prisma } from "@prisma/client";
-import { RequestStatus } from "@prisma/client";
 import { json } from "@vercel/remix";
 import { Form, useActionData, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
@@ -21,6 +20,7 @@ import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth } from "~/utils/auth.server";
 import { getTeamTeasers } from "~/utils/teaserHelper";
 import type { loader as handleLoader } from '~/routes/admin.organisation.$handle';
+import { RequestStatusValue } from '~/models/database.model';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -67,7 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
             child_id: entityId
           },
           data: {
-            request_status: RequestStatus.ACCEPTED
+            request_status: RequestStatusValue.ACCEPTED
           }
         })
       } else {
@@ -108,7 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
         await db.groupToGroup.create({
           data: {
             child_id,
-            request_status: RequestStatus.PENDING_GROUP,
+            request_status: RequestStatusValue.PENDING_GROUP,
             parent_id
           }
         });

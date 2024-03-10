@@ -2,7 +2,7 @@ import ActionButton from "../Button/ActionButton";
 import H1Nav from "../Titles/H1Nav";
 import IconTitle from "../Titles/IconTitle";
 import LinkBlock from "./LinkBlock";
-import { EntityType } from "@prisma/client";
+import type { EntityType } from "@prisma/client";
 import { entityToPathSegment } from "~/helpers/entityType";
 import Modal from "~/components/Notifications/Modal";
 import { useState } from "react";

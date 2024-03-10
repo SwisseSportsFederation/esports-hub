@@ -4,7 +4,7 @@ import { useLoaderData } from "@remix-run/react";
 import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);

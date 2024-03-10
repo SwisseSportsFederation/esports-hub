@@ -3,7 +3,7 @@ import { useLoaderData, Form, useFetcher } from "@remix-run/react";
 import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { getActiveGames } from "~/services/search.server";
 import { zx } from 'zodix';
 import { z } from "zod";

@@ -8,7 +8,7 @@ import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {

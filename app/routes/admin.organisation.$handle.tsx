@@ -4,7 +4,7 @@ import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 

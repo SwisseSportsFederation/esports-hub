@@ -6,7 +6,7 @@ import { checkUserAuth } from "~/utils/auth.server";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";

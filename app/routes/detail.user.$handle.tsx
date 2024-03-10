@@ -1,15 +1,16 @@
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from '@vercel/remix';
+import { json } from '@vercel/remix';
 import { getOrganisationTeasers } from "~/utils/teaserHelper";
 import TeaserList from "~/components/Teaser/TeaserList";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { RequestStatus, Prisma, EntityType } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import TeamHistory from "~/components/Blocks/TeamHistory";
 import { zx } from "zodix";
 import { z } from "zod";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -33,7 +34,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
       groups: {
         where: {
           request_status: {
-            equals: RequestStatus.ACCEPTED
+            equals: RequestStatusValue.ACCEPTED
           }
         },        
         include: { group: { include: { children: { include: { child: { include: { game: true } } } } } } }
@@ -62,8 +63,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const { former_teams: formerTeams } = user;
 
   const groups = user.groups.map((mem) => mem.group);
-  const teamMemberships = user.groups.filter(group => group.group.group_type === EntityType.TEAM);
-  const organisationTeasers = getOrganisationTeasers(groups.filter(group => group.group_type === EntityType.ORGANISATION));
+  const teamMemberships = user.groups.filter(group => group.group.group_type === EntityTypeValue.TEAM);
+  const organisationTeasers = getOrganisationTeasers(groups.filter(group => group.group_type === EntityTypeValue.ORGANISATION));
   return json({
     user,
     teamMemberships,
@@ -93,4 +94,4 @@ export default function() {
       </div>
     </div>
   </div>;
-};
+}

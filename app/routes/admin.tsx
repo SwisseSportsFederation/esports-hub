@@ -1,9 +1,9 @@
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from '@vercel/remix';
+import { json } from '@vercel/remix';
 import { Outlet, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 import Navbar from "~/components/Navbar";
 import { checkUserAuth, checkUserValid, checkSuperAdmin } from "~/utils/auth.server";
 import { getUserMemberships } from "~/services/admin/index.server";
-import type { LoaderFunctionArgs } from "@remix-run/router";
 import { useEffect } from "react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
