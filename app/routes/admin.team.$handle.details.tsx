@@ -1,4 +1,4 @@
-import styles from 'react-image-crop/dist/ReactCrop.css';
+import styles from 'react-image-crop/dist/ReactCrop.css?url';
 import { useLoaderData, useOutletContext } from '@remix-run/react';
 import type { loader as handleLoader } from '~/routes/admin.team.$handle';
 import type { ActionFunctionArgs } from '@remix-run/node';
@@ -10,7 +10,7 @@ import { zx } from 'zodix';
 import { z } from 'zod';
 import EntityDetailBlock from '~/components/Blocks/EntityDetailBlock';
 import type { SerializeFrom } from '@remix-run/server-runtime';
-import dateInputStyles from '~/styles/date-input.css';
+import dateInputStyles from '~/styles/date-input.css?url';
 import { createFlashMessage } from '~/services/toast.server';
 
 export function links() {

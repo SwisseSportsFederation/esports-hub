@@ -21,7 +21,7 @@ import type { StringOrNull } from "~/db/queries.server";
 import type { loader as adminLoader } from "~/routes/admin";
 import type { Membership } from "~/services/admin/index.server";
 import { db } from "~/services/db.server";
-import dateInputStyles from "~/styles/date-input.css";
+import dateInputStyles from "~/styles/date-input.css?url";
 import { checkUserAuth } from "~/utils/auth.server";
 
 export function links() {

@@ -2,11 +2,11 @@ import { AccessRight, EntityType, Group, VerificationLevel } from '@prisma/clien
 import type { DataFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import styles from 'react-image-crop/dist/ReactCrop.css';
+import styles from 'react-image-crop/dist/ReactCrop.css?url';
 import EntityDetailBlock from '~/components/Blocks/EntityDetailBlock';
 import { action as apiAction } from '~/routes/admin.api.organisation';
 import { getSearchParams } from '~/services/search.server';
-import dateInputStyles from '~/styles/date-input.css';
+import dateInputStyles from '~/styles/date-input.css?url';
 
 export function links() {
   return [
