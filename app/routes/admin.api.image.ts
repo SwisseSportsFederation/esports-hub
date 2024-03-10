@@ -92,7 +92,7 @@ const putAction = async (request: Request) => {
         image: true
       }
     };
-    let image: { image: StringOrNull } = { image: null };
+    let image: { image: StringOrNull };
     if (entity === 'USER') {
       image = await db.user.findFirstOrThrow(existingImageQuery)
     } else {
@@ -100,7 +100,8 @@ const putAction = async (request: Request) => {
     }
 
     await deleteImage(image.image);
-    const croppedImage = await resize(file, cropData);
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const croppedImage = await resize(buffer, cropData);
     const { result } = await upload(croppedImage);
     const query = {
       where: {

@@ -20,7 +20,7 @@ import { db } from "~/services/db.server";
 import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth } from "~/utils/auth.server";
 import { getTeamTeasers } from "~/utils/teaserHelper";
-import type { loader as handleLoader } from '../$handle';
+import type { loader as handleLoader } from '~/routes/admin.organisation.$handle';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -211,4 +211,4 @@ export default function() {
       }
     </Modal>
   </>
-};
+}
