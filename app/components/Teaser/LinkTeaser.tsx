@@ -2,7 +2,7 @@ import type { ITeaserCoreProps } from "./TeaserCore";
 import TeaserCore from "./TeaserCore";
 import type { PropsWithClassName } from "~/utils/PropsWithClassName";
 import { Link } from "@remix-run/react";
-import { EntityType } from "@prisma/client";
+import type { EntityType } from "@prisma/client";
 import { entityToPathSegment } from "~/helpers/entityType";
 import type { ReactNode } from "react";
 

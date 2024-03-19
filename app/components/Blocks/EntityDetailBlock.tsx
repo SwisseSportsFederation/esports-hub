@@ -1,4 +1,4 @@
-import type { Canton, Game } from '@prisma/client';
+import type { Canton, Game , EntityType } from '@prisma/client';
 import { Form, useFetcher } from '@remix-run/react';
 import type { SerializeFrom } from '@remix-run/server-runtime';
 import { useState } from 'react';
@@ -13,11 +13,11 @@ import AskModalBody from '~/components/Notifications/AskModalBody';
 import Modal from '~/components/Notifications/Modal';
 import H1Nav from '~/components/Titles/H1Nav';
 import type { StringOrNull } from '~/db/queries.server';
-import { EntityType } from '@prisma/client';
 import { entityToPathSegment } from '~/helpers/entityType';
 import type { IdValue, SearchParams } from '~/services/search.server';
 import H1 from '../Titles/H1';
 import ImageCropBlock from '~/components/Blocks/ImageBlock/ImageCropBlock';
+import { EntityTypeValue } from '~/models/database.model';
 
 type EntityDetailBlockProps = {
   entityId: number,
@@ -71,7 +71,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
   };
 
   let path = `/admin/${entityToPathSegment(entityType)}`;
-  if (entityType !== EntityType.USER) {
+  if (entityType !== EntityTypeValue.USER) {
     path = `${path}/${handle}`;
   }
   const date = entityBirthday ? new Date(entityBirthday) : null;
@@ -92,14 +92,14 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           <TextInput id="handle" label="Short Name" defaultValue={handle} required={true}/>
           <TextInput id="name" label="Name" defaultValue={name} required={true}/>
           {
-            entityType === EntityType.USER &&
+            entityType === EntityTypeValue.USER &&
               <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} required={true}/>
           }
-          <DateInput name={entityType === EntityType.USER ? 'birthDate' : 'founded'}
-                     label={entityType === EntityType.USER ? 'Birthdate' : 'Founded'} value={date}
+          <DateInput name={entityType === EntityTypeValue.USER ? 'birthDate' : 'founded'}
+                     label={entityType === EntityTypeValue.USER ? 'Birthdate' : 'Founded'} value={date}
                      min={new Date(1900, 0, 0)} max={new Date()}/>
           {
-            entityType === EntityType.TEAM &&
+            entityType === EntityTypeValue.TEAM &&
               <div className="relative w-full max-w-sm lg:max-w-full">
                   <label>
                       <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game *</span>
@@ -111,11 +111,11 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
 
           <TextareaInput id="description" label="Description" value={description} required={true}/>
           {
-            entityType === EntityType.ORGANISATION &&
+            entityType === EntityTypeValue.ORGANISATION &&
               <TextInput id="street" label="Street" defaultValue={street ?? ''}/>
           }
           {
-            entityType === EntityType.ORGANISATION &&
+            entityType === EntityTypeValue.ORGANISATION &&
               <TextInput id="zip" label="Zip" defaultValue={zip ?? ''}/>
           }
           <div className="relative w-full max-w-sm lg:max-w-full">
@@ -132,7 +132,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         </Form>
       </div>
     </div>
-    {entityType === EntityType.USER &&
+    {entityType === EntityTypeValue.USER &&
         <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
             <div className="w-full max-w-prose mx-auto">
                 <H1>Danger Zone</H1>

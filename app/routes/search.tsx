@@ -1,6 +1,6 @@
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { useLoaderData, useSearchParams, useFetcher } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { useState, useEffect } from "react";
 import ActionButton from "~/components/Button/ActionButton";
 import SearchBox from "~/components/Forms/SearchBox";

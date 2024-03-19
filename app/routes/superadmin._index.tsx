@@ -1,14 +1,14 @@
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import type { FetcherWithComponents } from "@remix-run/react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import H1 from "~/components/Titles/H1";
 import IconButton from "~/components/Button/IconButton";
 import TeaserList from "~/components/Teaser/TeaserList";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
-import { SerializeFrom } from "@remix-run/server-runtime";
+import type { SerializeFrom } from "@remix-run/server-runtime";
 import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
-import type { LoaderFunctionArgs } from "@remix-run/router";
-import { Game, User, EntityType } from "@prisma/client";
+import type { LoaderFunctionArgs } from '@vercel/remix';
+import type { Game, User, EntityType } from "@prisma/client";
 import { getGameRequests, getSuperAdmins } from "~/services/superadmin/index.server";
 import TextInput from "~/components/Forms/TextInput";
 
@@ -86,4 +86,4 @@ export default function () {
       </div>
     </div>
   </div>;
-};
+}

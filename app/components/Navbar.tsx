@@ -1,11 +1,11 @@
-import { useLoaderData } from "@remix-run/react";
 import type { Membership } from "~/services/admin/index.server";
-import { AccessRight, EntityType } from "@prisma/client";
+import type { EntityType } from "@prisma/client";
 import IconButton from "./Button/IconButton";
-import { NavLink } from "@remix-run/react";
+import { NavLink, useLoaderData } from '@remix-run/react';
 import Icon from "./Icons";
 import type { IconType } from "./Icons";
 import classNames from "classnames";
+import { AccessRightValue, EntityTypeValue } from '~/models/database.model';
 
 interface ILinkBlockProps {
   path: string,
@@ -29,7 +29,7 @@ const NavbarLink = ({path, title, icon = 'arrowDown'}: ILinkBlockProps) => {
 
 const membershipLinkBlock = (membership: Membership, type: EntityType) => {
   if(membership.group_type === type) {
-    if(membership.access_rights === AccessRight.ADMINISTRATOR || membership.access_rights === AccessRight.MODERATOR) {
+    if(membership.access_rights === AccessRightValue.ADMINISTRATOR || membership.access_rights === AccessRightValue.MODERATOR) {
       return <NavbarLink path={`/admin/${type.toLowerCase()}/${membership.handle}`} title={membership.name} icon="edit" key={membership.name}/>
     }
     return <NavbarLink path={`/detail/${type.toLowerCase()}/${membership.handle}`} title={membership.name} key={membership.name}/>
@@ -56,7 +56,7 @@ export default function Navbar() {
           <IconButton icon={"add"} type='link' path="/admin/create/team" size="small"/>
         </div>
       </div>
-      {  memberships.groups.map((group: Membership) => membershipLinkBlock(group, EntityType.TEAM)) }
+      {  memberships.groups.map((group: Membership) => membershipLinkBlock(group, EntityTypeValue.TEAM)) }
     </div>
     <div className="mb-16">
       <div className="text-xl font-bold mb-4 flex">
@@ -65,7 +65,7 @@ export default function Navbar() {
           <IconButton icon={"add"} type='link' path="/admin/create/organisation" size="small"/>
         </div>
       </div>
-      { memberships.groups.map((group: Membership) => membershipLinkBlock(group, EntityType.ORGANISATION))}
+      { memberships.groups.map((group: Membership) => membershipLinkBlock(group, EntityTypeValue.ORGANISATION))}
     </div>
     { isSuperAdmin && 
       <div className="mb-16">

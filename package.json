@@ -3,59 +3,79 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix build",
-    "dev": "remix dev --manual",
+    "postinstall": "prisma generate",
+    "build": "remix vite:build",
+    "dev": "remix vite:dev",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc -b"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.7",
-    "@prisma/client": "^4.8.0",
-    "@remix-run/node": "2.5.1",
-    "@remix-run/react": "2.5.1",
-    "@remix-run/serve": "^2.5.1",
+    "@prisma/client": "^5.10.2",
+    "@remix-run/node": "^2.8.1",
+    "@remix-run/react": "^2.8.1",
+    "@remix-run/serve": "^2.8.1",
+    "@remix-run/server-runtime": "^2.8.1",
     "@vercel/analytics": "^1.1.2",
-    "@vercel/remix": "^2.5.1",
-    "auth0": "^3.0.1",
+    "@vercel/remix": "^2.8.1",
+    "auth0": "^4.3.1",
     "browser-image-compression": "^2.0.2",
     "buffer-image-size": "^0.6.4",
     "classnames": "^2.3.2",
-    "isbot": "latest",
-    "lru-cache": "^7.14.1",
-    "prisma": "^4.8.0",
+    "isbot": "^5.1.1",
+    "lru-cache": "^10.2.0",
+    "prisma": "^5.10.2",
     "react": "^18.2.0",
     "react-calendar": "^4.0.0",
     "react-dom": "^18.2.0",
-    "react-image-crop": "^10.0.9",
+    "react-image-crop": "^11.0.5",
     "react-transition-group": "^4.4.5",
     "remix-auth": "^3.4.0",
     "remix-auth-auth0": "^1.5.1",
-    "sharp": "^0.31.3",
+    "sharp": "^0.33.2",
     "zod": "^3.20.2",
     "zodix": "^0.4.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
-    "@remix-run/dev": "2.5.1",
-    "@remix-run/eslint-config": "2.5.1",
-    "@types/auth0": "^2.35.8",
+    "@faker-js/faker": "^8.4.1",
+    "@mdx-js/rollup": "^3.0.1",
+    "@remix-run/dev": "^2.8.1",
+    "@remix-run/eslint-config": "2.8.1",
+    "@types/node": "^20.11.25",
     "@types/react": "^18.0.25",
-    "@types/react-calendar": "^3.9.0",
     "@types/react-dom": "^18.0.8",
     "@types/react-transition-group": "^4.4.5",
-    "@types/sharp": "^0.31.0",
     "autoprefixer": "^10.4.13",
     "esbuild-register": "^3.4.2",
     "eslint": "^8.27.0",
+    "postcss": "^8.4.35",
+    "remark-frontmatter": "^5.0.0",
+    "remark-mdx-frontmatter": "^4.0.0",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.7.0",
-    "typescript": "^4.8.4",
-    "vercel": "^28.10.1"
+    "typescript": "^5.4.2",
+    "vercel": "^33.5.5",
+    "vite": "^5.1.5",
+    "vite-tsconfig-paths": "^4.3.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20",
+    "pnpm": ">=8"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
+  },
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "linux",
+        "current"
+      ],
+      "cpu": [
+        "x64",
+        "arm64",
+        "current"
+      ]
+    }
   }
 }

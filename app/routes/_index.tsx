@@ -1,5 +1,5 @@
 import SearchBox from "~/components/Forms/SearchBox";
-import { defer } from "@remix-run/node";
+import { defer } from "@vercel/remix";
 import { useLoaderData } from "@remix-run/react";
 import { getSearchParams, SearchParams } from "~/services/search.server";
 import Background from "~/components/Background";

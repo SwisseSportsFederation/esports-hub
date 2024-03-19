@@ -1,10 +1,10 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import { useLoaderData, Form, useFetcher } from "@remix-run/react";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import type { LoaderFunctionArgs } from "@remix-run/router";
-import { getActiveGames, getSearchParams } from "~/services/search.server";
+import type { LoaderFunctionArgs } from '@vercel/remix';
+import { getActiveGames } from "~/services/search.server";
 import { zx } from 'zodix';
 import { z } from "zod";
 import ActionButton from "~/components/Button/ActionButton";
@@ -75,7 +75,7 @@ export default function() {
         method: 'post',
         action: `/admin/api/game`
       });
-      setGameList((await getActiveGames()));
+      // setGameList((await getActiveGames()));
     }
   }
 

@@ -1,8 +1,8 @@
 import TextInput from "./Forms/TextInput";
 import IconButton from "./Button/IconButton";
 import ActionButton from "./Button/ActionButton";
-import type { Social } from "@prisma/client";
-import { SocialPlatform, EntityType } from "@prisma/client";
+import type { Social , EntityType, SocialPlatform } from "@prisma/client";
+import { SocialPlatformValue } from "~/models/database.model";
 import SelectList from "~/components/SelectList";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "@remix-run/react";
@@ -20,7 +20,7 @@ type SelectableSocial = {
 };
 
 const getSelectableSocials = (socials: SelectableSocial[]) => {
-  return Object.values(SocialPlatform).filter(social => !socials.some(soc => soc.platform === social))
+  return Object.values(SocialPlatformValue).filter(social => !socials.some(soc => soc.platform === social))
 }
 
 const getErrorForPath = (path: string, data: any) => {

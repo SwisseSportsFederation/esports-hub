@@ -2,13 +2,13 @@ import H1Nav from "~/components/Titles/H1Nav";
 import SocialSelect from "~/components/SocialSelect";
 import { useLoaderData, useOutletContext } from "@remix-run/react";
 import type { loader as handleLoader } from "~/routes/admin/team/$handle";
-import { json } from "@remix-run/node";
+import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
 import { z } from "zod";
 import type { SerializeFrom } from "@remix-run/server-runtime";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {

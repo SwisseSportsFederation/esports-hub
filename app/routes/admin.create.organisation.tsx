@@ -1,12 +1,13 @@
-import { AccessRight, EntityType, Group, VerificationLevel } from '@prisma/client';
-import type { DataFunctionArgs } from '@remix-run/node';
+import type { Group} from '@prisma/client';
+import type { ActionFunctionArgs} from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import styles from 'react-image-crop/dist/ReactCrop.css';
+import styles from 'react-image-crop/dist/ReactCrop.css?url';
 import EntityDetailBlock from '~/components/Blocks/EntityDetailBlock';
 import { action as apiAction } from '~/routes/admin.api.organisation';
 import { getSearchParams } from '~/services/search.server';
-import dateInputStyles from '~/styles/date-input.css';
+import dateInputStyles from '~/styles/date-input.css?url';
+import { AccessRightValue, EntityTypeValue, VerificationLevelValue } from '~/models/database.model';
 
 export function links() {
   return [
@@ -15,12 +16,12 @@ export function links() {
   ];
 }
 
-export const action = async (args: DataFunctionArgs) => {
+export const action = async (args: ActionFunctionArgs) => {
   return apiAction(args);
 };
 
 export async function loader() {
-  const accessRight = AccessRight.ADMINISTRATOR;
+  const accessRight = AccessRightValue.ADMINISTRATOR;
   const organisation: Group = {
     id: BigInt(0),
     name: '',
@@ -32,8 +33,8 @@ export async function loader() {
     zip: null,
     canton_id: null,
     game_id: null,
-    group_type: EntityType.ORGANISATION,
-    verification_level: VerificationLevel.NOT_VERIFIED,
+    group_type: EntityTypeValue.ORGANISATION,
+    verification_level: VerificationLevelValue.NOT_VERIFIED,
     is_active: true,
   };
   return json({

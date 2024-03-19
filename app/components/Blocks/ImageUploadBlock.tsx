@@ -7,7 +7,7 @@ import type { Crop } from 'react-image-crop';
 import reactImageCropPkg from 'react-image-crop';
 import { useFetcher } from '@remix-run/react';
 import ActionButton from '~/components/Button/ActionButton';
-import { EntityType } from '@prisma/client';
+import type { EntityType } from '@prisma/client';
 import type { StringOrNull } from '~/db/queries.server';
 import { CDN_URL } from '~/constants';
 

@@ -1,9 +1,9 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { json, redirect } from "@remix-run/node";
+import { json, redirect } from "@vercel/remix";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { z } from "zod";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

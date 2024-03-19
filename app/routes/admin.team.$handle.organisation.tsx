@@ -1,7 +1,7 @@
-import { AccessRight, GroupToGroup, RequestStatus } from "@prisma/client";
-import { json } from "@remix-run/node";
+import type { AccessRight, GroupToGroup} from "@prisma/client";
+import type { LoaderFunctionArgs } from '@vercel/remix';
+import { json } from '@vercel/remix';
 import { Form, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
 import { z } from "zod";
@@ -20,6 +20,8 @@ import { db } from "~/services/db.server";
 import { createFlashMessage } from "~/services/toast.server";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { getOrganisationTeamTeasers } from "~/utils/teaserHelper";
+import type { ActionFunctionArgs } from '@remix-run/node';
+import { RequestStatusValue } from '~/models/database.model';
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -59,9 +61,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       child: true
     }
   });
-  const orgTeams = allOrgs.filter(org => org.request_status === RequestStatus.ACCEPTED);
-  const invited = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_GROUP);
-  const pending = allOrgs.filter(org => org.request_status === RequestStatus.PENDING_PARENT_GROUP);
+  const orgTeams = allOrgs.filter(org => org.request_status === RequestStatusValue.ACCEPTED);
+  const invited = allOrgs.filter(org => org.request_status === RequestStatusValue.PENDING_GROUP);
+  const pending = allOrgs.filter(org => org.request_status === RequestStatusValue.PENDING_PARENT_GROUP);
 
   return json({
     access,
@@ -132,4 +134,4 @@ export default function() {
       </Form>
     </Modal>
   </>;
-};
+}

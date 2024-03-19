@@ -3,14 +3,11 @@ import H1 from '~/components/Titles/H1';
 import type { Crop } from 'react-image-crop';
 import Icons from '~/components/Icons';
 import ActionButton from '~/components/Button/ActionButton';
-import type { SyntheticEvent , ChangeEvent} from 'react';
+import type { SyntheticEvent, ChangeEvent } from 'react';
 import { useMemo, useState } from 'react';
-import reactImageCropPkg from 'react-image-crop';
 import imageCompression from 'browser-image-compression';
 import type { Setter } from '~/models/general.model';
-
-// @ts-ignore
-const {default: ReactCrop, centerCrop, makeAspectCrop} = reactImageCropPkg;
+import { centerCrop, makeAspectCrop, ReactCrop } from 'react-image-crop';
 
 export const ImageUploadModal = (
   {crop, setCrop, uploadOpen, setUploadOpen, setImgSrc, setReadyForUpload}:

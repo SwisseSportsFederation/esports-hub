@@ -1,8 +1,7 @@
-import { AccessRight, Prisma, RequestStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@remix-run/router";
+import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from '@vercel/remix';
 import { z } from "zod";
 import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
@@ -14,7 +13,8 @@ import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilters";
 import { getOrganisationMemberTeasers, getTeamTeasers } from "~/utils/teaserHelper";
-import { useFetcher } from "@remix-run/react";
+import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
+import { useFetcher, useLoaderData } from '@remix-run/react';
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   /* Apply for Organisation */
@@ -30,9 +30,9 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
     await db.groupMember.create({
       data: {
-        access_rights: AccessRight.MEMBER,
+        access_rights: AccessRightValue.MEMBER,
         is_main_group: false,
-        request_status: RequestStatus.PENDING_GROUP,
+        request_status: RequestStatusValue.PENDING_GROUP,
         joined_at: new Date(),
         role: "Member",
         user: { connect: { id: BigInt(user.db.id) }},
@@ -66,7 +66,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       children: { include: { child: { include: { game: true } } } },
       members: {
         where: {
-          request_status: RequestStatus.ACCEPTED
+          request_status: RequestStatusValue.ACCEPTED
         },
         include: { user: { include: { games: {
           where: {
