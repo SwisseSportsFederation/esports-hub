@@ -19,7 +19,7 @@ import { db } from "~/services/db.server";
 import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth } from "~/utils/auth.server";
 import { getTeamTeasers } from "~/utils/teaserHelper";
-import type { loader as handleLoader } from '~/routes/admin.organisation.$handle';
+import type { loader as handleLoader } from '~/routes/admin+/organisation.$handle+/admin.organisation.$handle';
 import { RequestStatusValue } from '~/models/database.model';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

@@ -5,6 +5,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import mdx from '@mdx-js/rollup';
 import remarkFrontMatter from 'remark-frontmatter';
 import remarkMdxFrontMatter from 'remark-mdx-frontmatter';
+import { flatRoutes } from 'remix-flat-routes';
 
 export default defineConfig({
   server: {
@@ -20,6 +21,10 @@ export default defineConfig({
     }),
     remix({
         presets: [vercelPreset()],
+        ignoredRouteFiles: ['**/*'],
+        routes: async defineRoutes => {
+          return flatRoutes('routes', defineRoutes);
+        },
       },
     ),
   ],

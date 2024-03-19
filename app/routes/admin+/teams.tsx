@@ -17,7 +17,7 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import H1 from "~/components/Titles/H1";
 import H1Nav from "~/components/Titles/H1Nav";
 import type { StringOrNull } from "~/db/queries.server";
-import type { loader as adminLoader } from "~/routes/admin";
+import type { loader as adminLoader } from "~/routes/admin+/_layout";
 import type { Membership } from "~/services/admin/index.server";
 import { db } from "~/services/db.server";
 import dateInputStyles from "~/styles/date-input.css?url";
@@ -76,7 +76,7 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
     <div className="flex justify-center text-center text-2xl mb-8 text-color">
       {text}
     </div>
-    <fetcher.Form method='post' action={`/admin/api/groupMember`} className='flex justify-between gap-2' onSubmit={() => activeFunction(null)}>
+    <fetcher.Form method='post' action={`/admin/api/group/member`} className='flex justify-between gap-2' onSubmit={() => activeFunction(null)}>
       <input type='hidden' name='intent' value={intent}/>
       <input type='hidden' name='userId' value={userId}/>
       {isOpen && <ActionButton content='Yes' type='submit' name={submitName} value={isOpen}/>}
@@ -85,7 +85,7 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
   </Modal>;
 
 const mainTeamIcon = (groupId: string, isMainTeam: boolean | null, userId: string, fetcher: FetcherWithComponents<any>) =>
-  <fetcher.Form method='post' action={`/admin/api/groupMember`} className={isMainTeam ? 'text-yellow-400' : 'text-gray-3'}>
+  <fetcher.Form method='post' action={`/admin/api/group/member`} className={isMainTeam ? 'text-yellow-400' : 'text-gray-3'}>
     <input type='hidden' name='intent' value='CHANGE_MAIN_GROUP'/>
     <input type='hidden' name='userId' value={userId}/>
     <IconButton icon='star' type='submit' name='groupId' value={groupId} className="rounded-none mx-1"/>
@@ -94,7 +94,7 @@ const mainTeamIcon = (groupId: string, isMainTeam: boolean | null, userId: strin
 const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void, userId: string, fetcher: FetcherWithComponents<any>) =>
   <Modal isOpen={isOpen} handleClose={() => handleClose(false)}>
     <H1 className='text-2xl text-color'>Add new Former Team</H1>
-    <fetcher.Form method='post' action={`/admin/api/groupMember`} id="createFormerTeamForm" onSubmit={() => handleClose(false)}
+    <fetcher.Form method='post' action={`/admin/api/group/member`} id="createFormerTeamForm" onSubmit={() => handleClose(false)}
           className='flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
       <input type='hidden' name='intent' value='CREATE_FORMER_TEAM'/>
       <input type='hidden' name='userId' value={userId}/>
@@ -149,7 +149,7 @@ export default function() {
                                          team={member.handle}
                                          games={member.game ? [member.game] : []}
                                          additionalIcons={mainTeamIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
-                  <fetcher.Form method='post' action={`/admin/api/groupMember`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
+                  <fetcher.Form method='post' action={`/admin/api/group/member`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                     <input type='hidden' name='intent' value='UPDATE_GROUP'/>
                     <input type='hidden' name='userId' value={user.db.id}/>
                     <DateInput name='joinedAt' label='Joined at' value={new Date(member.joined_at)}/>
@@ -172,7 +172,7 @@ export default function() {
               return <ExpandableTeaser key={formerTeam.id} avatarPath={null} name={formerTeam.name}
                                        team={""}
                                        games={[]}>
-                <fetcher.Form method='post' action={`/admin/api/groupMember`} className='p-5 flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
+                <fetcher.Form method='post' action={`/admin/api/group/member`} className='p-5 flex items-center flex-col space-y-6 w-full max-w-xl mx-auto'>
                   <input type='hidden' name='intent' value='UPDATE_FORMER_TEAM'/>
                   <input type='hidden' name='userId' value={user.db.id}/>
                   <TextInput id='name' label='Team name' defaultValue={formerTeam.name}/>

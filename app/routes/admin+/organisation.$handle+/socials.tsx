@@ -6,7 +6,7 @@ import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
-import type { loader as handleLoader } from "~/routes/admin/organisation/$handle";
+import type { loader as handleLoader } from "~/routes/admin+/organisation/$handle";
 import { z } from "zod";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 
