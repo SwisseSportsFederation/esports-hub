@@ -19,7 +19,7 @@ const SelectNewAdminModal = (
 	const searchTeaser = (fetcher.data?.members ?? []).map(member => ({ ...member, ...member.user })).filter(member => member.user_id !== userId);
 
 	const addAsAdminIcon = (teaser: ITeaserProps) => {
-		return <fetcher.Form method='post' action={`/admin/api/groupMember`} onSubmit={() => handleClose(false)}>
+		return <fetcher.Form method='post' action={`/admin/api/group/member`} onSubmit={() => handleClose(false)}>
 		<input type='hidden' name='groupId' value={groupId}/>
 		<input type='hidden' name='newAdminUserId' value={teaser.id}/>
 		<input type='hidden' name='userId' value={userId}/>

@@ -1,6 +1,6 @@
 import EditOverviewBlock from '~/components/Blocks/EditOverviewBlock';
 import { useOutletContext } from '@remix-run/react';
-import type { loader as handleLoader } from '~/routes/admin.organisation.$handle';
+import type { loader as handleLoader } from '~/routes/admin+/organisation.$handle+/_layout';
 import type { SerializeFrom } from '@remix-run/server-runtime';
 
 export default function () {

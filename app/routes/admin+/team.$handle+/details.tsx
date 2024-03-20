@@ -1,6 +1,6 @@
 import styles from 'react-image-crop/dist/ReactCrop.css?url';
 import { useLoaderData, useOutletContext } from '@remix-run/react';
-import type { loader as handleLoader } from '~/routes/admin.team.$handle';
+import type { loader as handleLoader } from '~/routes/admin+/team.$handle+/admin.team.$handle';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { json, redirect } from '@vercel/remix';
 import { checkHandleAccessForEntity, checkUserAuth } from '~/utils/auth.server';

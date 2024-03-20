@@ -19,7 +19,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function Admin() {
+export default function _layout() {
   const { user, memberships, userValid } = useLoaderData<typeof loader>();
   const location = useLocation();
   const navigate = useNavigate();

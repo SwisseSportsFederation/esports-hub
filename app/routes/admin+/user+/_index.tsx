@@ -1,7 +1,7 @@
 import EditOverviewBlock from "~/components/Blocks/EditOverviewBlock";
 import { useOutletContext } from "@remix-run/react";
 import { SerializeFrom } from "@remix-run/server-runtime";
-import type { loader as adminLoader } from "~/routes/admin";
+import type { loader as adminLoader } from "~/routes/admin+/_layout";
 
 export default function() {
   const { user } = useOutletContext<SerializeFrom<typeof adminLoader>>();

@@ -14,7 +14,7 @@ import TeaserList from '~/components/Teaser/TeaserList';
 import H1 from '~/components/Titles/H1';
 import H1Nav from '~/components/Titles/H1Nav';
 import type { StringOrNull } from '~/db/queries.server';
-import type { loader as adminLoader } from '~/routes/admin';
+import type { loader as adminLoader } from '~/routes/admin+/_layout';
 import type { Membership } from '~/services/admin/index.server';
 import dateInputStyles from '~/styles/date-input.css?url';
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
@@ -56,7 +56,7 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
     <div className="flex justify-center text-center text-2xl mb-8 text-color">
       {text}
     </div>
-    <fetcher.Form method="post" action={`/admin/api/groupMember`} className="flex justify-between gap-2"
+    <fetcher.Form method="post" action={`/admin/api/group/member`} className="flex justify-between gap-2"
                   onSubmit={() => activeFunction(null)}>
       <input type="hidden" name="intent" value={intent}/>
       <input type="hidden" name="userId" value={userId}/>
@@ -66,7 +66,7 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
   </Modal>;
 
 const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, userId: string, fetcher: FetcherWithComponents<any>) =>
-  <fetcher.Form method="post" action={`/admin/api/groupMember`}
+  <fetcher.Form method="post" action={`/admin/api/group/member`}
                 className={isMainOrg ? 'text-yellow-400' : 'text-gray-3'}>
     <input type="hidden" name="intent" value="CHANGE_MAIN_GROUP"/>
     <input type="hidden" name="userId" value={userId}/>
@@ -111,7 +111,7 @@ export default function () {
                                        team={member.handle}
                                        games={member.game ? [member.game] : []}
                                        additionalIcons={mainOrgIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
-                <fetcher.Form method="post" action={`/admin/api/groupMember`}
+                <fetcher.Form method="post" action={`/admin/api/group/member`}
                               className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
                   <input type="hidden" name="intent" value="UPDATE_GROUP"/>
                   <input type="hidden" name="userId" value={user.db.id}/>
