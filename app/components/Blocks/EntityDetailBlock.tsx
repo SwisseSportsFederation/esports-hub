@@ -78,7 +78,8 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
   return <>
     <div className="mx-3">
       <div className="w-full max-w-prose mx-auto">
-        <H1Nav path={path} title="Details"/>
+        {!create && <H1Nav path={path} title="Details"/>}
+        {create && <H1>Create {entityType.toLocaleLowerCase()}</H1>}
         <div className="max-w-md mx-auto mb-6">
           {!create && <ImageUploadBlock entityId={entityId} entity={entityType} imageId={imageId}/>}
         </div>
@@ -105,7 +106,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
                       <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>Game *</span>
                   </label>
                   <DropdownInput name="game" selected={game ?? null} inputs={searchParams.games} isBig={true}
-                                 className="mt-1 block" showDefaultOption={false}/>
+                                 className="mt-1 block" showDefaultOption={false} required={true}/>
               </div>
           }
 
