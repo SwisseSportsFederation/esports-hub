@@ -15,13 +15,14 @@ type DropdownInputProps = {
   showSelected?: boolean,
   defaultOption?: IdValue,
   showDefaultOption?: boolean,
-  sendDefaultOption?: boolean
+  sendDefaultOption?: boolean,
+  required?: boolean
 }
 
 const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
   const {
     inputs, name, selected, className, sendDefaultOption = true, showDefaultOption = true,
-    onChange, search = false, isBig = false, showSelected = true, defaultOption = { id: 'All', name: 'All' }
+    onChange, search = false, isBig = false, showSelected = true, defaultOption = { id: 'All', name: 'All' }, required = false
   } = props;
   const [value, setValue] = useState(selected ?? defaultOption);
 
@@ -31,7 +32,7 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
     "h-10 text-md": isBig,
     "text-sm": !isBig
   }, "py-1 pl-3 pr-10 relative inline-flex items-center justify-between rounded-xl bg-white border" +
-    "border-gray-300 w-full");
+  "border-gray-300 w-full");
   const wrapperClasses = classNames({ "relative": !search }, className || "mt-1 inline-block")
 
   const onValueChange = (value: IdValue) => {
@@ -40,7 +41,7 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
   }
 
   let labelText = name;
-  if(value.name !== "All" && showSelected) {
+  if (value.name !== "All" && showSelected) {
     labelText = value.name;
   }
 
@@ -49,12 +50,12 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
   }
 
   return <>
-    {(value.id !== defaultOption.id || sendDefaultOption) && <input type="hidden" name={name} value={getInputValue()}/>}
+    {(value.id !== defaultOption.id || sendDefaultOption) && <input type="hidden" name={name} value={getInputValue()} />}
     <Listbox value={value} onChange={onValueChange}>
       <div className={wrapperClasses}>
         <Listbox.Button className={listBoxButton}>
           <span className="whitespace-nowrap overflow-hidden capitalize">{labelText}</span>
-          <Icon iconName='arrowDown' className="h-5 w-5 absolute right-2 mt-auto mb-auto z-[1]"/>
+          <Icon iconName='arrowDown' className="h-5 w-5 absolute right-2 mt-auto mb-auto z-[1]" />
         </Listbox.Button>
         <Transition
           as={Fragment}
@@ -86,6 +87,14 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
         </Transition>
       </div>
     </Listbox>
+    { inputs.length > 0 &&
+      <select onClick={() => { }} onChange={() => { }} tabIndex={-1} value={getInputValue()} name={name+`-select`} required={required} aria-hidden="true" autoCapitalize="off" autoComplete="off" className="w-full z-0 h-[1px] select-none text-transparent bg-transparent absolute bottom-[15px] left-0 !outline-none opacity-0 shadow-none appearance-none">
+        <option value="" defaultChecked aria-hidden="true"></option>
+        {inputs.map((input) => {
+          return <option key={Number(input.id)} value={input.id} aria-hidden="true">{input.name}</option>
+        })}
+      </select>
+    }
   </>;
 };
 
