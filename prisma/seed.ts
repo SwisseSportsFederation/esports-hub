@@ -17,7 +17,7 @@ async function seed() {
       { name: "Nidwalden" },
       { name: "Glarus" },
       { name: "Zug" },
-      { name: "Freiburg" },
+      { name: "Fribourg/Freiburg" },
       { name: "Solothurn" },
       { name: "Basel-Stadt" },
       { name: "Basel-Landschaft" },
@@ -28,11 +28,11 @@ async function seed() {
       { name: "Graubünden" },
       { name: "Aargau" },
       { name: "Thurgau" },
-      { name: "Tessin" },
-      { name: "Waadt" },
-      { name: "Wallis" },
-      { name: "Neuenburg" },
-      { name: "Genf" },
+      { name: "Ticino" },
+      { name: "Vaud" },
+      { name: "Valais/Wallis" },
+      { name: "Neuchâtel" },
+      { name: "Genève" },
       { name: "Jura" }
     ]
   });
@@ -42,7 +42,7 @@ async function seed() {
       { name: 'League of Legends', is_active: true },
       { name: 'Call of Duty', is_active: true },
       { name: 'Hearthstone', is_active: true },
-      { name: 'Counterstrike', is_active: true },
+      { name: 'Counter Strike 2', is_active: true },
       { name: 'Valorant', is_active: true },
       { name: 'Overwatch', is_active: true },
       { name: 'Fortnite', is_active: true }
