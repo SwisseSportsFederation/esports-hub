@@ -4,15 +4,12 @@ import Icons from '~/components/Icons';
 import Modal from '~/components/Notifications/Modal';
 import H1 from '~/components/Titles/H1';
 import type { Crop } from 'react-image-crop';
-import reactImageCropPkg from 'react-image-crop';
+import ReactCrop, {centerCrop, makeAspectCrop} from 'react-image-crop';
 import { useFetcher } from '@remix-run/react';
 import ActionButton from '~/components/Button/ActionButton';
 import type { EntityType } from '@prisma/client';
 import type { StringOrNull } from '~/db/queries.server';
 import { CDN_URL } from '~/constants';
-
-// @ts-ignore
-const {default: ReactCrop, centerCrop, makeAspectCrop} = reactImageCropPkg;
 
 type ImageUploadBlockPropTypes = {
   entity: EntityType,
@@ -113,7 +110,7 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
           <input type="hidden" defaultValue={entityId} name="entityId"/>
           <div className="w-full aspect-square flex mb-4 items-center">
             {!!imgSrc && <div className="w-full">
-                <ReactCrop onChange={(_: unknown, crop: Crop) => setCrop(crop)} crop={crop} circularCrop={true} aspect={1}
+                <ReactCrop onChange={(crop: Crop) => setCrop(crop)} crop={crop} circularCrop={true} aspect={1}
                            keepSelection={true} className='w-full'>
                     <img src={imgSrc} onLoad={onImageLoad} alt="new profile" className="w-full"/>
                 </ReactCrop>
