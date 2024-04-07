@@ -39,7 +39,10 @@ AUTH0_CLIENT_ID="FxDqC9cvJ3ot7XCyEbblFYMjN8ipTZ2z"
 AUTH0_CLIENT_SECRET=xxxxx
 AUTH0_DOMAIN="sesf.eu.auth0.com"
 AUTH0_CALLBACK_URL="http://localhost:3000/auth/callback"
-CLOUDFLARE_BEARER=xxxxx
+MINIO_ENDPOINT=xxxxx
+MINIO_ACCESS_KEY=xxxxx
+MINIO_SECRET_KEY=xxxxx
+MINIO_BUCKET_NAME=xxxxx
 ```
 Replace xxxxx with the proper values
 ## Development

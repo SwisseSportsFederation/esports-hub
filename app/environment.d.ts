@@ -10,7 +10,10 @@ declare global {
       AUTH0_MANAGEMENT_CLIENT_SECRET: string;
       AUTH0_CALLBACK_URL: string;
       AUTH0_CONNECTION: string;
-      CLOUDFLARE_BEARER: string;
+      MINIO_ENDPOINT: string;
+      MINIO_ACCESS_KEY: string;
+      MINIO_SECRET_KEY: string;
+      MINIO_BUCKET_NAME: string;
     }
   }
 }

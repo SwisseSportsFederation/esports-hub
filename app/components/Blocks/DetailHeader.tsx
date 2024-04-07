@@ -27,7 +27,7 @@ const DetailHeader = (props: IDetailHeaderProps) => {
 
   return (
     <div className="max-w-full">
-      <div className="p-3 rounded-xl bg-white bg-gray-7 dark:bg-gray-2">
+      <div className="p-3 rounded-xl bg-gray-7 dark:bg-gray-2">
         <div className="flex justify-center relative">
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
             {!imagePath && <Icons iconName='user' className={`absolute text-black p-2 bg-white rounded-full`}/>}

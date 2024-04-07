@@ -79,7 +79,7 @@ function App() {
     <body>
     {message ? <Toast text={message}/> : null}
     <div id="modal-root"/>
-    <div className='min-h-screen min-h-[-webkit-fill-available] dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
+    <div className='min-h-dvh dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
       <Header forceWhiteText={forceWhiteText}/>
       <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
         <Outlet/>
@@ -115,7 +115,7 @@ export function ErrorBoundary() {
       </head>
       <body>
       <div id="modal-root"/>
-      <div className='min-h-screen min-h-[-webkit-fill-available]
+      <div className='min-h-dvh
               dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
         <div className="flex items-center p-4 md:px-8">
           <Link to={'/'} className="w-full flex justify-center">
@@ -137,5 +137,16 @@ export function ErrorBoundary() {
       </body>
       </html>
     );
+  } else if (error instanceof Error) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+        <p>The stack trace is:</p>
+        <pre>{error.stack}</pre>
+      </div>
+    );
+  } else {
+    return <h1>Unknown Error</h1>;
   }
 }

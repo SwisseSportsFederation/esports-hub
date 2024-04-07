@@ -110,7 +110,7 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
           <input type="hidden" defaultValue={entityId} name="entityId"/>
           <div className="w-full aspect-square flex mb-4 items-center">
             {!!imgSrc && <div className="w-full">
-                <ReactCrop onChange={(crop: Crop) => setCrop(crop)} crop={crop} circularCrop={true} aspect={1}
+                <ReactCrop onChange={(_: unknown, crop: Crop) => setCrop(crop)} crop={crop} circularCrop={true} aspect={1}
                            keepSelection={true} className='w-full'>
                     <img src={imgSrc} onLoad={onImageLoad} alt="new profile" className="w-full"/>
                 </ReactCrop>
