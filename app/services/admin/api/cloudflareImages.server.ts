@@ -21,14 +21,14 @@ export const resize = async (original: Buffer, cropData: Crop): Promise<File> =>
     })
     .webp()
     .toBuffer();
-  return new File([buffer], 'image')
+  return new File([buffer], 'image', {type: 'image/webp'})
 };
 
 const getMinioClient = () => {
   if (process.env.MINIO_ACCESS_KEY && process.env.MINIO_SECRET_KEY) {
     return new Minio.Client({
       endPoint: process.env.MINIO_ENDPOINT,
-      port: 9000,
+      port: Number(process.env.MINIO_PORT),
       useSSL: true,
       accessKey: process.env.MINIO_ACCESS_KEY,
       secretKey: process.env.MINIO_SECRET_KEY,
@@ -48,7 +48,7 @@ export const deleteImage = async (imageId: StringOrNull) => {
   return minioClient.removeObject(process.env.MINIO_BUCKET_NAME, imageId)
 };
 
-export const upload = async (croppedImage: File): Promise<{ result: { id: string } }> => {
+export const upload = async (croppedImage: File, fileName: string): Promise<{ result: { id: string } }> => {
   const metaData = {
     'Content-Type': croppedImage.type,
   };
@@ -58,14 +58,21 @@ export const upload = async (croppedImage: File): Promise<{ result: { id: string
     if (!process.env.MINIO_BUCKET_NAME) {
       throw Error('Minio Bucket Name not known')
     }
-    minioClient.putObject(process.env.MINIO_BUCKET_NAME, croppedImage.name, fileBuffer, fileBuffer.byteLength, metaData, function (err: any, objInfo: UploadedObjectInfo) {
+    minioClient.putObject(process.env.MINIO_BUCKET_NAME, fileName, fileBuffer, fileBuffer.byteLength, metaData, function (err: any, objInfo: UploadedObjectInfo) {
       if (err) {
         console.error('Error uploading object to Minio:', err);
         reject(err);
       } else {
-        console.log('Success:', objInfo.etag, objInfo.versionId);
-        resolve({ result: { id: objInfo.etag } });
+        console.log('Success:', fileName, objInfo.etag, objInfo.versionId);
+        resolve({ result: { id: fileName } });
       }
     })
   })
 };
+
+export const getImageRoot = (): string => {
+  if (process.env.MINIO_ENDPOINT && process.env.MINIO_BUCKET_NAME) {
+    return `https://${process.env.MINIO_ENDPOINT}/${process.env.MINIO_BUCKET_NAME}/`
+  }
+  return ""
+}

@@ -1,15 +1,15 @@
+import type { EntityType } from '@prisma/client';
+import { useFetcher } from '@remix-run/react';
 import type { ChangeEvent, SyntheticEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import type { Crop } from 'react-image-crop';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import ActionButton from '~/components/Button/ActionButton';
 import Icons from '~/components/Icons';
 import Modal from '~/components/Notifications/Modal';
 import H1 from '~/components/Titles/H1';
-import type { Crop } from 'react-image-crop';
-import ReactCrop, {centerCrop, makeAspectCrop} from 'react-image-crop';
-import { useFetcher } from '@remix-run/react';
-import ActionButton from '~/components/Button/ActionButton';
-import type { EntityType } from '@prisma/client';
+import { useImage } from '~/context/image-provider';
 import type { StringOrNull } from '~/db/queries.server';
-import { CDN_URL } from '~/constants';
 
 type ImageUploadBlockPropTypes = {
   entity: EntityType,
@@ -18,6 +18,7 @@ type ImageUploadBlockPropTypes = {
 }
 
 const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes) => {
+  const imageRoot = useImage();
   const [uploadOpen, setUploadOpen] = useState(false);
   const [deleteImageOpen, setDeleteImageOpen] = useState(false);
   const [crop, setCrop] = useState<Crop>();
@@ -65,7 +66,7 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
   return <>
     <div className="relative flex items-center w-full max-w-lg bg-white dark:bg-gray-2 rounded-3xl p-5">
       <div className={`relative mr-5 group h-16 w-16 rounded-full overflow-hidden`}>
-        {imageId && <img src={`${CDN_URL}/${imageId}/public`} alt="User profile"
+        {imageId && <img src={imageRoot+imageId} alt="User profile"
                          className={`absolute`}/>}
         {!imageId && <Icons iconName="user" className="absolute m-1"/>}
       </div>

@@ -23,6 +23,8 @@ import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
 import { ThemeHead, ThemeBody, ThemeProvider, useTheme } from "~/context/theme-provider";
 import { getThemeSession } from "~/services/theme.server";
+import { ImageProvider } from "./context/image-provider";
+import { getImageRoot } from "./services/admin/api/cloudflareImages.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -49,6 +51,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     message,
     user,
     theme: themeSession.getTheme(),
+    imageRoot: getImageRoot()
   }, {
     ...(message && {
       headers: {
@@ -95,10 +98,12 @@ function App() {
 }
 
 export default function AppWithProviders() {
-  const { theme } = useLoaderData<typeof loader>();
+  const { theme, imageRoot } = useLoaderData<typeof loader>();
   return (
     <ThemeProvider specifiedTheme={theme}>
-      <App/>
+      <ImageProvider imageRoot={imageRoot}>
+        <App/>
+      </ImageProvider>
     </ThemeProvider>
   );
 }
