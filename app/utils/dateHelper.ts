@@ -48,5 +48,5 @@ export const isToday = (day: Date): boolean => {
 };
 
 export const dateInRange = (date: Date, min?: Date, max?: Date): boolean => {
-  return !((max && date > max) || (min && date < min)) ?? true;
+  return !((max && date > max) || (min && date < min));
 };
