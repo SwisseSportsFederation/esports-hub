@@ -5,6 +5,7 @@ import { zx } from 'zodix';
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { RequestStatus, AccessRight, EntityType } from "@prisma/client";
+import { createFlashMessage } from "~/services/toast.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -26,7 +27,7 @@ const promoteUser = async (userId: number, newAdminUserId: string, groupId: numb
 	// todo: potentially send email
 }
 
-const leaveGroup = async (userId: number, groupId: number) => {
+const leaveGroup = async (request: Request, userId: number, groupId: number) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 
 	const group = await db.group.findFirst({
@@ -78,10 +79,11 @@ const leaveGroup = async (userId: number, groupId: number) => {
 			});
 		}
 	}
-	return json({});
+	const headers = await createFlashMessage(request, 'group left');
+	return json({}, headers);
 }
 
-const updateGroup = async (userId: number, groupId: number, joinedAt: string) => {
+const updateGroup = async (request: Request, userId: number, groupId: number, joinedAt: string) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 	await db.groupMember.update({
 		where: {
@@ -94,10 +96,11 @@ const updateGroup = async (userId: number, groupId: number, joinedAt: string) =>
 			joined_at: new Date(joinedAt)
 		}
 	});
-	return json({});
+	const headers = await createFlashMessage(request, 'group updated');
+	return json({}, headers);
 }
 
-const changeMainGroup = async (userId: number, groupId: number) => {
+const changeMainGroup = async (request: Request, userId: number, groupId: number) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
 
 	await db.groupMember.updateMany({
@@ -119,10 +122,11 @@ const changeMainGroup = async (userId: number, groupId: number) => {
 			is_main_group: true
 		}
 	});
-	return json({});
+	const headers = await createFlashMessage(request, 'main group changed');
+	return json({}, headers);
 }
 
-const updateFormerTeam = async (userId: number, name: string, from: string, to: string, formerTeamName: string) => {
+const updateFormerTeam = async (request: Request, userId: number, name: string, from: string, to: string, formerTeamName: string) => {
 	await db.formerTeam.update({
 		where: {
 			user_id_name: {
@@ -136,10 +140,11 @@ const updateFormerTeam = async (userId: number, name: string, from: string, to: 
 			to: new Date(to)
 		}
 	});
-	return json({});
+	const headers = await createFlashMessage(request, 'updated former team');
+	return json({}, headers);
 }
 
-const createFormerTeam = async (userId: number, name: string, from: string, to: string) => {
+const createFormerTeam = async (request: Request, userId: number, name: string, from: string, to: string) => {
 	await db.formerTeam.create({
 		data: {
 			user_id: userId,
@@ -148,11 +153,12 @@ const createFormerTeam = async (userId: number, name: string, from: string, to: 
 			to: new Date(to)
 		}
 	});
-	return json({});
+	const headers = await createFlashMessage(request, 'create former team');
+	return json({}, headers);
 }
 
 
-const leaveFormerTeam = async (userId: number, formerTeamName: string) => {
+const leaveFormerTeam = async (request: Request, userId: number, formerTeamName: string) => {
 	await db.formerTeam.delete({
 		where: {
 			user_id_name: {
@@ -161,7 +167,8 @@ const leaveFormerTeam = async (userId: number, formerTeamName: string) => {
 			}
 		}
 	});
-	return json({});
+	const headers = await createFlashMessage(request, 'left former team');
+	return json({}, headers);
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -209,40 +216,42 @@ export const action: ActionFunction = async ({ request }) => {
 		throw json({}, 403);
 	}
 
+	let headers = undefined
 	switch (data.intent) {
 		case "PROMOTE_USER": {
 			const { newAdminUserId, groupId } = data;
 			promoteUser(userId, newAdminUserId, groupId);
+			headers = await createFlashMessage(request, 'Member promoted');
 			// purpose fallthrough
 		}
 		case "LEAVE_GROUP": {
 			const { groupId } = data;
-			return leaveGroup(userId, groupId);
+			return leaveGroup(request, userId, groupId);
 		}
 		case "UPDATE_GROUP": {
 			const { joinedAt, groupId } = data;
 			if (joinedAt) {
-				return updateGroup(userId, groupId, joinedAt);
+				return updateGroup(request, userId, groupId, joinedAt);
 			} else {
 				throw json({}, 400);
 			}
 		}
 		case "CHANGE_MAIN_GROUP": {
 			const { groupId } = data;
-			return changeMainGroup(userId, groupId);
+			return changeMainGroup(request, userId, groupId);
 		}
 		case "UPDATE_FORMER_TEAM": {
 			const { name, from, to, formerTeamName } = data;
-			return updateFormerTeam(userId, name, from, to, formerTeamName);
+			return updateFormerTeam(request, userId, name, from, to, formerTeamName);
 		}
 		case "CREATE_FORMER_TEAM": {
 			const { name, from, to } = data;
-			return createFormerTeam(userId, name, from, to);
+			return createFormerTeam(request, userId, name, from, to);
 		}
 		case "LEAVE_FORMER_TEAM": {
 			const { formerTeamName } = data;
-			return leaveFormerTeam(userId, formerTeamName);
+			return leaveFormerTeam(request, userId, formerTeamName);
 		}
 	}
-	return json({});
+	return json({}, headers);
 }

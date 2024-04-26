@@ -16,7 +16,6 @@ import { RequestStatusValue } from '~/models/database.model';
 const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType): ITeaserProps[] => {
   return memberships.filter(mem => mem.group_type === entity).map((mem: SerializeFrom<Membership>) => {
     const pathSegment = entityToPathSegment(entity);
-    console.log(pathSegment);
     const canEdit = ['MODERATOR', 'ADMINISTRATOR'].includes(mem.access_rights)
     const icons = canEdit ?
       <IconButton icon='edit' type='link' path={`/admin/${pathSegment}/${mem.handle}`}/> : undefined;
