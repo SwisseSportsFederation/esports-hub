@@ -121,14 +121,14 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           }
           <div className="relative w-full max-w-sm lg:max-w-full">
             <label>
-              <span className={`absolute left-4 text-xs -top-4 text-color`}>Canton</span>
+              <span className={`absolute left-4 text-xs -top-4 text-color`}>Canton *</span>
             </label>
             <DropdownInput name="canton" selected={canton ?? null} inputs={searchParams.cantons}
                            sendDefaultOption={false} isBig={true} className="mt-1 block"
-                           defaultOption={{id: '', name: ''}}/>
+                           defaultOption={{id: '', name: ''}} required={true}/>
           </div>
           <DropDownAdder name="languages" label="Language" values={searchParams.languages}
-                         defaultValues={languages}/>
+                         defaultValues={languages} required={true}/>
           <ActionButton content="Save" type="submit" disabled={!profilePicReady}/>
         </Form>
       </div>
