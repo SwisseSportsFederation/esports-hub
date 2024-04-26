@@ -99,44 +99,26 @@ const updateGroup = async (userId: number, groupId: number, joinedAt: string) =>
 
 const changeMainGroup = async (userId: number, groupId: number) => {
 	await checkIdAccessForEntity(userId.toString(), groupId, 'MEMBER');
-	const group = await db.group.findUnique({
+
+	await db.groupMember.updateMany({
 		where: {
-			id: groupId
+			user_id: userId,
 		},
-		select: {
-			group_type: true
+		data: {
+			is_main_group: false
 		}
-	})
-	if(!!group) {
-		await db.groupMember.updateMany({
-			where: {
-				AND: [
-					{
-						user_id: userId,
-					},
-					{
-						group: {
-							group_type: group.group_type
-						}
-					}
-				]
-			},
-			data: {
-				is_main_group: false
+	});
+	await db.groupMember.update({
+		where: {
+			user_id_group_id: {
+				user_id: userId,
+				group_id: groupId
 			}
-		});
-		await db.groupMember.update({
-			where: {
-				user_id_group_id: {
-					user_id: userId,
-					group_id: groupId
-				}
-			},
-			data: {
-				is_main_group: true
-			}
-		});
-	}
+		},
+		data: {
+			is_main_group: true
+		}
+	});
 	return json({});
 }
 

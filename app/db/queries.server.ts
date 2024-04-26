@@ -183,7 +183,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             gro2.is_active = TRUE
         AND
             LOWER(gro2.handle) LIKE ${searchString}
-        AND gam2.name LIKE ${gameString} OR ${gameString} = '%'
+        AND (gam2.name LIKE ${gameString} OR ${gameString} = '%')
               --
               --   GROUP BY
               --

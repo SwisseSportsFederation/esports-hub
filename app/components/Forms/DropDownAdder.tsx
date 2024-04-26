@@ -7,11 +7,12 @@ interface IDropDownAdderProps {
   name: string,
   label: string,
   values: IdValue[],
-  defaultValues: IdValue[]
+  defaultValues: IdValue[],
+  required?: boolean,
 }
 
 const DropDownAdder = (props: IDropDownAdderProps) => {
-  const { name, label, values, defaultValues = [] } = props;
+  const { name, label, values, defaultValues = [], required = false } = props;
   let [selectableValues, setSelectableValues] = useState(values.filter((value) => !defaultValues.some((defaultValue) => defaultValue.id === value.id)))
   let [selectedValues, setSelectedValues] = useState(defaultValues);
 
@@ -44,14 +45,14 @@ const DropDownAdder = (props: IDropDownAdderProps) => {
   return <>
     <div className="w-full max-w-sm lg:max-w-full relative">
       <label>
-        <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>{label}</span>
+        <span className={`absolute text-xs left-4 -top-4 transition-all text-color`}>{label}{required ? ' *' : ''}</span>
       </label>
       <DropDownInput name={label} inputs={selectableValues} selected={null} isBig={true} className="mt-1 block"
-                     onChange={addItem} showSelected={false}/>
+                     onChange={addItem} showSelected={false} required={required && selectedValues.length === 0}/>
       {selectedValues.map((value, index) =>
         <ActionBlock key={`action-${index}`} title={value.name} onAction={() => removeItem(value)} className="mt-4"/>
       )}
-      <input type='hidden' name={name} value={JSON.stringify(selectedValues.map(value => value.id))}/>
+      <input type='hidden' name={name} value={JSON.stringify(selectedValues.map(value => value.id))} required={required}/>
     </div>
   </>
 };
