@@ -7,7 +7,7 @@ On the web application you can find all entities and their relations. Informatio
 
 ## Switch to right node version
 
-It is recommended to use the node version manager, which can manage multiple node version on your machine and can define a node version per project.This makes it independent from your global node version on your machine.
+It is recommended to use the node version manager, which can manage multiple node version on your machine and can define a node version per project. This makes it independent from your global node version on your machine.
 
 On Windows, you might need to remove your current node installation in order to delegate the node installs to nvm.
 
@@ -25,32 +25,21 @@ Note: nvm for windows unfortunately can't read the node version from the .nvmrc 
 ## Installation
 
 ```sh
-yarn install
-yarn prisma db push
-yarn prisma db seed
+pnpm install
+pnpm prisma db push
+pnpm prisma db seed
 ```
 
 ## ENV
+You can find an example env file with the name `.env.example`. Replace xxxxx with the proper values and rename it to `.env`
 
-```dotenv
-SESSION_SECRET=xxxxx
-DATABASE_URL="postgresql://sesf:sesf@localhost:5433/sesf?schema=public"
-AUTH0_CLIENT_ID="FxDqC9cvJ3ot7XCyEbblFYMjN8ipTZ2z"
-AUTH0_CLIENT_SECRET=xxxxx
-AUTH0_DOMAIN="sesf.eu.auth0.com"
-AUTH0_CALLBACK_URL="http://localhost:3000/auth/callback"
-MINIO_ENDPOINT=xxxxx
-MINIO_ACCESS_KEY=xxxxx
-MINIO_SECRET_KEY=xxxxx
-MINIO_BUCKET_NAME=xxxxx
-```
-Replace xxxxx with the proper values
+
 ## Development
 
 From your terminal (for now locally only in dev mode):
 
 ```sh
-yarn dev
+pnpm dev
 ```
 
 This starts your app in development mode, rebuilding assets on file changes.
@@ -58,8 +47,8 @@ This starts your app in development mode, rebuilding assets on file changes.
 If the database layout was changed be sure to use:
 
 ```sh
-yarn prisma migrate reset --force
-yarn prisma db seed
+pnpm prisma migrate reset --force
+pnpm prisma db seed
 ```
 
 ## Deployment
@@ -67,13 +56,13 @@ yarn prisma db seed
 First, build your app for production:
 
 ```sh
-yarn build
+pnpm build
 ```
 
 Then run the app in production mode:
 
 ```sh
-yarn start
+pnpm start
 ```
 
 Now you'll need to pick a host to deploy it to.
