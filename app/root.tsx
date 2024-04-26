@@ -23,6 +23,8 @@ import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
 import { ThemeHead, ThemeBody, ThemeProvider, useTheme } from "~/context/theme-provider";
 import { getThemeSession } from "~/services/theme.server";
+import { ImageProvider } from "./context/image-provider";
+import { getImageRoot } from "./services/admin/api/cloudflareImages.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -49,6 +51,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     message,
     user,
     theme: themeSession.getTheme(),
+    imageRoot: getImageRoot()
   }, {
     ...(message && {
       headers: {
@@ -79,7 +82,7 @@ function App() {
     <body>
     {message ? <Toast text={message}/> : null}
     <div id="modal-root"/>
-    <div className='min-h-screen min-h-[-webkit-fill-available] dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
+    <div className='min-h-dvh dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
       <Header forceWhiteText={forceWhiteText}/>
       <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
         <Outlet/>
@@ -95,10 +98,12 @@ function App() {
 }
 
 export default function AppWithProviders() {
-  const { theme } = useLoaderData<typeof loader>();
+  const { theme, imageRoot } = useLoaderData<typeof loader>();
   return (
     <ThemeProvider specifiedTheme={theme}>
-      <App/>
+      <ImageProvider imageRoot={imageRoot}>
+        <App/>
+      </ImageProvider>
     </ThemeProvider>
   );
 }
@@ -115,7 +120,7 @@ export function ErrorBoundary() {
       </head>
       <body>
       <div id="modal-root"/>
-      <div className='min-h-screen min-h-[-webkit-fill-available]
+      <div className='min-h-dvh
               dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
         <div className="flex items-center p-4 md:px-8">
           <Link to={'/'} className="w-full flex justify-center">
@@ -137,5 +142,16 @@ export function ErrorBoundary() {
       </body>
       </html>
     );
+  } else if (error instanceof Error) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+        <p>The stack trace is:</p>
+        <pre>{error.stack}</pre>
+      </div>
+    );
+  } else {
+    return <h1>Unknown Error</h1>;
   }
 }

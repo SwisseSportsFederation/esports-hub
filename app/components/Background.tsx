@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
+import { useImage } from "~/context/image-provider";
 
 export default function Background() {
   const [visible, setVisible] = useState(true);
+  const imageRoot = useImage();
 
   return <picture className="fixed top-0 left-0 min-w-full min-h-full z-0 ">
     <img className={`absolute z-10 top-0 w-screen h-screen object-cover transition-opacity ${visible ? 'opacity-0' : ''}`} alt="background"
@@ -13,13 +15,7 @@ export default function Background() {
            }
          }, [setVisible])}
          onLoad={() => setVisible(false)}
-         src="https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/3dbd38e3-5007-4190-5cb7-ff630d6f2c00/public"
-         srcSet={`
-          https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/3dbd38e3-5007-4190-5cb7-ff630d6f2c00/w=256 256w,
-          https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/3dbd38e3-5007-4190-5cb7-ff630d6f2c00/w=512 512w,
-          https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/3dbd38e3-5007-4190-5cb7-ff630d6f2c00/w=1024 1024w,
-          https://imagedelivery.net/-pjDUUB_7zGU0M0_c6dmdw/3dbd38e3-5007-4190-5cb7-ff630d6f2c00/w=2048 2048w
-        `}
+         src={imageRoot+'sos-players-bg.avif'}
     />
     <img role="presentation" alt='background'
          className={`absolute z-0 top-0 w-full h-full`}

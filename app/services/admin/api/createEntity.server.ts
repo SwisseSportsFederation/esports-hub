@@ -96,7 +96,7 @@ export const createEntity = async (request: Request) => {
       const base64 = image.split('base64,')[1]
       const original = Buffer.from(base64, 'base64');
       const croppedImage = await resize(original, cropData);
-      const { result } = await upload(croppedImage);
+      const { result } = await upload(croppedImage, 'image-' + id);
       imageId = result.id;
     }
 

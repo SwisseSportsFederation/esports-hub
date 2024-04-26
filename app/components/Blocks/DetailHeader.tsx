@@ -1,10 +1,10 @@
+import type { Game, Social } from "@prisma/client";
+import { Link } from "@remix-run/react";
+import Icons from "~/components/Icons";
+import { useImage } from "~/context/image-provider";
+import type { StringOrNull } from "~/db/queries.server";
 import IconButton from "../Button/IconButton";
 import SocialIconButton from "../Button/SocialIconButton";
-import { Link } from "@remix-run/react";
-import type { Game, Social } from "@prisma/client";
-import Icons from "~/components/Icons";
-import { CDN_URL } from "~/constants";
-import type { StringOrNull } from "~/db/queries.server";
 
 type IDetailHeaderProps = {
   imagePath: StringOrNull,
@@ -24,14 +24,15 @@ type IDetailHeaderProps = {
 
 const DetailHeader = (props: IDetailHeaderProps) => {
   const { imagePath, name, parentLink, parentName, entitySocials, games, isActive, showApply, onApply } = props;
+  const imageRoot = useImage();
 
   return (
     <div className="max-w-full">
-      <div className="p-3 rounded-xl bg-white bg-gray-7 dark:bg-gray-2">
+      <div className="p-3 rounded-xl bg-gray-7 dark:bg-gray-2">
         <div className="flex justify-center relative">
           <div className="flex-none rounded-full h-40 w-40 m-1 relative overflow-hidden">
             {!imagePath && <Icons iconName='user' className={`absolute text-black p-2 bg-white rounded-full`}/>}
-            {imagePath && <img src={`${CDN_URL}/${imagePath}/public`} alt="Profile Picture"
+            {imagePath && <img src={imageRoot+imagePath} alt="Profile Picture"
                                className={`absolute object-fill h-full w-full`}/>}
           </div>
           {onApply && showApply &&
