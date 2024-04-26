@@ -45,7 +45,7 @@ export default function() {
     setResults([...searchResults.results]);
   }, [searchParams])
 
-  return <div className="max-w-md lg:max-w-xl w-full mx-auto px-4 pt-8">
+  return <div className="max-w-md lg:max-w-lg w-full mx-auto px-4 pt-8">
     <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
                languages={searchParams.languages ?? []}/>
 
