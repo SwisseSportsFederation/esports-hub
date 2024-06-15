@@ -18,6 +18,7 @@ import type { loader as adminLoader } from '~/routes/admin+/_layout';
 import type { Membership } from '~/services/admin/index.server';
 import dateInputStyles from '~/styles/date-input.css?url';
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
+import { useTheme, Theme } from '~/context/theme-provider';
 
 export function links() {
   return [
@@ -65,9 +66,9 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
     </fetcher.Form>
   </Modal>;
 
-const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, userId: string, fetcher: FetcherWithComponents<any>) =>
+const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, theme: string, userId: string, fetcher: FetcherWithComponents<any>) =>
   <fetcher.Form method="post" action={`/admin/api/group/member`}
-                className={isMainOrg ? 'text-yellow-400' : 'text-gray-3'}>
+                className={isMainOrg ? 'text-yellow-400' : theme === Theme.DARK ? 'text-gray-3' : 'text-white'}>
     <input type="hidden" name="intent" value="CHANGE_MAIN_GROUP"/>
     <input type="hidden" name="userId" value={userId}/>
     <IconButton icon="star" type="submit" name="groupId" value={groupId} className="rounded-none mx-1"/>
@@ -76,6 +77,7 @@ const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, userId: string,
 
 export default function () {
   const fetcher = useFetcher();
+  const [theme] = useTheme();
   const {user, memberships} = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const organisations = memberships.groups.filter(group => group.group_type === EntityTypeValue.ORGANISATION);
 
@@ -110,7 +112,7 @@ export default function () {
               return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
                                        team={member.handle}
                                        games={member.game ? [member.game] : []}
-                                       additionalIcons={mainOrgIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
+                                       additionalIcons={mainOrgIcon(member.id, member.is_main_group, theme, user.db.id, fetcher)}>
                 <fetcher.Form method="post" action={`/admin/api/group/member`}
                               className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
                   <input type="hidden" name="intent" value="UPDATE_GROUP"/>

@@ -23,6 +23,7 @@ import { db } from "~/services/db.server";
 import dateInputStyles from "~/styles/date-input.css?url";
 import { checkUserAuth } from "~/utils/auth.server";
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
+import { useTheme, Theme } from '~/context/theme-provider';
 
 export function links() {
   return [
@@ -84,8 +85,8 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
     </fetcher.Form>
   </Modal>;
 
-const mainTeamIcon = (groupId: string, isMainTeam: boolean | null, userId: string, fetcher: FetcherWithComponents<any>) =>
-  <fetcher.Form method='post' action={`/admin/api/group/member`} className={isMainTeam ? 'text-yellow-400' : 'text-gray-3'}>
+const mainTeamIcon = (groupId: string, isMainTeam: boolean | null, theme: string, userId: string, fetcher: FetcherWithComponents<any>) =>
+  <fetcher.Form method='post' action={`/admin/api/group/member`} className={isMainTeam ? 'text-yellow-400' : theme === Theme.DARK ? 'text-gray-3' : 'text-white'}>
     <input type='hidden' name='intent' value='CHANGE_MAIN_GROUP'/>
     <input type='hidden' name='userId' value={userId}/>
     <IconButton icon='star' type='submit' name='groupId' value={groupId} className="rounded-none mx-1"/>
@@ -111,6 +112,7 @@ const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void,
 export default function() {
   const { formerTeams } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
+  const [theme] = useTheme();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
   const teams = memberships.groups.filter(group => group.group_type === EntityTypeValue.TEAM);
 
@@ -148,7 +150,7 @@ export default function() {
                 return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
                                          team={member.handle}
                                          games={member.game ? [member.game] : []}
-                                         additionalIcons={mainTeamIcon(member.id, member.is_main_group, user.db.id, fetcher)}>
+                                         additionalIcons={mainTeamIcon(member.id, member.is_main_group, theme, user.db.id, fetcher)}>
                   <fetcher.Form method='post' action={`/admin/api/group/member`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                     <input type='hidden' name='intent' value='UPDATE_GROUP'/>
                     <input type='hidden' name='userId' value={user.db.id}/>
