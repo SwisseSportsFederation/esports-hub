@@ -50,39 +50,48 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
 
-  await db.group.update({
-    where: {
-      id: Number(id)
-    },
-    data: {
-      handle,
-      name,
-      description,
-      street,
-      ...(founded && ({ founded: new Date(founded) })),
-      ...(!founded && ({ founded: null })),
-      zip,
-      ...(canton && {
-        canton: {
-          connect: {
-            id: canton
+  let headers
+  try {
+
+    await db.group.update({
+      where: {
+        id: Number(id)
+      },
+      data: {
+        handle,
+        name,
+        description,
+        street,
+        ...(founded && ({ founded: new Date(founded) })),
+        ...(!founded && ({ founded: null })),
+        zip,
+        ...(canton && {
+          canton: {
+            connect: {
+              id: canton
+            }
           }
+        }),
+        ...(!canton && {
+          canton: {
+            disconnect: true
+          }
+        }),
+        languages: {
+          set: languageIds
         }
-      }),
-      ...(!canton && {
-        canton: {
-          disconnect: true
-        }
-      }),
-      languages: {
-        set: languageIds
       }
+    });
+    headers = await createFlashMessage(request, 'Organisation update is done');
+    return redirect(`/admin/organisation/${handle}/details`, headers);
+  } catch (error: any) {
+    if(error.message.includes('handle')) {
+      headers = await createFlashMessage(request, 'Error updating organisation: Short name already taken.');
+    } else {
+      headers = await createFlashMessage(request, 'Error updating organisation: ' + error.message);
     }
-  });
-
-  const headers = await createFlashMessage(request, 'Organisation update is done');
-
-  return redirect(`/admin/organisation/${handle}/details`, headers);
+    return redirect(`/admin/organisation/${oldHandle}/details`, headers);
+  }
 };
 
 export async function loader() {

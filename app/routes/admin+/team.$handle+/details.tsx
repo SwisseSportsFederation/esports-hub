@@ -35,42 +35,52 @@ export const action = async ({request}: ActionFunctionArgs) => {
   const languageIds = (JSON.parse(languages) as string[]).map(langId => ({id: Number(langId)}));
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
-
-  await db.group.update({
-    where: {
-      id: Number(id),
-    },
-    data: {
-      handle,
-      name,
-      description,
-      ...(founded && ({founded: new Date(founded)})),
-      ...(!founded && ({founded: null})),
-      game: {
-        connect: {
-          id: Number(game),
-        },
+  
+  let headers
+  try {
+    await db.group.update({
+      where: {
+        id: Number(id),
       },
-      ...(canton && {
-        canton: {
+      data: {
+        handle,
+        name,
+        description,
+        ...(founded && ({founded: new Date(founded)})),
+        ...(!founded && ({founded: null})),
+        game: {
           connect: {
-            id: canton,
+            id: Number(game),
           },
         },
-      }),
-      ...(!canton && {
-        canton: {
-          disconnect: true,
+        ...(canton && {
+          canton: {
+            connect: {
+              id: canton,
+            },
+          },
+        }),
+        ...(!canton && {
+          canton: {
+            disconnect: true,
+          },
+        }),
+        languages: {
+          set: languageIds,
         },
-      }),
-      languages: {
-        set: languageIds,
       },
-    },
-  });
+    });
+    headers = await createFlashMessage(request, 'Team update is done');
+    return redirect(`/admin/team/${handle}/details`, headers);
+  } catch (error: any) {
+    if(error.message.includes('handle')) {
+      headers = await createFlashMessage(request, 'Error updating team: Short name already taken.');
+    } else {
+      headers = await createFlashMessage(request, 'Error updating team: ' + error.message);
+    }
+    return redirect(`/admin/team/${oldHandle}/details`, headers);
+  }
 
-  const headers = await createFlashMessage(request, 'Team update is done');
-  return redirect(`/admin/team/${handle}/details`, headers);
 };
 
 export async function loader() {
