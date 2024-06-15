@@ -34,7 +34,7 @@ export const meta: MetaFunction = () => {
   return [
     { charset: "utf-8" },
     { title: "Swiss Esports Database" },
-    { viewport: "width=device-width,initial-scale=1" },
+    { name: "viewport", content: "width=device-width,initial-scale=1" },
   ]};
 
 export async function loader({ request }: LoaderFunctionArgs) {
