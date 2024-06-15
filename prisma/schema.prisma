@@ -132,6 +132,7 @@ model User {
   games              Game[]
   languages          Language[]
   socials            Social[]
+  has_data_policy    Boolean           @default(false)
   is_superadmin      Boolean?          @default(false)
 
   @@map("user")

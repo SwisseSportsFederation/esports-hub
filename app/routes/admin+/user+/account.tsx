@@ -20,14 +20,15 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { handle, name, surname, birthDate, description, canton, languages } = await zx.parseForm(request, {
+  const { handle, name, surname, birthDate, description, canton, languages, has_data_policy } = await zx.parseForm(request, {
     handle: z.string().min(4),
     name: z.string().min(3),
     surname: z.string().min(3),
     birthDate: z.string().optional(),
     description: z.string().optional(),
     canton: zx.NumAsString.optional(),
-    languages: z.string()
+    languages: z.string(),
+    has_data_policy: z.string(),
   });
   const user = await checkUserAuth(request);
   try {
@@ -58,7 +59,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }),
         languages: {
           set: languageIds
-        }
+        },
+        ...(has_data_policy && ({ has_data_policy: true })),
       }
     });
   } catch(error) {

@@ -9,7 +9,7 @@ interface IFooterPage {
 // TODO: Add i18n
 const pages: IFooterPage[] = [
   { name: "Imprint", url: "/wiki/imprint" },
-  { name: "Data Policy", url: "/wiki/data-policy" },
+  { name: "Data Policy", url: "https://sesf.ch/privacy-policy/" },
   { name: "Contact", url: "/contact" },
 ];
 
@@ -30,7 +30,7 @@ const Footer = (props: { forceWhiteText: boolean }) => {
         {
           pages.map((page: IFooterPage) =>
             <li key={page.name} className="mx-4">
-              <Link to={`${page.url}`} className={linkClasses}>
+              <Link to={`${page.url}`} target={page.url.includes('https:') ? '_blank' : '_self'} className={linkClasses}>
                 {page.name}
               </Link>
             </li>)

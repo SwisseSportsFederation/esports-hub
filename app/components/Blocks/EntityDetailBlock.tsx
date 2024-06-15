@@ -35,6 +35,7 @@ type EntityDetailBlockProps = {
   game?: SerializeFrom<Game>,
   zip?: StringOrNull,
   country?: StringOrNull,
+  has_data_policy?: boolean,
   create: boolean
 }
 
@@ -54,6 +55,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     entityBirthday,
     surname,
     game,
+    has_data_policy = false,
     create = false,
   } = props;
   const [modalOpen, setModalOpen] = useState(false);
@@ -113,11 +115,10 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           <TextareaInput id="description" label="Description" value={description} required={true}/>
           {
             entityType === EntityTypeValue.ORGANISATION &&
+            <>
               <TextInput id="street" label="Street" defaultValue={street ?? ''}/>
-          }
-          {
-            entityType === EntityTypeValue.ORGANISATION &&
               <TextInput id="zip" label="Zip" defaultValue={zip ?? ''}/>
+            </>
           }
           <div className="relative w-full max-w-sm lg:max-w-full">
             <label>
@@ -129,6 +130,13 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           </div>
           <DropDownAdder name="languages" label="Language" values={searchParams.languages}
                          defaultValues={languages} required={true}/>
+          {entityType === EntityTypeValue.USER &&
+            <div className="flex items-center my-2 relative flex-row-reverse gap-4">
+              <label htmlFor="data-policy" className={!has_data_policy ? '' : 'text-gray-500'}>I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">privacy policy</a>.</label>
+              { !has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" defaultChecked={has_data_policy}/> }
+              { has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" checked={has_data_policy}/> /* Read only after accept */}
+            </div>
+          }
           <ActionButton content="Save" type="submit" disabled={!profilePicReady}/>
         </Form>
       </div>
