@@ -69,13 +69,13 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
               <>
                 {showDefaultOption && <div className="py-1">
                   <Listbox.Option value={defaultOption} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 text-color
-                        dark:hover:bg-gray-3 hover:bg-gray-6 w-full h-9">
+                        dark:hover:bg-gray-3 hover:bg-gray-6 w-full h-9" key="0">
                     {defaultOption.name}
                   </Listbox.Option>
                 </div>}
                 <div className="py-1">
-                  {inputs.map((input) => (
-                    <Listbox.Option key={Number(input.id)} value={input} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 text-color
+                  {inputs.map((input, id) => (
+                    <Listbox.Option key={id+1} value={input} className="block px-4 py-2 cursor-pointer text-sm text-gray-700 text-color
                         dark:hover:bg-gray-3 hover:bg-gray-6 w-full">
                       {input.name}
                     </Listbox.Option>
@@ -90,8 +90,8 @@ const DropdownInput = (props: PropsWithClassName<DropdownInputProps>) => {
     { inputs.length > 0 &&
       <select onClick={() => { }} onChange={() => { }} tabIndex={-1} value={getInputValue()} name={name+`-select`} required={required} aria-hidden="true" autoCapitalize="off" autoComplete="off" className="w-full z-0 h-[1px] select-none text-transparent bg-transparent absolute bottom-[15px] left-0 !outline-none opacity-0 shadow-none appearance-none">
         <option value="" defaultChecked aria-hidden="true"></option>
-        {inputs.map((input) => {
-          return <option key={Number(input.id)} value={input.id} aria-hidden="true">{input.name}</option>
+        {inputs.map((input, id) => {
+          return <option key={id} value={input.id} aria-hidden="true">{input.name}</option>
         })}
       </select>
     }
