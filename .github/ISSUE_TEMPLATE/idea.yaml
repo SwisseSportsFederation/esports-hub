@@ -1,7 +1,7 @@
-name: Feedback
-description: Give us Feedback
-title: "[Feedback]: "
-labels: ["enhancement"]
+name: Idea
+description: You have a feature request?
+title: "[Idea]: "
+labels: ["idea"]
 projects: []
 assignees:
   - zischler
@@ -9,7 +9,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to give us feedback!
+        Thanks for taking the time to send us your idea!
   - type: input
     id: contact
     attributes:
@@ -21,8 +21,8 @@ body:
   - type: textarea
     id: feedback
     attributes:
-      label: Feedback
-      description: Do you have any feedback for improving the Swiss Esports Hub?
+      label: Idea
+      description: Do you have an idea for a possible feature?
       placeholder: What is your idea?
     validations:
       required: true
