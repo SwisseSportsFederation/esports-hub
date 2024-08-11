@@ -12,3 +12,9 @@ node_modules
 /api/index.js.map
 /app/styles/app.css
 
+
+# Sentry Config File
+.sentryclirc
+
+# Sentry Config File
+.env.sentry-build-plugin

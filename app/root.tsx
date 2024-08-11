@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import type { MetaFunction, LinksFunction } from "@remix-run/node";
 import { json } from "@vercel/remix";
 import {
@@ -98,7 +99,7 @@ function App () {
   );
 }
 
-export default function AppWithProviders () {
+function AppWithProviders() {
   const { theme, imageRoot } = useLoaderData<typeof loader>();
   return (
     <ThemeProvider specifiedTheme={theme}>
@@ -109,8 +110,11 @@ export default function AppWithProviders () {
   );
 }
 
+export default withSentry(AppWithProviders);
+
 export function ErrorBoundary () {
   const error = useRouteError();
+  captureRemixErrorBoundaryError(error);
   if (isRouteErrorResponse(error)) {
     return (
       <html lang="en">
