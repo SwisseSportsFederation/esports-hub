@@ -11,10 +11,10 @@ import classNames from "classnames";
 const UserState = (props: { textColor: string }) => {
   const data = useLoaderData();
   /* User Icon with Logout and Admin Dropdown */
-  if(data.user) {
+  if (data.user) {
     return <div className="relative group mr-1">
       <Link to="/admin">
-        <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[32px] h-[32px]"}/>
+        <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[32px] h-[32px]"} />
       </Link>
       <div
         className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
@@ -32,7 +32,7 @@ const UserState = (props: { textColor: string }) => {
   }
 
   /* Sign-in Button */
-  return <Login textColor={props.textColor}/>;
+  return <Login textColor={props.textColor} />;
 };
 
 const Header = (props: { forceWhiteText: boolean }) => {
@@ -52,7 +52,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      if(!menuActiveRef.current || window.innerWidth < 768) {
+      if (!menuActiveRef.current || window.innerWidth < 768) {
         return;
       }
       document.body.classList.remove('overflow-hidden');
@@ -82,9 +82,9 @@ const Header = (props: { forceWhiteText: boolean }) => {
       {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
         <Link to={'/'}>
-          <Icon iconName='logo' className={textColor + " w-24 h-8 max-h-[40px]"} />
+          <Icon iconName='logo' className={textColor + " w-full h-20 max-h-[60px]"} />
         </Link>
-        <div className='flex-1'/>
+        <div className='flex-1' />
         {/*desktop menu*/}
         <div className="hidden md:flex flex-row space-x-4">
           <Menu textColor={textColor} />
@@ -92,12 +92,12 @@ const Header = (props: { forceWhiteText: boolean }) => {
         {/* Icons (login/user) + desktop:theme + mobile:hamburger */}
         <div className="flex-none md:ml-8">
           <div className="flex justify-end space-x-5 flex-1">
-            <UserState textColor={textColor}/>
+            <UserState textColor={textColor} />
             <div className='hidden md:flex items-center justify-center'>
-              <ThemeToggle/>
+              <ThemeToggle />
             </div>
             <button onClick={toggleMenu}
-                    className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
+              className="w-[40px] h-[40px] items-center cursor-pointer flex md:hidden">
               <div className={`hamburger m-0 p-0 border-full ${menuActive ? 'active' : ''} ${hamburgerColorModifier}`} />
             </button>
           </div>
@@ -105,7 +105,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
       </div>
     </nav>
     {/*Mobile Menu*/}
-    <MobileMenu menuActive={menuActive}/>
+    <MobileMenu menuActive={menuActive} />
   </header>;
 };
 

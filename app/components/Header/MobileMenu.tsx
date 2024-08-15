@@ -10,12 +10,12 @@ interface IMobileMenu {
 
 const AuthButtons = () => {
   const { user } = useLoaderData();
-  if(user) {
-    return <PostFormButton title="Logout" path="/auth/logout"/>;
+  if (user) {
+    return <PostFormButton title="Logout" path="/auth/logout" />;
   }
   return <>
-    <PostFormButton title="Login" path="/auth/login"/>
-    <PostFormButton title="Register" path="/auth/login?screen_hint=signup"/>
+    <PostFormButton title="Login" path="/auth/login" />
+    <PostFormButton title="Register" path="/auth/login?screen_hint=signup" />
   </>;
 };
 
@@ -26,18 +26,18 @@ const MobileMenu = ({ menuActive }: IMobileMenu) => {
   });
   // todo: use CSSTransitions
   return <div className={`absolute w-full min-h-screen overflow-hidden flex flex-col md:hidden
-    left-0 top-0 bottom-0 mt-16 transform -translate-x-full dark:bg-gray-2 bg-white
+    left-0 top-0 bottom-0 mt-20 transform -translate-x-full dark:bg-gray-2 bg-white
     transition-transform p-2 pt-4 ${classes}`}>
     <div className="ml-[20px]">
-      <Menu textColor={"text-color" }/>
+      <Menu textColor={"text-color"} />
     </div>
     <div>
       <div className="ml-[20px] mt-[20px] mb-[27px] flex items-center justify-start w-full">
-        <ThemeToggle/>
+        <ThemeToggle />
       </div>
     </div>
     <div className="flex space-x-8 mx-[20px] justify-center">
-      <AuthButtons/>
+      <AuthButtons />
     </div>
   </div>;
 };
