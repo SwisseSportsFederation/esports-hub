@@ -19,16 +19,16 @@ export default defineConfig({
       remarkMdxFrontMatter,
     ],
   }), remix({
-      presets: [vercelPreset()],
-      ignoredRouteFiles: ['**/*'],
-      routes: async defineRoutes => {
-        return flatRoutes('routes', defineRoutes);
-      },
+    presets: [vercelPreset()],
+    ignoredRouteFiles: ['**/*'],
+    routes: async defineRoutes => {
+      return flatRoutes('routes', defineRoutes);
     },
+  },
   ), sentryVitePlugin({
     org: "polylan",
     project: "esports-hub",
-    url: "https://sentry2.polylan.ch/"
+    url: "https://sentry2.polylan.ch"
   })],
 
   build: {
