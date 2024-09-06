@@ -1,10 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { db } from "~/services/db.server";
-import { zx } from "zodix";
-import { z } from "zod";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { RequestStatus } from "@prisma/client";
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
+import { z } from "zod";
+import { zx } from "zodix";
+import { db } from "~/services/db.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -13,8 +12,9 @@ const acceptInvitation = async (child_id: number, parent_id: number) => {
     where: {
       child_id,
       request_status: 'ACCEPTED'
-    }});
-  if(!currentTeam) {
+    }
+  });
+  if (!currentTeam) {
     await db.groupToGroup.update({
       where: {
         child_id_parent_id: {
@@ -58,17 +58,17 @@ export const action: ActionFunction = async ({ request }) => {
       request_status: true
     }
   });
-  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_PARENT_GROUP) {
+  if (currentRequestStatus?.request_status !== RequestStatus.PENDING_PARENT_GROUP) {
     await checkIdAccessForEntity(user.db.id, child_id, 'ADMINISTRATOR');
   }
 
   try {
-    if(action === 'ACCEPT') {
+    if (action === 'ACCEPT') {
       await acceptInvitation(child_id, parent_id);
     } else {
       await declineInvitation(child_id, parent_id);
     }
-  } catch(error) {
+  } catch (error) {
     throw json({}, 400);
   }
   return json({});

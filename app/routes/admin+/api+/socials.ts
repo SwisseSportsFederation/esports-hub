@@ -1,16 +1,15 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { zx } from 'zodix';
-import { z } from "zod";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { SocialPlatform } from "@prisma/client";
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
+import { z } from "zod";
+import { zx } from 'zodix';
 import { db } from "~/services/db.server";
 import { createFlashMessage } from "~/services/toast.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
 export const action: ActionFunction = async ({ request }) => {
-  if(request.method !== "POST") {
+  if (request.method !== "POST") {
     return json({}, 404);
   }
 
@@ -25,14 +24,14 @@ export const action: ActionFunction = async ({ request }) => {
     entity: z.enum(["USER", "TEAM", "ORGANISATION"]),
     ...zSocials
   });
-  if(!result.success) {
+  if (!result.success) {
     return json(result.error, 400);
   }
 
   const { entityId, entity, ...socials } = result.data;
 
   const user = await checkUserAuth(request);
-  if(entity !== 'USER') {
+  if (entity !== 'USER') {
     await checkIdAccessForEntity(user.db.id, entityId, 'MODERATOR');
   }
 
@@ -54,7 +53,7 @@ export const action: ActionFunction = async ({ request }) => {
         data
       })
     ]);
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     return json({ error }, 500);
   }

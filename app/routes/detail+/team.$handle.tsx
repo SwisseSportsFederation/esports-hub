@@ -1,8 +1,6 @@
 import { Prisma } from "@prisma/client";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@vercel/remix";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from '@vercel/remix';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, useFetcher, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
@@ -10,12 +8,12 @@ import DetailHeader from "~/components/Blocks/DetailHeader";
 import ActionButton from "~/components/Button/ActionButton";
 import TeaserList from "~/components/Teaser/TeaserList";
 import { entityToPathSegment } from "~/helpers/entityType";
+import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 import { db } from "~/services/db.server";
 import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { isTeamMember } from "~/utils/entityFilters";
 import { getTeamMemberTeasers } from "~/utils/teaserHelper";
-import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   /* Apply for Team */
@@ -36,12 +34,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         joined_at: new Date(),
         is_main_group: false,
         role: "Member",
-        user: { connect: { id: BigInt(user.db.id) }},
-        group: { connect: { id: group.id }}
+        user: { connect: { id: BigInt(user.db.id) } },
+        group: { connect: { id: group.id } }
       }
     })
     console.log(`user ${user.db.id} applied for team ${group.id}`)
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     const headers = await createFlashMessage(request, 'Error while applying for team');
     return json({}, headers);
@@ -71,11 +69,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         where: {
           request_status: RequestStatusValue.ACCEPTED
         },
-        include: { user: { include: { games: {
-          where: {
-            is_active: true,
-          },
-        } } } }
+        include: {
+          user: {
+            include: {
+              games: {
+                where: {
+                  is_active: true,
+                },
+              }
+            }
+          }
+        }
       },
       socials: true,
       languages: true,
@@ -102,7 +106,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   let showApply;
-  if(loggedIn) {
+  if (loggedIn) {
     const user = await checkUserAuth(request);
     showApply = !isTeamMember(team.members, Number(user.db.id));
   } else {
@@ -116,7 +120,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 }
 
-export default function() {
+export default function () {
   const { team, showApply, memberTeasers } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher();
@@ -137,21 +141,21 @@ export default function() {
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
         <DetailHeader name={team.name}
-                      {...orgHeaderProps}
-                      imagePath={team.image}
-                      entitySocials={team.socials}
-                      games={team.game ? [team.game] : undefined}
-                      isActive={team.is_active}
-                      showApply={showApply}
-                      onApply={handleActionClick}/>
+          {...orgHeaderProps}
+          imagePath={team.image}
+          entitySocials={team.socials}
+          games={team.game ? [team.game] : undefined}
+          isActive={team.is_active}
+          showApply={showApply}
+          onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...team} />
           <div>
-            <TeaserList title="Members" teasers={memberTeasers}/>
+            <TeaserList title="Members" teasers={memberTeasers} />
           </div>
           {showApply &&
             <div className="flex items-center justify-center my-7">
-              <ActionButton content="Apply" action={handleActionClick}/>
+              <ActionButton content="Apply" action={handleActionClick} />
             </div>
           }
         </div>

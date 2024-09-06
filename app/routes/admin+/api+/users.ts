@@ -1,10 +1,8 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { db } from "~/services/db.server";
-import { zx } from 'zodix';
 import type { Prisma } from "@prisma/client";
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { z } from "zod";
-import _ from "lodash";
+import { zx } from 'zodix';
+import { db } from "~/services/db.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -27,21 +25,21 @@ export const action: ActionFunction = async ({ request }) => {
           { surname: query() },
           { handle: query() }
         ],
-      ...(notInTeam && {
-        groups: {
-          none: {
-            group_id: notInTeam
+        ...(notInTeam && {
+          groups: {
+            none: {
+              group_id: notInTeam
+            }
           }
-        }
-      })
+        })
 
       },
       include: { games: true }
     });
     const cleanUsers = excludeFromList(users, ['auth_id'])
     return json({ users: cleanUsers });
-    
-  } catch(error) {
+
+  } catch (error) {
     console.log(error);
     return json({ users: [] })
   }

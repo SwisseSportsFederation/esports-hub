@@ -1,7 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { AccessRight, RequestStatus } from "@prisma/client";
-import type { ActionFunction } from "@remix-run/node";
-import { json } from "@vercel/remix";
+import { json, type ActionFunction } from "@remix-run/node";
 import { z } from "zod";
 import { zx } from 'zodix';
 import { AuthUser } from "~/services/auth.server";
@@ -17,7 +16,7 @@ export const action: ActionFunction = async ({ request }) => {
       const { intent } = await zx.parseForm(request, {
         intent: z.enum(['INVITE_USER', 'SEARCH'])
       });
-      if(intent === "INVITE_USER") {
+      if (intent === "INVITE_USER") {
         return inviteUser(request, user)
       } else if (intent === "SEARCH") {
         return search(request)
@@ -35,8 +34,8 @@ export const action: ActionFunction = async ({ request }) => {
 
 const kickUser = async (request: Request, user: AuthUser) => {
   const data = await zx.parseForm(request, {
-    groupId: zx.NumAsString, 
-    userId: zx.NumAsString 
+    groupId: zx.NumAsString,
+    userId: zx.NumAsString
   });
 
   const { groupId, userId } = data;
@@ -57,9 +56,9 @@ const kickUser = async (request: Request, user: AuthUser) => {
 }
 
 const inviteUser = async (request: Request, user: AuthUser) => {
-  const data = await zx.parseForm(request, { 
-    groupId: zx.NumAsString, 
-    userId: zx.NumAsString 
+  const data = await zx.parseForm(request, {
+    groupId: zx.NumAsString,
+    userId: zx.NumAsString
   });
 
   const { groupId, userId } = data;
@@ -86,7 +85,7 @@ const inviteUser = async (request: Request, user: AuthUser) => {
 }
 
 const updateUser = async (request: Request, user: AuthUser) => {
-  const data = await zx.parseForm(request, { 
+  const data = await zx.parseForm(request, {
     'user-rights': z.enum(['MODERATOR', 'MEMBER', 'ADMINISTRATOR']),
     userId: zx.NumAsString,
     groupId: zx.NumAsString,

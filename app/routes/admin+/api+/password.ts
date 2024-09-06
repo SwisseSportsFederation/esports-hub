@@ -1,13 +1,12 @@
-import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { json, redirect } from '@vercel/remix';
-import { checkUserAuth } from '~/utils/auth.server';
+import { json, redirect, type ActionFunction, type LoaderFunction } from '@remix-run/node';
 import { AuthenticationClient } from 'auth0';
 import * as process from 'process';
 import { createFlashMessage } from '~/services/toast.server';
+import { checkUserAuth } from '~/utils/auth.server';
 
 export let loader: LoaderFunction = () => redirect('/admin');
 
-export const action: ActionFunction = async ({request}) => {
+export const action: ActionFunction = async ({ request }) => {
   if (request.method !== 'POST') {
     throw json({}, 404);
   }
@@ -32,7 +31,7 @@ export const action: ActionFunction = async ({request}) => {
 
     const headers = await createFlashMessage(request, 'A Password reset email was sent!');
 
-    return json({}, {status: 200, ...headers});
+    return json({}, { status: 200, ...headers });
   } catch (error) {
     console.log(error);
     throw json({}, 500);

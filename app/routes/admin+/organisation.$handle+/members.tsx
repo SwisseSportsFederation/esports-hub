@@ -1,8 +1,6 @@
-import { json } from "@vercel/remix";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { LoaderFunctionArgs } from '@vercel/remix';
-import type { SerializeFrom } from "@remix-run/server-runtime";
+import { json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
 import { z } from "zod";
 import { zx } from "zodix";
@@ -24,7 +22,7 @@ import { checkUserAuth } from "~/utils/auth.server";
 import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
 import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 
-export async function loader ({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
     handle: z.string()
   })

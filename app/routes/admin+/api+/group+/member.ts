@@ -1,5 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
@@ -38,7 +37,7 @@ const leaveGroup = async (request: Request, userId: number, groupId: number) => 
 			members: true
 		}
 	});
-	if(group) {
+	if (group) {
 		const activeMembers = group.members.filter(m => m.request_status === RequestStatus.ACCEPTED)
 		// Set Group inactive if there is no more members
 		if (activeMembers.length === 1) {

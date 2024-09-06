@@ -1,6 +1,5 @@
 import type { Prisma } from "@prisma/client";
-import { json } from "@vercel/remix";
-import { Form, useActionData, useLoaderData, useOutletContext } from "@remix-run/react";
+import { Form, json, useActionData, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/router";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
@@ -43,7 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       invitations: getTeamTeasers(invitations.map(t => t.child)),
       pending: getTeamTeasers(pending.map(t => t.child))
     });
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     throw json({}, 404);
   }
@@ -58,10 +57,10 @@ export async function action({ request }: ActionFunctionArgs) {
     z.object({ intent: z.literal('removeTeam'), entityId: zx.NumAsString })
   ]));
 
-  switch(data.intent) {
+  switch (data.intent) {
     case "invitation":
       const { entityId, action } = data;
-      if(action === 'ACCEPT') {
+      if (action === 'ACCEPT') {
         await db.groupToGroup.update({
           where: {
             child_id: entityId
@@ -97,7 +96,7 @@ export async function action({ request }: ActionFunctionArgs) {
         });
         const searchResult = getTeamTeasers(teams);
         return json({ searchResult });
-      } catch(error) {
+      } catch (error) {
         console.log(error);
         throw json({}, 500);
       }
@@ -114,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
         });
         const headers = await createFlashMessage(request, 'Team invited');
         return json({ searchResult: [] }, headers);
-      } catch(error) {
+      } catch (error) {
         console.log(error);
         throw json({}, 500);
       }
@@ -128,7 +127,7 @@ export async function action({ request }: ActionFunctionArgs) {
         });
         const headers = await createFlashMessage(request, 'Team removed');
         return json({ searchResult: [] }, headers);
-      } catch(error) {
+      } catch (error) {
         console.log(error);
         throw json({}, 500);
       }
@@ -138,14 +137,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const addInvitationIcons = (teaser: ITeaserProps) => {
   return <Form method='post'>
-    <input type='hidden' name='intent' value='invitation'/>
-    <input type='hidden' name='entityId' value={teaser.id}/>
-    <IconButton icon='accept' type='submit' name='action' value='ACCEPT'/>
-    <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
+    <input type='hidden' name='intent' value='invitation' />
+    <input type='hidden' name='entityId' value={teaser.id} />
+    <IconButton icon='accept' type='submit' name='action' value='ACCEPT' />
+    <IconButton icon='decline' type='submit' name='action' value='DECLINE' />
   </Form>;
 };
 
-export default function() {
+export default function () {
   let {
     accepted,
     invitations,
@@ -157,17 +156,17 @@ export default function() {
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
   const addAcceptedIcons = (teaser: ITeaserProps) => {
-    return <IconButton icon='decline' type='button' action={() => setDeleteModalOpen(teaser.id)}/>
+    return <IconButton icon='decline' type='button' action={() => setDeleteModalOpen(teaser.id)} />
   };
 
   const searchTeaser = (actionData?.searchResult ?? []).filter(team => ![...invitations, ...pending, ...accepted].some(t => t.id === team.id));
 
   const addSearchIcons = (teaser: ITeaserProps) => {
     return <Form method='put' onSubmit={() => setInviteModalOpen(false)}>
-      <input type='hidden' name='organisationId' value={organisation.id}/>
-      <input type='hidden' name='entityId' value={teaser.id}/>
-      <input type='hidden' name='intent' value='inviteTeam'/>
-      <IconButton icon='add' type='submit'/>
+      <input type='hidden' name='organisationId' value={organisation.id} />
+      <input type='hidden' name='entityId' value={teaser.id} />
+      <input type='hidden' name='intent' value='inviteTeam' />
+      <IconButton icon='add' type='submit' />
     </Form>
   }
 
@@ -175,12 +174,12 @@ export default function() {
     <div className="mx-3">
       <div className="w-full max-w-prose mx-auto">
         <H1Nav path={'..'} title='Teams'>
-          <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5'/>
+          <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5' />
         </H1Nav>
-        <TeaserList title={'Teams in Organisation'} teasers={accepted} iconFactory={addAcceptedIcons}/>
-        <TeaserList title={'Invitations'} teasers={invitations} iconFactory={addInvitationIcons}/>
+        <TeaserList title={'Teams in Organisation'} teasers={accepted} iconFactory={addAcceptedIcons} />
+        <TeaserList title={'Invitations'} teasers={invitations} iconFactory={addInvitationIcons} />
         <TeaserList title={'Invitation Requests'} teasers={pending}
-                    staticIcon={<Icons iconName='clock' className='h-8 w-8'/>}/>
+          staticIcon={<Icons iconName='clock' className='h-8 w-8' />} />
       </div>
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
@@ -188,24 +187,24 @@ export default function() {
         Remove Team?
       </div>
       <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='intent' value='removeTeam'/>
-        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='entityId' value={deleteModalOpen}/>}
-        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
+        <input type='hidden' name='intent' value='removeTeam' />
+        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='entityId' value={deleteModalOpen} />}
+        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)} />
       </Form>
     </Modal>
     <Modal isOpen={inviteModalOpen} handleClose={() => setInviteModalOpen(false)}>
       <Form method="post" autoComplete={"on"} className='sticky top-0 z-50'>
-        <input type='hidden' name='intent' value='search'/>
+        <input type='hidden' name='intent' value='search' />
         <div className="max-w-sm md:max-w-lg">
           <TextInput id="search" label="Search" searchIcon={true}
-                     buttonType="submit" defaultValue={""}/>
+            buttonType="submit" defaultValue={""} />
         </div>
       </Form>
       <TeaserList title="" teasers={searchTeaser} teaserClassName='dark:bg-gray-1 text-color'
-                  iconFactory={addSearchIcons}/>
+        iconFactory={addSearchIcons} />
       {searchTeaser.length === 0 &&
         <div className='w-full h-40 flex flex-col justify-center items-center'>
-          <Icons iconName='search' className='w-20 h-20 fill-white'/>
+          <Icons iconName='search' className='w-20 h-20 fill-white' />
           <H1 className='text-color'>No results</H1>
         </div>
       }

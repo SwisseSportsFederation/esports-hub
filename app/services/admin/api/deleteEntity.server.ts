@@ -1,11 +1,11 @@
-import { json } from "@vercel/remix";
 import { zx } from "zodix";
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
+import { json } from "@remix-run/server-runtime";
 
 export const deleteEntity = async (request: Request) => {
-  if(request.method !== "DELETE") {
+  if (request.method !== "DELETE") {
     throw json({}, 404);
   }
   const { entityId } = await zx.parseForm(request, {
@@ -18,7 +18,7 @@ export const deleteEntity = async (request: Request) => {
     const query = { where: { id: entity_id } };
 
     await db.group.delete(query);
-  } catch(error) {
+  } catch (error) {
     throw json({}, 404)
   }
   return json({});

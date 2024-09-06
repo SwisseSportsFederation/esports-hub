@@ -1,7 +1,6 @@
-import { createCookieSessionStorage } from "@vercel/remix";
-
-import { isTheme } from "~/context/theme-provider";
+import { createCookieSessionStorage } from "@remix-run/node";
 import type { Theme } from "~/context/theme-provider";
+import { isTheme } from "~/context/theme-provider";
 
 // Make use to set the environment variable SESSION_SECRET before running the code
 const sessionSecret = process.env.SESSION_SECRET ?? "DEFAULT_SECRET";

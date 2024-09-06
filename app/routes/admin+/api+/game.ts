@@ -1,10 +1,9 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { zx } from 'zodix';
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { z } from "zod";
-import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
+import { zx } from 'zodix';
 import { db } from "~/services/db.server";
 import { createFlashMessage } from "~/services/toast.server";
+import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 

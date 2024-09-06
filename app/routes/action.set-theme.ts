@@ -1,8 +1,7 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
+import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
 
-import { getThemeSession } from "~/services/theme.server";
 import { isTheme } from "~/context/theme-provider";
+import { getThemeSession } from "~/services/theme.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const themeSession = await getThemeSession(request.headers.get("Cookie"));
@@ -10,7 +9,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const form = new URLSearchParams(requestText);
   const theme = form.get("theme");
 
-  if(!isTheme(theme)) {
+  if (!isTheme(theme)) {
     return json({
       success: false,
       message: `theme value of ${theme} is not a valid theme`,

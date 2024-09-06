@@ -1,5 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
@@ -16,17 +15,17 @@ export const action: ActionFunction = async ({ request }) => {
   await checkSuperAdmin(user.db.id);
 
   try {
-    if(action === 'POST') {
-		await db.user.update({
-			where: {
-				handle: user_handle
-			},
-			data: {
-				is_superadmin: true
-			}
-		});
+    if (action === 'POST') {
+      await db.user.update({
+        where: {
+          handle: user_handle
+        },
+        data: {
+          is_superadmin: true
+        }
+      });
     }
-  } catch(error) {
+  } catch (error) {
     throw json({}, 400);
   }
   return json({});

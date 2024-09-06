@@ -1,11 +1,10 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { zx } from 'zodix';
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { z } from "zod";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { zx } from 'zodix';
+import { StringOrNull } from "~/db/queries.server";
 import { deleteImage, resize, upload } from "~/services/admin/api/cloudflareImages.server";
 import { db } from "~/services/db.server";
-import { StringOrNull } from "~/db/queries.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 

@@ -1,5 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
+import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
@@ -16,7 +15,7 @@ export const action: ActionFunction = async ({ request }) => {
   await checkSuperAdmin(user.db.id);
 
   try {
-    if(action === 'ACCEPT') {
+    if (action === 'ACCEPT') {
       await db.game.update({
         where: {
           id: entity_id
@@ -29,11 +28,11 @@ export const action: ActionFunction = async ({ request }) => {
     } else {
       await db.game.delete({
         where: {
-		  id: entity_id
+          id: entity_id
         }
       });
     }
-  } catch(error) {
+  } catch (error) {
     throw json({}, 400);
   }
   return json({});

@@ -1,16 +1,15 @@
+import { Prisma } from "@prisma/client";
 import { useLoaderData } from "@remix-run/react";
-import { db } from "~/services/db.server";
-import type { LoaderFunctionArgs } from '@vercel/remix';
-import { json } from '@vercel/remix';
-import { getOrganisationTeasers } from "~/utils/teaserHelper";
-import TeaserList from "~/components/Teaser/TeaserList";
+import { json, LoaderFunctionArgs } from "@remix-run/server-runtime";
+import { z } from "zod";
+import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
-import { Prisma } from "@prisma/client";
 import TeamHistory from "~/components/Blocks/TeamHistory";
-import { zx } from "zodix";
-import { z } from "zod";
+import TeaserList from "~/components/Teaser/TeaserList";
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
+import { db } from "~/services/db.server";
+import { getOrganisationTeasers } from "~/utils/teaserHelper";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -36,7 +35,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
           request_status: {
             equals: RequestStatusValue.ACCEPTED
           }
-        },        
+        },
         include: { group: { include: { children: { include: { child: { include: { game: true } } } } } } }
       }
     }
@@ -73,22 +72,22 @@ export async function loader({ params }: LoaderFunctionArgs) {
   });
 }
 
-export default function() {
+export default function () {
   const { user, teamMemberships, formerTeams, organisationTeasers } = useLoaderData<typeof loader>();
 
   return <div className="mx-3 py-7">
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
         <DetailHeader name={`${user.name} ${user.surname}`}
-                      imagePath={user.image}
-                      entitySocials={user.socials}
-                      isActive={user.is_active}
-                      games={user.games}/>
+          imagePath={user.image}
+          entitySocials={user.socials}
+          isActive={user.is_active}
+          games={user.games} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...user} />
           <div className="">
-            <TeamHistory memberships={teamMemberships} formerTeams={formerTeams}/>
-            <TeaserList title="Organisations" teasers={organisationTeasers}/>
+            <TeamHistory memberships={teamMemberships} formerTeams={formerTeams} />
+            <TeaserList title="Organisations" teasers={organisationTeasers} />
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { authenticator } from "~/services/auth.server";
 import { db } from "~/services/db.server";
 import type { AccessRight } from "@prisma/client";
 import { RequestStatus } from "@prisma/client";
-import { redirect } from "@vercel/remix";
+import { redirect } from "@remix-run/server-runtime";
 
 export function logout(request: Request, path: string = ''): Promise<void> {
   const url = new URL(request.url);
@@ -21,13 +21,13 @@ export async function isLoggedIn(request: Request): Promise<Boolean> {
 
 export async function checkUserAuth(request: Request): Promise<AuthUser> {
   let user = await authenticator.isAuthenticated(request);
-  if(!user) {
+  if (!user) {
     // logged out -> log in
     user = await authenticator.authenticate("auth0", request);
     return user;
   }
   // logged in
-  if(!user.profile._json!.email_verified) {
+  if (!user.profile._json!.email_verified) {
     // email not verified
     await logout(request, '/auth/verify');
   }
@@ -42,9 +42,9 @@ export async function checkUserValid(userId: bigint, url: string): Promise<Boole
       id: Number(userId)
     }
   });
-  if(user.email && user.name && user.handle && user.surname && user.description && user.has_data_policy) {
+  if (user.email && user.name && user.handle && user.surname && user.description && user.has_data_policy) {
     return true;
-  } else if(!url.endsWith('/admin/user/account')) {
+  } else if (!url.endsWith('/admin/user/account')) {
     throw redirect('/admin/user/account');
   }
   return false;
@@ -72,7 +72,7 @@ export const checkSuperAdmin = async (userId: bigint, redirect_user?: boolean) =
       id: Number(userId)
     }
   });
-  if(user.is_superadmin) {
+  if (user.is_superadmin) {
     return true;
   } else if (redirect_user) {
     throw redirect('/');
@@ -81,7 +81,7 @@ export const checkSuperAdmin = async (userId: bigint, redirect_user?: boolean) =
 }
 
 export const checkHandleAccessForEntity = async (userId: string | bigint, handle: string | undefined, minAccess: AccessRight): Promise<AccessRight> => {
-  if(!handle) {
+  if (!handle) {
     throw redirect('/admin');
   }
 
@@ -104,19 +104,19 @@ const checkAccessForEntity = async (query: any, minAccess: AccessRight) => {
   let membership;
   try {
     membership = await db.groupMember.findFirstOrThrow(query);
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     throw redirect('/admin')
   }
 
-  if(membership.request_status !== RequestStatus.ACCEPTED) {
+  if (membership.request_status !== RequestStatus.ACCEPTED) {
     throw redirect('/admin')
   }
 
   const accessRoles = ['MEMBER', 'MODERATOR', 'ADMINISTRATOR'];
   const index = accessRoles.indexOf(minAccess);
   const allowed = accessRoles.splice(index);
-  if(allowed.includes(membership.access_rights)) {
+  if (allowed.includes(membership.access_rights)) {
     return membership.access_rights;
   }
   throw redirect('/admin');

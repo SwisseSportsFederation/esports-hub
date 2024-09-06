@@ -1,8 +1,6 @@
-import { json } from '@vercel/remix';
 import type { FetcherWithComponents } from '@remix-run/react';
-import { useFetcher, useLoaderData, useOutletContext } from '@remix-run/react';
-import type { LoaderFunctionArgs } from '@vercel/remix';
-import type { SerializeFrom } from '@remix-run/server-runtime';
+import { json, useFetcher, useLoaderData, useOutletContext } from '@remix-run/react';
+import type { LoaderFunctionArgs, SerializeFrom } from '@remix-run/server-runtime';
 import { useState } from 'react';
 import { z } from 'zod';
 import { zx } from 'zodix';
@@ -24,8 +22,8 @@ import { checkUserAuth } from '~/utils/auth.server';
 import { getTeamMemberTeasers } from '~/utils/teaserHelper';
 import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 
-export async function loader({request, params}: LoaderFunctionArgs) {
-  const {handle} = zx.parseParams(params, {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { handle } = zx.parseParams(params, {
     handle: z.string(),
   });
   const user = await checkUserAuth(request);
@@ -71,18 +69,18 @@ export async function loader({request, params}: LoaderFunctionArgs) {
 
 const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: FetcherWithComponents<any>) => {
   return <fetcher.Form method="post" action={'/admin/api/invitation'} encType="multipart/form-data">
-    <input type="hidden" name="entityId" value={groupId}/>
-    <input type="hidden" name="userId" value={teaser.id}/>
-    <IconButton icon="accept" type="submit" name="action" value="ACCEPT"/>
-    <IconButton icon="decline" type="submit" name="action" value="DECLINE"/>
+    <input type="hidden" name="entityId" value={groupId} />
+    <input type="hidden" name="userId" value={teaser.id} />
+    <IconButton icon="accept" type="submit" name="action" value="ACCEPT" />
+    <IconButton icon="decline" type="submit" name="action" value="DECLINE" />
   </fetcher.Form>;
 };
 
 export default function () {
-  const {teamUser, members, invited, pending} = useLoaderData<typeof loader>();
+  const { teamUser, members, invited, pending } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher();
-  const {team} = useOutletContext<SerializeFrom<typeof handleLoader>>();
+  const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
@@ -94,34 +92,34 @@ export default function () {
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
         <H1Nav path={'..'} title="Members">
-          <ActionButton content="Invite" action={() => setInviteModalOpen(true)} className="w-1/5"/>
+          <ActionButton content="Invite" action={() => setInviteModalOpen(true)} className="w-1/5" />
         </H1Nav>
         <H1 className="px-4 mb-1 w-full">Members</H1>
         {
           // Update Member
           members.map(member => {
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
-                                     team={team.handle}
-                                     games={member.user.games}
-                                     expandable={allowedTypes.some(type => type === member.access_rights) && member.user.id !== teamUser.user_id}>
+              team={team.handle}
+              games={member.user.games}
+              expandable={allowedTypes.some(type => type === member.access_rights) && member.user.id !== teamUser.user_id}>
               <fetcher.Form method="put" action={'/admin/api/group/members'}
-                            className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
-                <input type="hidden" name="groupId" value={team.id}/>
-                <TextInput id="role" label="Role" defaultValue={member.role}/>
-                <RadioButtonGroup values={allowedTypes} id={`user-rights`} selected={member.access_rights}/>
+                className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
+                <input type="hidden" name="groupId" value={team.id} />
+                <TextInput id="role" label="Role" defaultValue={member.role} />
+                <RadioButtonGroup values={allowedTypes} id={`user-rights`} selected={member.access_rights} />
                 <div className="w-full flex flex-row space-x-4 justify-center">
-                  <ActionButton content="Save" type="submit" name="userId" value={member.user.id}/>
-                  <ActionButton content="Kick" action={() => setDeleteModalOpen(member.user.id)}/>
+                  <ActionButton content="Save" type="submit" name="userId" value={member.user.id} />
+                  <ActionButton content="Kick" action={() => setDeleteModalOpen(member.user.id)} />
                 </div>
               </fetcher.Form>
             </ExpandableTeaser>;
           })
         }
         <TeaserList title={'Invitation Requests'} teasers={invited}
-                    iconFactory={(teaser) => addInvitationIcons(teaser, team.id, fetcher)}/>
+          iconFactory={(teaser) => addInvitationIcons(teaser, team.id, fetcher)} />
         <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
-          <Icons iconName="clock" className="h-8 w-8"/>
-        }/>
+          <Icons iconName="clock" className="h-8 w-8" />
+        } />
       </div>
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
@@ -129,13 +127,13 @@ export default function () {
         Remove User from Team?
       </div>
       <fetcher.Form className="flex justify-between gap-2" method="delete" action={'/admin/api/group/members'}
-                    onSubmit={() => setDeleteModalOpen(null)}>
-        <input type="hidden" name="groupId" value={team.id}/>
-        {deleteModalOpen && <ActionButton content="Yes" type="submit" name="userId" value={deleteModalOpen}/>}
-        <ActionButton className="bg-gray-3" content="No" action={() => setDeleteModalOpen(null)}/>
+        onSubmit={() => setDeleteModalOpen(null)}>
+        <input type="hidden" name="groupId" value={team.id} />
+        {deleteModalOpen && <ActionButton content="Yes" type="submit" name="userId" value={deleteModalOpen} />}
+        <ActionButton className="bg-gray-3" content="No" action={() => setDeleteModalOpen(null)} />
       </fetcher.Form>
     </Modal>
     {inviteModalOpen &&
-        <SearchMemberModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} groupId={team.id}/>}
+      <SearchMemberModal isOpen={inviteModalOpen} handleClose={setInviteModalOpen} groupId={team.id} />}
   </>;
 }

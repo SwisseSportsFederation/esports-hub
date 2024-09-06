@@ -1,8 +1,6 @@
-import type { AccessRight, GroupToGroup} from "@prisma/client";
-import type { LoaderFunctionArgs } from '@vercel/remix';
-import { json } from '@vercel/remix';
-import { Form, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
-import type { SerializeFrom } from "@remix-run/server-runtime";
+import type { AccessRight, GroupToGroup } from "@prisma/client";
+import { Form, json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
 import { z } from "zod";
 import { zx } from "zodix";
@@ -26,7 +24,7 @@ import { RequestStatusValue } from '~/models/database.model';
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user.db.id, params.handle, 'ADMINISTRATOR');
-  const data = await zx.parseForm(request, 
+  const data = await zx.parseForm(request,
     z.object({ teamId: zx.NumAsString, orgId: zx.NumAsString })
   );
 
@@ -57,7 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }
     },
     include: {
-      parent: { include: { children: { include: { child: { include: { game: true }}}}}},
+      parent: { include: { children: { include: { child: { include: { game: true } } } } } },
       child: true
     }
   });
@@ -74,26 +72,26 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 const addInvitationIcons = (access: AccessRight, teaser: ITeaserProps, teamId: string, isInOrg: boolean) => {
-  if(access === "ADMINISTRATOR") {
+  if (access === "ADMINISTRATOR") {
     const fetcher = useFetcher();
     return <fetcher.Form method='post' action={'/admin/api/group/parent/invitation'} encType='multipart/form-data' className="flex space-x-2">
-      <input type='hidden' name='entityId' value={teamId}/>
-      <input type='hidden' name='orgId' value={teaser.id}/>
-      <IconButton icon='accept' type='submit' name='action' value='ACCEPT' disabled={isInOrg}/>
-      <IconButton icon='decline' type='submit' name='action' value='DECLINE'/>
+      <input type='hidden' name='entityId' value={teamId} />
+      <input type='hidden' name='orgId' value={teaser.id} />
+      <IconButton icon='accept' type='submit' name='action' value='ACCEPT' disabled={isInOrg} />
+      <IconButton icon='decline' type='submit' name='action' value='DECLINE' />
     </fetcher.Form>;
   }
   return null;
 };
 
 const addDeleteIcon = (access: AccessRight, orgTeam: GroupToGroup, setDeleteModalOpen: Function) => {
-  if(access === "ADMINISTRATOR") {
-    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.parent_id)}/>;
+  if (access === "ADMINISTRATOR") {
+    return <IconButton type="button" icon='decline' action={() => setDeleteModalOpen(orgTeam.parent_id)} />;
   }
   return null;
 }
 
-export default function() {
+export default function () {
   const { access, orgTeams, invited, pending } = useLoaderData<typeof loader>();
 
   const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>()
@@ -103,7 +101,7 @@ export default function() {
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
         <H1Nav path={'..'} title='Organisation' />
-        { orgTeams.length > 0 ? 
+        {orgTeams.length > 0 ?
           <H1 className='px-4 mb-1 w-full'>Current</H1>
           :
           <H1 className='px-4 mb-1 w-full'>Not in Organisation</H1>
@@ -111,16 +109,16 @@ export default function() {
         {
           orgTeams.map(orgTeam => {
             return <Teaser key={orgTeam.parent_id} avatarPath={orgTeam.parent.image} name={orgTeam.parent.name}
-                            team={orgTeam.parent.handle}
-                            games={[team.game]} 
-                            icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)}/>
+              team={orgTeam.parent.handle}
+              games={[team.game]}
+              icons={addDeleteIcon(access, orgTeam, setDeleteModalOpen)} />
           })
         }
         <TeaserList title={'Invitation Requests'} teasers={invited}
-                    iconFactory={(teaser) => addInvitationIcons(access, teaser, team.id, (orgTeams.length > 0))}/>
+          iconFactory={(teaser) => addInvitationIcons(access, teaser, team.id, (orgTeams.length > 0))} />
         <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
-          <Icons iconName='clock' className='h-8 w-8'/>
-        }/>
+          <Icons iconName='clock' className='h-8 w-8' />
+        } />
       </div>
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
@@ -128,9 +126,9 @@ export default function() {
         Leave Organisation as Team?
       </div>
       <Form className='flex justify-between gap-2' method="post" onSubmit={() => setDeleteModalOpen(null)}>
-        <input type='hidden' name='teamId' value={team.id}/>
-        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='orgId' value={deleteModalOpen}/>}
-        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)}/>
+        <input type='hidden' name='teamId' value={team.id} />
+        {deleteModalOpen && <ActionButton content='Yes' type='submit' name='orgId' value={deleteModalOpen} />}
+        <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)} />
       </Form>
     </Modal>
   </>;

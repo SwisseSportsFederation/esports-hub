@@ -1,10 +1,9 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { json, redirect } from "@vercel/remix";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
 import { zx } from "zodix";
-import type { LoaderFunctionArgs } from '@vercel/remix';
 import { z } from "zod";
+import { json, LoaderFunctionArgs, redirect } from "@remix-run/server-runtime";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -23,14 +22,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       languages: true,
     }
   });
-  if(!team) {
+  if (!team) {
     throw redirect('/admin');
   }
   return json({ team, accessRight });
 }
 
-export default function() {
+export default function () {
   const team = useLoaderData<typeof loader>();
 
-  return <Outlet context={team}/>;
+  return <Outlet context={team} />;
 }

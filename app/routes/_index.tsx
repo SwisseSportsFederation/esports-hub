@@ -1,9 +1,8 @@
-import SearchBox from "~/components/Forms/SearchBox";
-import { defer } from "@vercel/remix";
-import { useLoaderData } from "@remix-run/react";
-import { getSearchParams, SearchParams } from "~/services/search.server";
-import Background from "~/components/Background";
+import { defer, useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import Background from "~/components/Background";
+import SearchBox from "~/components/Forms/SearchBox";
+import { getSearchParams, SearchParams } from "~/services/search.server";
 
 export async function loader() {
   return defer({
@@ -30,11 +29,11 @@ export default function Index() {
       <h2 className={textColor + " text-xl lg:text-3xl font-bold mb-4"}>Search for Swiss Esports Members</h2>
       <div className="max-w-full">
         <SearchBox games={params.games}
-                   cantons={params.cantons}
-                   languages={params.languages}
-                   forceWhiteText={true}/>
+          cantons={params.cantons}
+          languages={params.languages}
+          forceWhiteText={true} />
       </div>
     </section>
-    <Background/>
+    <Background />
   </>;
 }

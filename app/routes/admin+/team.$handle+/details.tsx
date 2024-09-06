@@ -1,8 +1,7 @@
 import styles from 'react-image-crop/dist/ReactCrop.css?url';
-import { useLoaderData, useOutletContext } from '@remix-run/react';
+import { json, redirect, useLoaderData, useOutletContext } from '@remix-run/react';
 import type { loader as handleLoader } from '~/routes/admin+/team.$handle+/admin.team.$handle';
 import type { ActionFunctionArgs } from '@remix-run/node';
-import { json, redirect } from '@vercel/remix';
 import { checkHandleAccessForEntity, checkUserAuth } from '~/utils/auth.server';
 import { db } from '~/services/db.server';
 import { getSearchParams } from '~/services/search.server';
@@ -15,13 +14,13 @@ import { createFlashMessage } from '~/services/toast.server';
 
 export function links() {
   return [
-    {rel: 'stylesheet', href: styles},
-    {rel: 'stylesheet', href: dateInputStyles},
+    { rel: 'stylesheet', href: styles },
+    { rel: 'stylesheet', href: dateInputStyles },
   ];
 }
 
-export const action = async ({request}: ActionFunctionArgs) => {
-  const {id, oldHandle, handle, founded, name, game, description, canton, languages} = await zx.parseForm(request, {
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
     id: z.string(),
     oldHandle: z.string(),
     handle: z.string().min(3),
@@ -32,10 +31,10 @@ export const action = async ({request}: ActionFunctionArgs) => {
     canton: zx.NumAsString.optional(),
     languages: z.string(),
   });
-  const languageIds = (JSON.parse(languages) as string[]).map(langId => ({id: Number(langId)}));
+  const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
   const user = await checkUserAuth(request);
   await checkHandleAccessForEntity(user.db.id, oldHandle, 'MODERATOR');
-  
+
   let headers
   try {
     await db.group.update({
@@ -46,8 +45,8 @@ export const action = async ({request}: ActionFunctionArgs) => {
         handle,
         name,
         description,
-        ...(founded && ({founded: new Date(founded)})),
-        ...(!founded && ({founded: null})),
+        ...(founded && ({ founded: new Date(founded) })),
+        ...(!founded && ({ founded: null })),
         game: {
           connect: {
             id: Number(game),
@@ -73,7 +72,7 @@ export const action = async ({request}: ActionFunctionArgs) => {
     headers = await createFlashMessage(request, 'Team update is done');
     return redirect(`/admin/team/${handle}/details`, headers);
   } catch (error: any) {
-    if(error.message.includes('handle')) {
+    if (error.message.includes('handle')) {
       headers = await createFlashMessage(request, 'Error updating team: Short name already taken.');
     } else {
       headers = await createFlashMessage(request, 'Error updating team: ' + error.message);
@@ -90,9 +89,9 @@ export async function loader() {
 }
 
 export default function () {
-  const {searchParams} = useLoaderData<typeof loader>();
-  const {team} = useOutletContext<SerializeFrom<typeof handleLoader>>();
+  const { searchParams } = useLoaderData<typeof loader>();
+  const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
 
   return <EntityDetailBlock {...team} entityId={team.id} entityType="TEAM" entityBirthday={team.founded}
-                            imageId={team.image} searchParams={searchParams}/>;
+    imageId={team.image} searchParams={searchParams} />;
 }

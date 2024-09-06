@@ -1,8 +1,6 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { deleteEntity } from "~/services/admin/api/deleteEntity.server";
+import { redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { createEntity } from "~/services/admin/api/createEntity.server";
-import { createFlashMessage } from "~/services/toast.server";
+import { deleteEntity } from "~/services/admin/api/deleteEntity.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 

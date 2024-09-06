@@ -1,10 +1,9 @@
 import H1Nav from "~/components/Titles/H1Nav";
 import SocialSelect from "~/components/SocialSelect";
 import { useLoaderData } from "@remix-run/react";
-import { json } from "@vercel/remix";
 import { checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import type { LoaderFunctionArgs } from '@vercel/remix';
+import { json, LoaderFunctionArgs } from "@remix-run/server-runtime";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -26,13 +25,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function() {
+export default function () {
   const { socials, user } = useLoaderData<typeof loader>();
 
   return <div className="mx-3">
     <div className="w-full max-w-prose mx-auto">
-      <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Socials'/>
-      <SocialSelect id={Number(user.db.id)} entityType='USER' socials={socials}/>
+      <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Socials' />
+      <SocialSelect id={Number(user.db.id)} entityType='USER' socials={socials} />
     </div>
   </div>;
 };

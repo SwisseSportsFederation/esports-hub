@@ -1,12 +1,10 @@
 import styles from 'react-image-crop/dist/ReactCrop.css?url'
 import dateInputStyles from "~/styles/date-input.css?url";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { checkUserAuth } from "~/utils/auth.server";
-import { useLoaderData } from "@remix-run/react";
+import { json, useLoaderData } from "@remix-run/react";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import type { LoaderFunctionArgs } from '@vercel/remix';
 import { zx } from 'zodix';
 import { z } from "zod";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
@@ -63,7 +61,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ...(has_data_policy && ({ has_data_policy: true })),
       }
     });
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     return json({}, 500);
   }
@@ -85,7 +83,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
 
-  if(!userData) {
+  if (!userData) {
     throw json({}, 404);
   }
 
@@ -95,8 +93,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function() {
+export default function () {
   const { user, searchParams } = useLoaderData<typeof loader>();
   return <EntityDetailBlock {...user} entityId={user.id} entityType='USER' entityBirthday={user.birth_date}
-                            imageId={user.image} searchParams={searchParams}/>
+    imageId={user.image} searchParams={searchParams} />
 }

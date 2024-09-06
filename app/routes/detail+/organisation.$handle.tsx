@@ -1,7 +1,5 @@
 import { Prisma } from "@prisma/client";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@vercel/remix";
-import type { LoaderFunctionArgs } from '@vercel/remix';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
@@ -14,7 +12,7 @@ import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilters";
 import { getOrganisationMemberTeasers, getTeamTeasers } from "~/utils/teaserHelper";
 import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
-import { useFetcher, useLoaderData } from '@remix-run/react';
+import { json, useFetcher, useLoaderData } from '@remix-run/react';
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   /* Apply for Organisation */
@@ -35,12 +33,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         request_status: RequestStatusValue.PENDING_GROUP,
         joined_at: new Date(),
         role: "Member",
-        user: { connect: { id: BigInt(user.db.id) }},
-        group: { connect: { id: group.id }}
+        user: { connect: { id: BigInt(user.db.id) } },
+        group: { connect: { id: group.id } }
       }
     })
     console.log(`user ${user.db.id} applied for group ${group.id}`)
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     const headers = await createFlashMessage(request, 'Error while applying for group');
     return json({}, headers);
@@ -68,11 +66,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         where: {
           request_status: RequestStatusValue.ACCEPTED
         },
-        include: { user: { include: { games: {
-          where: {
-            is_active: true,
-          },
-        } } } }
+        include: {
+          user: {
+            include: {
+              games: {
+                where: {
+                  is_active: true,
+                },
+              }
+            }
+          }
+        }
       }
     }
   }).catch((e) => {
@@ -96,7 +100,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   let showApply = false;
-  if(loggedIn) {
+  if (loggedIn) {
     const user = await checkUserAuth(request);
     showApply = !isOrganisationMember(organisation.members, Number(user.db.id));
   }
@@ -113,7 +117,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 }
 
-export default function() {
+export default function () {
   const { organisation, showApply, teasers } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher();
@@ -129,21 +133,21 @@ export default function() {
     <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
         <DetailHeader name={organisation.name}
-                      imagePath={organisation.image}
-                      entitySocials={organisation.socials}
-                      games={getOrganisationGames(organisation)}
-                      isActive={organisation.is_active}
-                      showApply={showApply}
-                      onApply={handleActionClick}/>
+          imagePath={organisation.image}
+          entitySocials={organisation.socials}
+          games={getOrganisationGames(organisation)}
+          isActive={organisation.is_active}
+          showApply={showApply}
+          onApply={handleActionClick} />
         <div className="col-span-2 space-y-4">
           <DetailContentBlock {...organisation} />
           <div className="">
-            <TeaserList title="Teams" teasers={teasers.teamTeasers}/>
-            <TeaserList title="Members" teasers={teasers.memberTeasers}/>
+            <TeaserList title="Teams" teasers={teasers.teamTeasers} />
+            <TeaserList title="Members" teasers={teasers.memberTeasers} />
           </div>
           {showApply &&
             <div className="flex items-center justify-center my-7">
-              <ActionButton content="Apply" action={handleActionClick}/>
+              <ActionButton content="Apply" action={handleActionClick} />
             </div>
           }
         </div>

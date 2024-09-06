@@ -1,19 +1,17 @@
-import { json } from "@vercel/remix";
+import type { EntityType, Game, User } from "@prisma/client";
 import type { FetcherWithComponents } from "@remix-run/react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import H1 from "~/components/Titles/H1";
+import { json, useFetcher, useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
 import IconButton from "~/components/Button/IconButton";
-import TeaserList from "~/components/Teaser/TeaserList";
-import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
-import type { SerializeFrom } from "@remix-run/server-runtime";
-import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
-import type { LoaderFunctionArgs } from '@vercel/remix';
-import type { Game, User, EntityType } from "@prisma/client";
-import { getGameRequests, getSuperAdmins } from "~/services/superadmin/index.server";
 import TextInput from "~/components/Forms/TextInput";
+import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
+import TeaserList from "~/components/Teaser/TeaserList";
+import H1 from "~/components/Titles/H1";
+import { getGameRequests, getSuperAdmins } from "~/services/superadmin/index.server";
+import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 
 
-export async function loader ({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkSuperAdmin(user.db.id);
   const games = await getGameRequests(user);

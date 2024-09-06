@@ -1,18 +1,17 @@
-import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { json, redirect } from '@vercel/remix';
-import { zx } from 'zodix';
-import { z } from 'zod';
-import { checkUserAuth, logout } from '~/utils/auth.server';
+import { json, redirect, type ActionFunction, type LoaderFunction } from '@remix-run/node';
 import { ManagementClient } from 'auth0';
+import { z } from 'zod';
+import { zx } from 'zodix';
 import { db } from '~/services/db.server';
+import { checkUserAuth, logout } from '~/utils/auth.server';
 
 export let loader: LoaderFunction = () => redirect('/admin');
 
-export const action: ActionFunction = async ({request}) => {
+export const action: ActionFunction = async ({ request }) => {
   if (request.method !== 'DELETE') {
     throw json({}, 404);
   }
-  const {entityId} = await zx.parseForm(request, {
+  const { entityId } = await zx.parseForm(request, {
     entityId: z.string(),
   });
   const user = await checkUserAuth(request);
@@ -39,7 +38,7 @@ export const action: ActionFunction = async ({request}) => {
       },
     });
 
-    await test.users.delete({id: user.db.auth_id});
+    await test.users.delete({ id: user.db.auth_id });
 
     return logout(request, '/');
   } catch (error) {

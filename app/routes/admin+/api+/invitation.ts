@@ -1,5 +1,4 @@
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
+import { redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { db } from "~/services/db.server";
 import { zx } from 'zodix';
 import { z } from "zod";
@@ -25,11 +24,11 @@ export const action: ActionFunction = async ({ request }) => {
       request_status: true
     }
   });
-  if(currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
+  if (currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
     await checkIdAccessForEntity(user.db.id, group_id, 'MODERATOR');
   }
   try {
-    if(action === 'ACCEPT') {
+    if (action === 'ACCEPT') {
       await db.groupMember.update({
         where: {
           user_id_group_id: {
@@ -52,7 +51,7 @@ export const action: ActionFunction = async ({ request }) => {
         }
       });
     }
-  } catch(error) {
+  } catch (error) {
     throw json({}, 400);
   }
   return json({});

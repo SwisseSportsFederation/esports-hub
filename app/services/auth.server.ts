@@ -11,22 +11,22 @@ export type AuthUser = {
 };
 export const authenticator = new Authenticator<AuthUser>(sessionStorage);
 
-if(!process.env.AUTH0_CLIENT_ID) {
+if (!process.env.AUTH0_CLIENT_ID) {
   throw new Error("Missing AUTH0_CLIENT_ID env");
 }
 
-if(!process.env.AUTH0_CLIENT_SECRET) {
+if (!process.env.AUTH0_CLIENT_SECRET) {
   throw new Error("Missing AUTH0_CLIENT_SECRET env");
 }
 
-if(!process.env.AUTH0_DOMAIN) {
+if (!process.env.AUTH0_DOMAIN) {
   throw new Error("Missing AUTH0_DOMAIN env");
 }
 
 let callbackURL = process.env.AUTH0_CALLBACK_URL;
-if(process.env.VERCEL_ENV === 'preview') {
+/*if(process.env.VERCEL_ENV === 'preview') {
   callbackURL = `https://${process.env.VERCEL_URL}/auth/callback`;
-}
+}*/
 
 authenticator.use(
   new Auth0Strategy(
@@ -42,7 +42,7 @@ authenticator.use(
           auth_id: profile.id
         }
       });
-      if(!user) {
+      if (!user) {
         try {
           user = await db.user.create({
             data: {
@@ -54,7 +54,7 @@ authenticator.use(
               email: profile.emails![0].value
             }
           });
-        } catch(error) {
+        } catch (error) {
           console.log(error);
           throw error;
         }

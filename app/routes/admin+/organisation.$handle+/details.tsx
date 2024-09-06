@@ -1,17 +1,16 @@
-import styles from 'react-image-crop/dist/ReactCrop.css?url'
-import { useLoaderData, useOutletContext } from "@remix-run/react";
-import type { loader as handleLoader } from "~/routes/admin+/organisation/$handle";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@vercel/remix";
-import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
+import { json, redirect, useLoaderData, useOutletContext } from "@remix-run/react";
+import type { SerializeFrom } from "@remix-run/server-runtime";
+import styles from 'react-image-crop/dist/ReactCrop.css?url';
+import { z } from "zod";
+import { zx } from "zodix";
+import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import type { loader as handleLoader } from "~/routes/admin+/organisation/$handle";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import { z } from "zod";
-import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
-import type { SerializeFrom } from "@remix-run/server-runtime";
-import { zx } from "zodix";
-import dateInputStyles from "~/styles/date-input.css?url";
 import { createFlashMessage } from "~/services/toast.server";
+import dateInputStyles from "~/styles/date-input.css?url";
+import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export function links() {
   return [
@@ -85,7 +84,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     headers = await createFlashMessage(request, 'Organisation update is done');
     return redirect(`/admin/organisation/${handle}/details`, headers);
   } catch (error: any) {
-    if(error.message.includes('handle')) {
+    if (error.message.includes('handle')) {
       headers = await createFlashMessage(request, 'Error updating organisation: Short name already taken.');
     } else {
       headers = await createFlashMessage(request, 'Error updating organisation: ' + error.message);
@@ -100,10 +99,10 @@ export async function loader() {
   });
 }
 
-export default function() {
+export default function () {
   const { searchParams } = useLoaderData<typeof loader>();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORGANISATION'
-                            entityBirthday={organisation.founded} imageId={organisation.image}
-                            searchParams={searchParams}/>;
+    entityBirthday={organisation.founded} imageId={organisation.image}
+    searchParams={searchParams} />;
 }

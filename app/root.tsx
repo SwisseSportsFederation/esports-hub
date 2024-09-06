@@ -1,7 +1,7 @@
-import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
-import type { MetaFunction, LinksFunction } from "@remix-run/node";
-import { json } from "@vercel/remix";
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import {
+  isRouteErrorResponse,
+  json,
   Link,
   Links,
   Meta,
@@ -10,22 +10,21 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
-  useRouteError,
-  isRouteErrorResponse
+  useRouteError
 } from "@remix-run/react";
-import styles from "./styles/tailwind.css?url";
-import { authenticator } from "~/services/auth.server";
-import Header from "~/components/Header/Header";
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import Footer from "~/components/Footer";
+import Header from "~/components/Header/Header";
 import Icon from "~/components/Icons";
-import LinkButton from "./components/Button/LinkButton";
-import type { LoaderFunctionArgs } from '@vercel/remix';
-import { commitSession, getSession } from "~/services/session.server";
 import Toast from "~/components/Notifications/Toast";
-import { ThemeHead, ThemeBody, ThemeProvider, useTheme } from "~/context/theme-provider";
+import { ThemeBody, ThemeHead, ThemeProvider, useTheme } from "~/context/theme-provider";
+import { authenticator } from "~/services/auth.server";
+import { commitSession, getSession } from "~/services/session.server";
 import { getThemeSession } from "~/services/theme.server";
+import LinkButton from "./components/Button/LinkButton";
 import { ImageProvider } from "./context/image-provider";
 import { getImageRoot } from "./services/admin/api/cloudflareImages.server";
+import styles from "./styles/tailwind.css?url";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -39,7 +38,7 @@ export const meta: MetaFunction = () => {
   ]
 };
 
-export async function loader ({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const cookie = request.headers.get("Cookie");
   const userPromise = authenticator.isAuthenticated(request);
   const themeSessionPromise = getThemeSession(cookie);
@@ -68,7 +67,7 @@ BigInt.prototype.toJSON = function () {
   return this.toString()
 }
 
-function App () {
+function App() {
   const { message, theme: loaderTheme } = useLoaderData<typeof loader>();
   const [theme] = useTheme();
   const location = useLocation();
@@ -112,7 +111,7 @@ function AppWithProviders() {
 
 export default withSentry(AppWithProviders);
 
-export function ErrorBoundary () {
+export function ErrorBoundary() {
   const error = useRouteError();
   captureRemixErrorBoundaryError(error);
   if (isRouteErrorResponse(error)) {
