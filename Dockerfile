@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN pnpm install --production
+RUN pnpm install --prod
 
 # Copy the rest of the application code
 COPY . .
