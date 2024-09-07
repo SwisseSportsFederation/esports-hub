@@ -1,23 +1,26 @@
 # Use an official Node.js runtime as a parent image
 FROM node:20-alpine
 
+# Install pnpm globally
+RUN npm install -g pnpm
+
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json files
-COPY package*.json ./
+# Copy package.json and pnpm-lock.yaml (if available)
+COPY package.json pnpm-lock.yaml* ./
 
-# Install dependencies
-RUN pnpm install --prod
+# Install dependencies using pnpm
+RUN pnpm install
 
 # Copy the rest of the application code
 COPY . .
 
 # Build the Remix app
-RUN pnpm build
+RUN pnpm run build
 
-# Expose the port the Remix app runs on
+# Expose the port that the Remix app will run on
 EXPOSE 3000
 
-# Define the command to run your app
-CMD [ "pnpm", "start" ]
+# Command to run the Remix app
+CMD ["pnpm", "run", "start"]
