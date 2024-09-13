@@ -6,7 +6,7 @@
     "postinstall": "prisma generate",
     "build": "remix vite:build",
     "dev": "remix vite:dev",
-    "start": "NODE_OPTIONS='--import ./instrumentation.server.mjs' remix-serve ./build/index.js",
+    "start": "NODE_OPTIONS='--import ./instrumentation.server.mjs' remix-serve ./build/server/index.js",
     "typecheck": "tsc -b"
   },
   "dependencies": {
