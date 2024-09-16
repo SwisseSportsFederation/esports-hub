@@ -31,7 +31,7 @@ export default function Index() {
         <SearchBox games={params.games}
           cantons={params.cantons}
           languages={params.languages}
-          forceWhiteText={true} />
+        />
       </div>
     </section>
     <Background />

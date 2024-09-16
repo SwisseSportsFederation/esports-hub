@@ -17,7 +17,7 @@ type ImageUploadBlockPropTypes = {
   imageId: StringOrNull
 }
 
-const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes) => {
+const ImageUploadBlock = ({ entity, entityId, imageId }: ImageUploadBlockPropTypes) => {
   const imageRoot = useImage();
   const [uploadOpen, setUploadOpen] = useState(false);
   const [deleteImageOpen, setDeleteImageOpen] = useState(false);
@@ -50,7 +50,7 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
   }
 
   function onImageLoad(e: SyntheticEvent<HTMLImageElement>) {
-    const {width, height} = e.currentTarget;
+    const { width, height } = e.currentTarget;
     const crop = centerCrop(
       makeAspectCrop({
         unit: '%',
@@ -66,18 +66,18 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
   return <>
     <div className="relative flex items-center w-full max-w-lg bg-white dark:bg-gray-2 rounded-3xl p-5">
       <div className={`relative mr-5 group h-16 w-16 rounded-full overflow-hidden`}>
-        {imageId && <img src={imageRoot+imageId} alt="User profile"
-                         className={`absolute`}/>}
-        {!imageId && <Icons iconName="user" className="absolute m-1"/>}
+        {imageId && <img src={imageRoot + imageId} alt="User profile"
+          className={`absolute`} />}
+        {!imageId && <Icons iconName="user" className="absolute m-1" />}
       </div>
       <div className="flex flex-col">
         <div className="flex flex-col space-y-5 sm:flex-row sm:space-x-5 sm:space-y-0">
-          <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-color hover:bg-red-2`}
-                  onClick={() => setUploadOpen(true)}
-                  aria-label="Replace Image">{!imageId ? 'New Image' : 'Change Image'}</button>
-          {imageId && <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-color hover:bg-red-2`}
-                              onClick={() => setDeleteImageOpen(true)}
-                              aria-label="Delete Image">Delete Image</button>}
+          <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-600 transition-colors`}
+            onClick={() => setUploadOpen(true)}
+            aria-label="Replace Image">{!imageId ? 'New Image' : 'Change Image'}</button>
+          {imageId && <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-600 transition-colors`}
+            onClick={() => setDeleteImageOpen(true)}
+            aria-label="Delete Image">Delete Image</button>}
         </div>
       </div>
     </div>
@@ -86,12 +86,12 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
         Do you want to delete your profile picture?
       </div>
       <fetcher.Form action={'/admin/api/image'} encType="multipart/form-data" method="delete"
-                    className="flex justify-between gap-2" onSubmit={() => setDeleteImageOpen(false)}>
-        <input type="hidden" name="entityId" value={entityId}/>
-        <input type="hidden" name="entity" value={entity}/>
-        <input type="hidden" name="imageId" value={imageId ?? undefined}/>
-        <ActionButton content="Yes" type="submit" value="Delete"/>
-        <ActionButton className="bg-gray-3" content="No" action={() => setDeleteImageOpen(false)}/>
+        className="flex justify-between gap-2" onSubmit={() => setDeleteImageOpen(false)}>
+        <input type="hidden" name="entityId" value={entityId} />
+        <input type="hidden" name="entity" value={entity} />
+        <input type="hidden" name="imageId" value={imageId ?? undefined} />
+        <ActionButton content="Yes" type="submit" value="Delete" />
+        <ActionButton className="bg-gray-3" content="No" action={() => setDeleteImageOpen(false)} />
       </fetcher.Form>
     </Modal>
     <Modal isOpen={uploadOpen} handleClose={() => setUploadOpen(false)}>
@@ -104,22 +104,22 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
           {/*       className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-2`}*/}
           {/*       aria-label="Replace Image">Upload</label>*/}
           <input id="image-upload" type="file" name="file" required accept="image/*"
-                 onChange={onSelectFile}
-                 className="hidden"/>
-          <input type="hidden" defaultValue={JSON.stringify(crop)} name="crop"/>
-          <input type="hidden" defaultValue={entity} name="entity"/>
-          <input type="hidden" defaultValue={entityId} name="entityId"/>
+            onChange={onSelectFile}
+            className="hidden" />
+          <input type="hidden" defaultValue={JSON.stringify(crop)} name="crop" />
+          <input type="hidden" defaultValue={entity} name="entity" />
+          <input type="hidden" defaultValue={entityId} name="entityId" />
           <div className="w-full aspect-square flex mb-4 items-center">
             {!!imgSrc && <div className="w-full">
-                <ReactCrop onChange={(_: unknown, crop: Crop) => setCrop(crop)} crop={crop} circularCrop={true} aspect={1}
-                           keepSelection={true} className='w-full'>
-                    <img src={imgSrc} onLoad={onImageLoad} alt="new profile" className="w-full"/>
-                </ReactCrop>
+              <ReactCrop onChange={(_: unknown, crop: Crop) => setCrop(crop)} crop={crop} circularCrop={true} aspect={1}
+                keepSelection={true} className='w-full'>
+                <img src={imgSrc} onLoad={onImageLoad} alt="new profile" className="w-full" />
+              </ReactCrop>
             </div>}
             {!imgSrc && <label htmlFor="image-upload"
-                               className="hover:bg-gray-3/80 hover:text-gray-7 cursor-pointer h-full w-full bg-gray-3 text-color flex flex-col items-center justify-center">
-                <Icons iconName="upload" className="w-1/3 aspect-square"/>
-                <H1>Upload your new profile image</H1>
+              className="hover:bg-gray-3/80 hover:text-gray-7 cursor-pointer h-full w-full bg-gray-3 text-color flex flex-col items-center justify-center">
+              <Icons iconName="upload" className="w-1/3 aspect-square" />
+              <H1>Upload your new profile image</H1>
             </label>}
           </div>
           <div className="flex justify-between w-full gap-4">
@@ -128,8 +128,8 @@ const ImageUploadBlock = ({entity, entityId, imageId}: ImageUploadBlockPropTypes
               setTimeout(() => {
                 resetModal();
               }, 100);
-            }}/>
-            <ActionButton content="Submit" type="submit" disabled={!imgSrc}/>
+            }} />
+            <ActionButton content="Submit" type="submit" disabled={!imgSrc} />
           </div>
         </fetcher.Form>
       </div>
