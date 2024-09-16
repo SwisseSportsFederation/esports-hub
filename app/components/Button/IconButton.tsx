@@ -4,7 +4,7 @@ import { Link } from "@remix-run/react";
 import Icon from "~/components/Icons";
 
 export type IIconButtonProps = {
-  icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove" | "star" | "date",
+  icon: "accept" | "add" | "apply" | "clock" | "decline" | "edit" | "remove" | "star" | "date" | "arrowDown",
   size?: "small" | "medium" | "large",
   type: "submit" | 'link' | 'button'
 } & ({
@@ -48,15 +48,15 @@ const IconButton = (props: PropsWithClassName<IIconButtonProps>) => {
     "bg-gray-100 dark:bg-gray-3": icon === 'edit'
   }, className);
 
-  const core = <Icon iconName={icon} className={`rounded-full align-middle inline ${classname}`}/>;
+  const core = <Icon iconName={icon} className={`rounded-full align-middle inline ${classname}`} />;
 
-  if(type === 'submit') {
+  if (type === 'submit') {
     return <button type='submit' name={name} value={value} disabled={disabled}>
       {core}
     </button>;
   }
 
-  if(type === 'link') {
+  if (type === 'link') {
     return <Link to={path}>
       {core}
     </Link>;
