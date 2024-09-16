@@ -1,7 +1,7 @@
 import TextInput from "./Forms/TextInput";
 import IconButton from "./Button/IconButton";
 import ActionButton from "./Button/ActionButton";
-import type { Social , EntityType, SocialPlatform } from "@prisma/client";
+import type { Social, EntityType, SocialPlatform } from "@prisma/client";
 import { SocialPlatformValue } from "~/models/database.model";
 import SelectList from "~/components/SelectList";
 import { useEffect, useRef, useState } from "react";
@@ -28,13 +28,13 @@ const getErrorForPath = (path: string, data: any) => {
 };
 
 const getPlaceHolderForSocial = (social: SelectableSocial) => {
-  switch(social.platform){
+  switch (social.platform) {
     case "TWITTER":
-      return "https://twitter.com/yourname"
+      return "https://x.com/yourname"
     case "FACEBOOK":
       return "https://facebook.com/yourname"
     case "DISCORD":
-      return "yourtag#1234"
+      return "yourtag"
     case "BATTLENET":
       return "yourtag#1234"
     case "INSTAGRAM":
@@ -61,10 +61,10 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
   const form = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
-    if(!(fetcher.state === 'idle' && fetcher.data != null)) {
+    if (!(fetcher.state === 'idle' && fetcher.data != null)) {
       return;
     }
-    if(Object.keys(fetcher.data).length === 0) {
+    if (Object.keys(fetcher.data).length === 0) {
       setEdit(false);
       setSocials(rawSocials);
     }
@@ -92,22 +92,22 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
 
   return <div className='w-full flex justify-center items-center flex-wrap flex-col space-y-6'>
     <fetcher.Form className='w-full flex items-center flex-col space-y-6' ref={form} method='post'
-                  action='/admin/api/socials' encType='multipart/form-data'>
-      <input type='hidden' name='entity' value={entityType}/>
-      <input type='hidden' name='entityId' value={id}/>
+      action='/admin/api/socials' encType='multipart/form-data'>
+      <input type='hidden' name='entity' value={entityType} />
+      <input type='hidden' name='entityId' value={id} />
       {socials.map((social: SelectableSocial) => {
         return <div className='flex flex-col gap-2 max-w-md w-full' key={social.platform}>
           {!edit &&
             <TextInput id={social.platform.toLowerCase()} label={social.platform} disabled={true}
-                       defaultValue={social.name}
-                       inputClassName='disabled:bg-gray-4 dark:disabled:bg-gray-3 disabled:text-color disabled:border-none'/>
+              defaultValue={social.name}
+              inputClassName='disabled:bg-gray-4 dark:disabled:bg-gray-3 disabled:text-color disabled:border-none' />
           }
           {edit &&
             <>
               <div className='flex flex-row gap-2'>
-                <TextInput id={social.platform.toLowerCase()} label={social.platform} defaultValue={social.name} placeholder={getPlaceHolderForSocial(social)}/>
+                <TextInput id={social.platform.toLowerCase()} label={social.platform} defaultValue={social.name} placeholder={getPlaceHolderForSocial(social)} />
                 <IconButton icon='decline' className='mt-3 h-9 w-9' action={() => removeLocalSocial(social)}
-                            type='button'/>
+                  type='button' />
               </div>
               {fieldHasError(social.platform.toLowerCase()) &&
                 <span className='text-red-1 basis-full normal-case'>
@@ -117,11 +117,11 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
           }
         </div>;
       })}
-      <SelectList values={selectables} onSelect={addLocalSocial} showButton={edit}/>
-      {!edit && <ActionButton content='Edit' action={() => setEdit(true)}/>}
+      <SelectList values={selectables} onSelect={addLocalSocial} showButton={edit} />
+      {!edit && <ActionButton content='Edit' action={() => setEdit(true)} />}
       {edit && <div className='w-full flex gap-4 justify-between'>
-        <ActionButton content='Cancel' action={reset}/>
-        <ActionButton content='Save' type='submit'/>
+        <ActionButton content='Cancel' action={reset} />
+        <ActionButton content='Save' type='submit' />
       </div>}
     </fetcher.Form>
 
