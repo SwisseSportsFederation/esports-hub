@@ -33,7 +33,7 @@ export const links: LinksFunction = () => [
 export const meta: MetaFunction = () => {
   return [
     { charset: "utf-8" },
-    { title: "Swiss Esports Database" },
+    { title: "Swiss Esports Hub" },
     { name: "viewport", content: "width=device-width,initial-scale=1" },
   ]
 };

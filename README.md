@@ -1,6 +1,6 @@
-# Swiss Esports Database
+# Swiss Esports Hub
 ## About this project
-The Swiss Esports Database is a platform for all Entities envolved in Swiss Esports. This currently covers players, staff, teams and organisations. In the future the project may also include sponsors.
+The Swiss Esports Hub is a platform for all Entities envolved in Swiss Esports. This currently covers players, staff, teams and organisations. In the future the project may also include sponsors.
 
 On the web application you can find all entities and their relations. Information for this is provided by the entities themselves by creating accounts and updating their data. With this they can promote themselves, their team and organisation.
 
