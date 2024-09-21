@@ -130,8 +130,8 @@ export default function () {
   }
 
   return <div className="mx-3 py-7">
-    <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
+    <div className="max-w-prose lg:max-w-6xl w-full mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-12">
         <DetailHeader name={organisation.name}
           imagePath={organisation.image}
           entitySocials={organisation.socials}
@@ -139,14 +139,14 @@ export default function () {
           isActive={organisation.is_active}
           showApply={showApply}
           onApply={handleActionClick} />
-        <div className="col-span-2 space-y-4">
+        <div className="col-span-2 space-y-4 lg:space-y-6">
           <DetailContentBlock {...organisation} />
           <div className="">
             <TeaserList title="Teams" teasers={teasers.teamTeasers} />
             <TeaserList title="Members" teasers={teasers.memberTeasers} />
           </div>
           {showApply &&
-            <div className="flex items-center justify-center my-7">
+            <div className="my-7">
               <ActionButton content="Apply" action={handleActionClick} />
             </div>
           }

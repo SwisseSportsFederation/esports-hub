@@ -76,14 +76,14 @@ export default function () {
   const { user, teamMemberships, formerTeams, organisationTeasers } = useLoaderData<typeof loader>();
 
   return <div className="mx-3 py-7">
-    <div className="max-w-prose lg:max-w-4xl w-full mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-6">
+    <div className="max-w-prose lg:max-w-6xl w-full mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-12">
         <DetailHeader name={`${user.name} ${user.surname}`}
           imagePath={user.image}
           entitySocials={user.socials}
           isActive={user.is_active}
           games={user.games} />
-        <div className="col-span-2 space-y-4">
+        <div className="col-span-2 space-y-4 lg:space-y-6">
           <DetailContentBlock {...user} />
           <div className="">
             <TeamHistory memberships={teamMemberships} formerTeams={formerTeams} />

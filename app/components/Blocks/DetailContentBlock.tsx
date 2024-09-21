@@ -15,40 +15,44 @@ const DetailContentBlock = (props: IDetailContentBlockProps) => {
   const { fullName, age, languages, canton, website, description } = props;
   return (
     <div className="p-4 rounded-xl bg-white dark:bg-gray-2">
-      <p className="font-bold text-lg">Details</p>
-      {fullName &&
-        <div className="flex flex-row justify-between">
-          <b>Full Name</b>
-          <span>{fullName}</span>
-        </div>
-      }
-      {age &&
-        <div className="flex flex-row justify-between">
-          <b>Age</b>
-          <span>{age}</span>
-        </div>
-      }
-      {languages && languages.length > 0 &&
-        <div className="flex flex-row justify-between">
-          <b>Languages</b>
-          <span>{languages.map((language: Language) => language.name).join(", ")}</span>
-        </div>
-      }
-      {canton &&
-        <div className="flex flex-row justify-between">
-          <b>Canton</b>
-          <span>{canton.name}</span>
-        </div>
-      }
-      {website &&
-        <div className="flex flex-row justify-between">
-          <b>Website</b>
-          <span><a href={website} className="text-red-1">{website}</a></span>
-        </div>
-      }
+      <h2 className="font-bold text-lg">Details</h2>
+      <table className="table-auto mt-2 border-separate border-spacing-x-4 max-w-full">
+        <tbody>
+          {fullName &&
+            <tr>
+              <td>Full Name</td>
+              <td>{fullName}</td>
+            </tr>
+          }
+          {age &&
+            <tr>
+              <td>Age</td>
+              <td>{age}</td>
+            </tr>
+          }
+          {languages && languages.length > 0 &&
+            <tr>
+              <td>Languages</td>
+              <td>{languages.map((language: Language) => language.name).join(", ")}</td>
+            </tr>
+          }
+          {canton &&
+            <tr>
+              <td>Canton</td>
+              <td>{canton.name}</td>
+            </tr>
+          }
+          {website &&
+            <tr>
+              <td>Website</td>
+              <td><a href={website} className="text-red-1">{website}</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
       {description &&
         <div className="pt-4">
-          <span className="font-bold block text-lg">Description</span>
+          <h3 className="font-bold block text-lg">Description</h3>
           <p>{description}</p>
         </div>
       }
