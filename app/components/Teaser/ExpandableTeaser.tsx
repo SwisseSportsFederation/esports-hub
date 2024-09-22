@@ -23,13 +23,13 @@ const ExpandableTeaser = (props: PropsWithChildren<IExpandableTeaserProps>) => {
 
   const icons = <>
     {additionalIcons}
-    {expandable && <Icon iconName='arrowDown' className={`mt-2 h-8 w-8 ${iconRotation}`}/>}
+    {expandable && <Icon iconName='arrowDown' className={`mt-2 h-8 w-8 ${iconRotation}`} />}
   </>
 
-  return <div className='flex flex-col max-w-lg w-full'>
+  return <div className='flex flex-col w-full'>
     <div onClick={() => expandable && setExpanded(!expanded)} className='relative cursor-pointer'>
       <Teaser icons={icons} {...teaserProps}
-              className='mb-0 pb-0 rounded-b-none w-full mt-0'/>
+        className='mb-0 pb-0 rounded-b-none w-full mt-0' />
     </div>
     <div className={`pt-2 rounded-b-xl bg-white dark:bg-gray-2 overflow-hidden ${test}`}>
       {expanded && expandable && children}

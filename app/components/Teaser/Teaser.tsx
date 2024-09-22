@@ -8,8 +8,8 @@ export type ITeaserProps = {
 } & ITeaserCoreProps;
 
 const Teaser = ({ icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
-  return <div className='flex h-22 w-full relative max-w-lg'>
-    <TeaserCore {...props}/>
+  return <div className='flex h-22 w-full relative'>
+    <TeaserCore {...props} />
     <div className="absolute h-full top-0 right-4 flex items-center">
       {icons}
     </div>

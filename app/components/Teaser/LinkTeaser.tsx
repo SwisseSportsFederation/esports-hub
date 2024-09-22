@@ -15,9 +15,9 @@ export type ITeaserProps = {
 
 const LinkTeaser = ({ type, handle, icons = <></>, ...props }: PropsWithClassName<ITeaserProps>) => {
   const entityPathSegment = entityToPathSegment(type);
-  return <div className='flex h-22 w-full relative max-w-lg'>
+  return <div className='flex h-22 w-full relative'>
     <Link to={`/detail/${entityPathSegment}/${handle}`} className='w-full'>
-      <TeaserCore {...props}/>
+      <TeaserCore {...props} />
     </Link>
     <div className="absolute h-full right-4 flex items-center">
       {icons}

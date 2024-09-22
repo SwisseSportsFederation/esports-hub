@@ -22,21 +22,21 @@ import { useTheme, Theme } from '~/context/theme-provider';
 
 export function links() {
   return [
-    {rel: 'stylesheet', href: dateInputStyles},
+    { rel: 'stylesheet', href: dateInputStyles },
   ];
 }
 
 const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: string, pending: boolean, fetcher: FetcherWithComponents<any>): ITeaserProps[] => {
   return invitations.map(invitation => {
     let icons = <fetcher.Form method="post" action={`/admin/api/invitation`} className="flex space-x-2">
-      <input type="hidden" name="entityId" value={`${invitation.id}`}/>
-      <input type="hidden" name="userId" value={userId}/>
-      <IconButton icon="accept" type="submit" name="action" value="ACCEPT"/>
-      <IconButton icon="decline" type="submit" name="action" value="DECLINE"/>
+      <input type="hidden" name="entityId" value={`${invitation.id}`} />
+      <input type="hidden" name="userId" value={userId} />
+      <IconButton icon="accept" type="submit" name="action" value="ACCEPT" />
+      <IconButton icon="decline" type="submit" name="action" value="DECLINE" />
     </fetcher.Form>;
 
     if (pending) {
-      icons = <Icons iconName="clock" className="h-8 w-8"/>;
+      icons = <Icons iconName="clock" className="h-8 w-8" />;
     }
 
     return {
@@ -58,27 +58,27 @@ const deleteModal = (isOpen: StringOrNull, activeFunction: Function, text: strin
       {text}
     </div>
     <fetcher.Form method="post" action={`/admin/api/group/member`} className="flex justify-between gap-2"
-                  onSubmit={() => activeFunction(null)}>
-      <input type="hidden" name="intent" value={intent}/>
-      <input type="hidden" name="userId" value={userId}/>
-      {isOpen && <ActionButton content="Yes" type="submit" name={submitName} value={isOpen}/>}
-      <ActionButton className="bg-gray-3" content="No" action={() => activeFunction(null)}/>
+      onSubmit={() => activeFunction(null)}>
+      <input type="hidden" name="intent" value={intent} />
+      <input type="hidden" name="userId" value={userId} />
+      {isOpen && <ActionButton content="Yes" type="submit" name={submitName} value={isOpen} />}
+      <ActionButton className="bg-gray-3" content="No" action={() => activeFunction(null)} />
     </fetcher.Form>
   </Modal>;
 
 const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, theme: string, userId: string, fetcher: FetcherWithComponents<any>) =>
   <fetcher.Form method="post" action={`/admin/api/group/member`}
-                className={isMainOrg ? 'text-yellow-400' : theme === Theme.DARK ? 'text-gray-3' : 'text-white'}>
-    <input type="hidden" name="intent" value="CHANGE_MAIN_GROUP"/>
-    <input type="hidden" name="userId" value={userId}/>
-    <IconButton icon="star" type="submit" name="groupId" value={groupId} className="rounded-none mx-1"/>
+    className={isMainOrg ? 'text-yellow-400' : theme === Theme.DARK ? 'text-gray-3' : 'text-white'}>
+    <input type="hidden" name="intent" value="CHANGE_MAIN_GROUP" />
+    <input type="hidden" name="userId" value={userId} />
+    <IconButton icon="star" type="submit" name="groupId" value={groupId} className="rounded-none mx-1" />
   </fetcher.Form>;
 
 
 export default function () {
   const fetcher = useFetcher();
   const [theme] = useTheme();
-  const {user, memberships} = useOutletContext<SerializeFrom<typeof adminLoader>>();
+  const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const organisations = memberships.groups.filter(group => group.group_type === EntityTypeValue.ORGANISATION);
 
   const invitedOrganisations = memberships.groupInvitations.filter(e => e.request_status === RequestStatusValue.PENDING_USER && e.group_type === EntityTypeValue.ORGANISATION);
@@ -96,31 +96,31 @@ export default function () {
   return <>
     <div className="mx-3">
       <div className="w-full max-w-lg mx-auto flex flex-col items-center">
-        <H1Nav path={'/admin'} title="My Organisations"/>
-        <TeaserList title={'Invitation Requests'} teasers={invited}/>
-        <TeaserList title={'Invitation Pending'} teasers={pending}/>
+        <H1Nav path={'/admin'} title="My Organisations" />
+        <TeaserList title={'Invitation Requests'} teasers={invited} />
+        <TeaserList title={'Invitation Pending'} teasers={pending} />
         <div className="flex flex-col gap-4 w-full mt-8">
           <H1 className="px-2 mb-1 w-full">Active</H1>
           {
             organisations.length === 0 &&
-              <H1 className="text-center text-base">
-                  You are currently in no organisation
-              </H1>
+            <H1 className="text-center text-base">
+              You are currently in no organisation
+            </H1>
           }
           {
             organisations.map(member => {
               return <ExpandableTeaser key={member.id} avatarPath={member.image} name={member.name}
-                                       team={member.handle}
-                                       games={member.game ? [member.game] : []}
-                                       additionalIcons={mainOrgIcon(member.id, member.is_main_group, theme, user.db.id, fetcher)}>
+                team={member.handle}
+                games={member.game ? [member.game] : []}
+                additionalIcons={mainOrgIcon(member.id, member.is_main_group, theme, user.db.id, fetcher)}>
                 <fetcher.Form method="post" action={`/admin/api/group/member`}
-                              className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
-                  <input type="hidden" name="intent" value="UPDATE_GROUP"/>
-                  <input type="hidden" name="userId" value={user.db.id}/>
-                  <DateInput name="joinedAt" label="Joined at" value={new Date(member.joined_at)}/>
+                  className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
+                  <input type="hidden" name="intent" value="UPDATE_GROUP" />
+                  <input type="hidden" name="userId" value={user.db.id} />
+                  <DateInput name="joinedAt" label="Joined at" value={new Date(member.joined_at)} />
                   <div className="w-full flex flex-row space-x-4 justify-center">
-                    <ActionButton content="Save" type="submit" name="groupId" value={member.id}/>
-                    <ActionButton content="Leave" action={() => setDeleteModalOpen(member.id)}/>
+                    <ActionButton content="Save" type="submit" name="groupId" value={member.id} />
+                    <ActionButton content="Leave" action={() => setDeleteModalOpen(member.id)} />
                   </div>
                 </fetcher.Form>
               </ExpandableTeaser>;
@@ -132,7 +132,7 @@ export default function () {
     </div>
     {deleteModal(deleteModalOpen, setDeleteModalOpen, 'Do you want to leave the organisation?', 'LEAVE_GROUP', 'groupId', user.db.id, fetcher)}
     {fetcher.data?.selectAdminGroupId && <SelectNewAdminModal isOpen={selectAdminOpen} handleClose={setSelectAdminOpen}
-                                                              groupId={fetcher.data.selectAdminGroupId}
-                                                              userId={user.db.id}/>}
+      groupId={fetcher.data.selectAdminGroupId}
+      userId={user.db.id} />}
   </>;
 };
