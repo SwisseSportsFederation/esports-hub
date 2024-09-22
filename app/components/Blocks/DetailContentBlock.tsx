@@ -53,7 +53,7 @@ const DetailContentBlock = (props: IDetailContentBlockProps) => {
       {description &&
         <div className="pt-4">
           <h3 className="font-bold block text-lg">Description</h3>
-          <p>{description}</p>
+          <p className="ml-4 mt-2">{description}</p>
         </div>
       }
     </div>
