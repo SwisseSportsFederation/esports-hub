@@ -13,8 +13,8 @@ const UserState = (props: { textColor: string }) => {
   /* User Icon with Logout and Admin Dropdown */
   if (data.user) {
     return <div className="relative group mr-1">
-      <Link to="/admin">
-        <Icon iconName='user' className={props.textColor + " p-0 m-0 w-[32px] h-[32px]"} />
+      <Link to="/admin" className="flex bg-red-1 rounded-lg p-2 items-center">
+        <Icon iconName='user' className={"text-white p-0 m-0 w-6 h-6 md:w-5 md:h-5"} />
       </Link>
       <div
         className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
@@ -80,7 +80,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
   return <header className="sticky top-0 z-50">
     <nav className={bg}>
       {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between p-4 md:px-8">
+      <div className="flex items-center justify-between p-4 md:px-8">
         <Link to={'/'} className="relative">
           <Icon iconName='logo' className={textColor + " w-full h-20 max-h-[60px]"} />
           <span className="text-white text-xs absolute bottom-3 right-2 bg-red-500 p-1 rounded-md">BETA</span>
