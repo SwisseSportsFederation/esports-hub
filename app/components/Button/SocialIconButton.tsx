@@ -1,31 +1,30 @@
-import Icon from "../Icons";
+import { useToast } from "~/hooks/useToast";
+import Icon, { IconType } from "../Icons";
 import type { Social } from "@prisma/client";
-
-// import useNotification from "../../hooks/useNotification";
 
 interface ISocialIconButtonProps {
   entitySocial: Social
 }
 
 const SocialIconButton = ({ entitySocial }: ISocialIconButtonProps) => {
-  // const { addNotification } = useNotification();
+  const toast = useToast();
 
   const onClick = () => {
-    if(entitySocial.name.includes("http://") || entitySocial.name.includes("https://")) {
+    if (entitySocial.name.includes("http://") || entitySocial.name.includes("https://")) {
       window.open(entitySocial.name);
     } else {
       navigator.clipboard.writeText(entitySocial.name)
         .then(() => {
-          // addNotification(`${entitySocial.social.name} value copied`, 3000);
+          toast.add(`${entitySocial.platform} value copied`)
         })
         .catch(() => {
-          // addNotification("Error copying the value", 3000);
+          toast.add('Error copying the value')
         });
     }
   };
 
   return <button onClick={onClick} className="mx-3 mb-2">
-    <Icon iconName={entitySocial.platform.toLowerCase()} className="w-9 h-9"/>
+    <Icon iconName={entitySocial.platform.toLowerCase() as IconType} className="w-9 h-9" />
   </button>;
 };
 

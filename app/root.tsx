@@ -25,6 +25,7 @@ import LinkButton from "./components/Button/LinkButton";
 import { ImageProvider } from "./context/image-provider";
 import { getImageRoot } from "./services/admin/api/cloudflareImages.server";
 import styles from "./styles/tailwind.css?url";
+import { ToastProvider } from "./context/toast-provider";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -81,18 +82,20 @@ function App() {
         <Links />
       </head>
       <body>
-        {message ? <Toast text={message} /> : null}
-        <div id="modal-root" />
-        <div className='min-h-dvh dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
-          <Header forceWhiteText={forceWhiteText} />
-          <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
-            <Outlet />
-          </main>
-          <Footer forceWhiteText={forceWhiteText} />
-        </div>
-        <ScrollRestoration />
-        <Scripts />
-        <ThemeBody ssrTheme={Boolean(loaderTheme)} />
+        <ToastProvider>
+          {message ? <Toast text={message} /> : null}
+          <div id="modal-root" />
+          <div className='min-h-dvh dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
+            <Header forceWhiteText={forceWhiteText} />
+            <main className='min-h-[calc(100vh-11.375rem)] flex flex-col relative'>
+              <Outlet />
+            </main>
+            <Footer forceWhiteText={forceWhiteText} />
+          </div>
+          <ScrollRestoration />
+          <Scripts />
+          <ThemeBody ssrTheme={Boolean(loaderTheme)} />
+        </ToastProvider>
       </body>
     </html>
   );
