@@ -53,8 +53,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   });
 
+  const games = userDetail?.games.map(game => {
+    return {
+      id: game.id.toString(),
+      name: game.name
+    }
+  }) ?? [];
+
   return json({
-    games: userDetail?.games || [],
+    games,
     user,
     activeGames: await getActiveGames()
   });

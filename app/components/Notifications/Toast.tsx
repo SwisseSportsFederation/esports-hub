@@ -19,7 +19,7 @@ const Toast = ({ text }: { text: string }) => {
     'opacity-0': !isShown
   });
 
-  return <div className="z-50 fixed bottom-0 left-0 flex justify-center w-full">
+  return <div className="z-50 fixed bottom-0 left-0 flex justify-center w-full" role="alert">
     <div
       className={`transition-all duration-300 ease-in-out transform fixed rounded-xl px-4 py-3 bg-red-1 text-white ${shownClasses}`}>
       {text}

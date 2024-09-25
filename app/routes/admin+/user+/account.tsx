@@ -19,7 +19,7 @@ export function links() {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { handle, name, surname, birthDate, description, canton, languages, has_data_policy } = await zx.parseForm(request, {
-    handle: z.string().min(4),
+    handle: z.string().min(2),
     name: z.string().min(3),
     surname: z.string().min(3),
     birthDate: z.string().optional(),
