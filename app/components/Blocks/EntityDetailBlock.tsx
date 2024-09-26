@@ -36,6 +36,7 @@ type EntityDetailBlockProps = {
   zip?: StringOrNull,
   country?: StringOrNull,
   has_data_policy?: boolean,
+  is_searchable?: boolean,
   create: boolean
 }
 
@@ -56,6 +57,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     surname,
     game,
     has_data_policy = false,
+    is_searchable = false,
     create = false,
   } = props;
   const [modalOpen, setModalOpen] = useState(false);
@@ -97,7 +99,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
             defaultValue={name} required={true} />
           {
             entityType === EntityTypeValue.USER &&
-            <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} required={true} />
+            <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} />
           }
           <DateInput name={entityType === EntityTypeValue.USER ? 'birthDate' : 'founded'}
             label={entityType === EntityTypeValue.USER ? 'Birthdate' : 'Founded'} value={date}
@@ -134,8 +136,14 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           {entityType === EntityTypeValue.USER &&
             <div className="flex items-center my-2 relative flex-row-reverse gap-4">
               <label htmlFor="data-policy" className={!has_data_policy ? '' : 'text-gray-500'}>I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">privacy policy</a>.</label>
-              {!has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" defaultChecked={has_data_policy} />}
+              {!has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" defaultChecked={has_data_policy} required />}
               {has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" checked={has_data_policy} /> /* Read only after accept */}
+            </div>
+          }
+          {entityType === EntityTypeValue.USER &&
+            <div className="flex items-center my-2 relative flex-row-reverse gap-4">
+              <label htmlFor="is-searchable">I want to be findable in the search.</label>
+              <input type="checkbox" name="is_searchable" id="is-searchable" defaultChecked={is_searchable} onChange={() => { }} />
             </div>
           }
           <ActionButton content="Save" type="submit" disabled={!profilePicReady} />

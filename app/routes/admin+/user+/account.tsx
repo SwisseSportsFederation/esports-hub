@@ -18,15 +18,16 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { handle, name, surname, birthDate, description, canton, languages, has_data_policy } = await zx.parseForm(request, {
+  const { handle, name, surname, birthDate, description, canton, languages, has_data_policy, is_searchable } = await zx.parseForm(request, {
     handle: z.string().min(2),
     name: z.string().min(3),
-    surname: z.string().min(3),
+    surname: z.string().optional(),
     birthDate: z.string().optional(),
     description: z.string().optional(),
     canton: zx.NumAsString.optional(),
     languages: z.string(),
     has_data_policy: z.string(),
+    is_searchable: z.string().optional(),
   });
   const user = await checkUserAuth(request);
   try {
@@ -59,6 +60,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           set: languageIds
         },
         ...(has_data_policy && ({ has_data_policy: true })),
+        ...({ is_searchable: !!is_searchable }),
       }
     });
   } catch (error) {
@@ -81,7 +83,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       games: true
     }
   });
-
 
   if (!userData) {
     throw json({}, 404);

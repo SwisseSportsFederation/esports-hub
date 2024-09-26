@@ -42,7 +42,7 @@ export async function checkUserValid(userId: bigint, url: string): Promise<Boole
       id: Number(userId)
     }
   });
-  if (user.email && user.name && user.handle && user.surname && user.description && user.has_data_policy) {
+  if (user.email && user.name && user.handle && user.description && user.has_data_policy) {
     return true;
   } else if (!url.endsWith('/admin/user/account')) {
     throw redirect('/admin/user/account');

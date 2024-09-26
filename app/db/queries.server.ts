@@ -4,36 +4,36 @@ import { EntityType } from "@prisma/client";
 export type StringOrNull = string | null;
 
 export type EntityQuery = {
-  id: bigint,
-  image: StringOrNull,
-  handle: string,
-  games: string[],
-  team?: string[],
-  entity_type: EntityType
+      id: bigint,
+      image: StringOrNull,
+      handle: string,
+      games: string[],
+      team?: string[],
+      entity_type: EntityType
 }[];
 
 const excludeAllText = (text: string | undefined): string => {
-  if(text && text !== 'All') {
-    return text;
-  }
-  return '%'
+      if (text && text !== 'All') {
+            return text;
+      }
+      return '%'
 }
 
 const typeCheck = (type: string | undefined, wantedType: string): boolean => {
-  if(type === undefined)
-    return true
-  return (type === wantedType || type === 'All') ? true : false;
+      if (type === undefined)
+            return true
+      return (type === wantedType || type === 'All') ? true : false;
 }
 
 const searchQuery = (search?: string, canton?: string, game?: string, language?: string, type?: string, offset?: number): Promise<EntityQuery[]> => {
-  const searchString = `%${search?.toLowerCase()}%`;
-  const gameString = `${excludeAllText(game)}`;
-  const cantonString = `${excludeAllText(canton)}`;
-  const langString = `${excludeAllText(language)}`;
-  let showUser = typeCheck(type, 'User') ? 1 : 0;
-  let showTeam = typeCheck(type, 'Team') ? 'TEAM' : '';
-  let showOrg = typeCheck(type, 'Organisation') ? 'ORGANISATION' : '';
-  return db.$queryRaw<EntityQuery[]>`
+      const searchString = `%${search?.toLowerCase()}%`;
+      const gameString = `${excludeAllText(game)}`;
+      const cantonString = `${excludeAllText(canton)}`;
+      const langString = `${excludeAllText(language)}`;
+      let showUser = typeCheck(type, 'User') ? 1 : 0;
+      let showTeam = typeCheck(type, 'Team') ? 'TEAM' : '';
+      let showOrg = typeCheck(type, 'Organisation') ? 'ORGANISATION' : '';
+      return db.$queryRaw<EntityQuery[]>`
   -- *********************************
   -- ENTITY 
   -- *********************************
@@ -112,6 +112,8 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             1 = ${showUser}
         AND
             usr.is_active = TRUE
+        AND
+            usr.is_searchable = TRUE
         AND
             LOWER(usr.handle) LIKE ${searchString}
              --
@@ -203,6 +205,6 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
 }
 
 export {
-  searchQuery
+      searchQuery
 };
 
