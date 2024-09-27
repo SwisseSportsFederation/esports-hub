@@ -23,7 +23,7 @@ import { commitSession, getSession } from "~/services/session.server";
 import { getThemeSession } from "~/services/theme.server";
 import LinkButton from "./components/Button/LinkButton";
 import { ImageProvider } from "./context/image-provider";
-import { getImageRoot } from "./services/admin/api/cloudflareImages.server";
+import { getImageRoot } from "./services/admin/api/imageStore.server";
 import styles from "./styles/tailwind.css?url";
 import { ToastProvider } from "./context/toast-provider";
 

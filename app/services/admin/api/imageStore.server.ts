@@ -21,7 +21,7 @@ export const resize = async (original: Buffer, cropData: Crop): Promise<File> =>
     })
     .webp()
     .toBuffer();
-  return new File([buffer], 'image', {type: 'image/webp'})
+  return new File([buffer], 'image', { type: 'image/webp' })
 };
 
 const getMinioClient = () => {
