@@ -35,8 +35,8 @@ export default function () {
   const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
   const { socials } = useLoaderData<typeof loader>();
 
-  return <div className="mx-3">
-    <div className="w-full max-w-prose mx-auto">
+  return <div>
+    <div className="w-full max-w-prose mx-auto lg:mx-0">
       <H1Nav path={`..`} title='Socials' />
       <SocialSelect id={Number(team.id)} entityType={team.group_type} socials={socials} />
     </div>

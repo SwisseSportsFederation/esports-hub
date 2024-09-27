@@ -84,11 +84,11 @@ export default function () {
     }
   }
 
-  return <div className="mx-3">
-    <div className="w-full max-w-prose mx-auto">
+  return <div>
+    <div className="w-full max-w-prose mx-auto lg:mx-0">
       <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Games' />
 
-      <Form method="post" className='space-y-6 flex flex-col items-center max-w-md mx-auto'>
+      <Form method="post" className='space-y-6 flex flex-col items-center max-w-lg mx-auto lg:mx-0 lg:items-start'>
         <ComboboxAdder name="games" label="Games" values={gameList}
           defaultValues={games} onChange={checkNewInput} />
         <ActionButton content='Save' name='save-button' value='Save' type='submit' />

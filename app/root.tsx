@@ -58,7 +58,7 @@ export const meta: MetaFunction = () => {
     },
     {
       property: "og:image",
-      content: "https://hub.sesf.ch/assets/ogImage.avif",
+      content: "https://hub.sesf.ch/assets/og-image.jpg",
     },
     {
       property: "twitter:card",
@@ -78,7 +78,7 @@ export const meta: MetaFunction = () => {
     },
     {
       property: "twitter:image",
-      content: "https://hub.sesf.ch/assets/ogImage.avif",
+      content: "https://hub.sesf.ch/assets/og-image.jpg",
     },
   ]
 };

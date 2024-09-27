@@ -129,12 +129,12 @@ export default function () {
     }
   }, [fetcher.data]);
   return <>
-    <div className="mx-3">
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center">
+    <div>
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center lg:mx-0">
         <H1Nav path={'/admin'} title='My Teams' />
         <TeaserList title={'Invitation Requests'} teasers={invited} />
-        <TeaserList title={'Invitation Pending'} teasers={pending} />
-        <div className='flex flex-col gap-4 w-full mt-8'>
+        <TeaserList title={'Invitation Pending'} teasers={pending} className="mb-8" />
+        <div className='flex flex-col gap-4 w-full'>
           <H1 className='px-2 mb-1 w-full'>Active</H1>
           {
             teams.length === 0 &&
@@ -165,7 +165,7 @@ export default function () {
 
         <div className='flex flex-col gap-4 w-full mt-8'>
           <H1 className='px-2 mb-1 w-full flex items-center justify-between mt-8'>
-            Former Teams <ActionButton content='Add' action={() => setFormerTeamCreateOpen(true)} className='w-1/5' />
+            <span>Former Teams</span><ActionButton content='Add' action={() => setFormerTeamCreateOpen(true)} className='ml-8 w-1/5' />
           </H1>
           {
             formerTeams.map(formerTeam => {

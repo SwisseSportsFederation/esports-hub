@@ -33,22 +33,22 @@ const EditOverviewBlock = ({ entityId, title, type, navigations = [], canDelete 
   };
 
   return <>
-    <div className="max-w-prose mx-auto w-full px-4">
-      <H1Nav path="/admin" title='Back'/>
-      <IconTitle type={type}>{title}</IconTitle>
+    <div className="max-w-prose mx-auto lg:mx-0 w-full">
+      <H1Nav path="/admin" title='Back' />
+      <IconTitle type={type} className="lg:mt-4">{title}</IconTitle>
       {navigations.map((navigation: string, index: number) =>
         <div key={index} className="mb-4">
-          <LinkBlock path={`${navigation.toLowerCase()}`} title={navigation}/>
+          <LinkBlock path={`${navigation.toLowerCase()}`} title={navigation} />
         </div>
       )}
       {canDelete &&
-        <ActionButton content='Delete' action={() => setModalOpen(true)} className="mt-8"/>
+        <ActionButton content='Delete' action={() => setModalOpen(true)} className="mt-8" />
       }
     </div>
     <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
       <AskModalBody message={`Do you really want to delete ${title}`}
-                    primaryButton={{ text: 'Yes', onClick: handleDelete }}
-                    secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }}/>
+        primaryButton={{ text: 'Yes', onClick: handleDelete }}
+        secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }} />
     </Modal>
   </>;
 };

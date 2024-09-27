@@ -12,17 +12,17 @@ type BreakpointPaths = {
 type IH1NavProps = {
   title: string
 } & (
-  {
-    path: string;
-    paths?: never;
-  } | {
-  path?: never;
-  paths: BreakpointPaths
-});
+    {
+      path: string;
+      paths?: never;
+    } | {
+      path?: never;
+      paths: BreakpointPaths
+    });
 
 const H1Nav = ({ path, paths, children, title }: PropsWithChildren<IH1NavProps>) => {
   const content = <>
-    <Icon iconName='arrowDown' className='h-8 w-8 rotate-90'/>
+    <Icon iconName='arrowDown' className='h-8 w-8 rotate-90' />
     <H1 className={`!mt-0 !mb-0`}>{title}</H1>
   </>;
 

@@ -117,10 +117,10 @@ export default function () {
   return <>
     <EntityDetailBlock {...user} entityId={user.id} entityType='USER' entityBirthday={user.birth_date}
       imageId={user.image} searchParams={searchParams} />
-    <div className="bg-red-600/25 py-8 lg:pb-12 my-8 px-5">
-      <div className="w-full max-w-prose mx-auto">
+    <div className="bg-red-600/25 py-8 lg:pb-12 my-8 px-4 lg:px-8 -mx-4 lg:-mx-8">
+      <div className="w-full mx-auto lg:mx-0">
         <H1>Danger Zone</H1>
-        <div className="flex flex-col items-center max-w-md mx-auto mt-8 gap-4">
+        <div className="flex flex-col items-center max-w-prose mx-auto lg:items-start lg:mx-0 mt-8 gap-4">
           <ActionButton content="Change Password" action={() => fetcher.submit({}, {
             action: '/admin/api/password',
             method: 'post',
