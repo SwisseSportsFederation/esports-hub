@@ -60,19 +60,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     is_searchable = false,
     create = false,
   } = props;
-  const [modalOpen, setModalOpen] = useState(false);
   const [profilePicReady, setProfilePicReady] = useState(true);
-  const fetcher = useFetcher();
-  const handleDelete = () => {
-    setModalOpen(false);
-    const path = entityToPathSegment(entityType);
-    fetcher.submit({
-      entityId: entityId.toString(),
-    }, {
-      method: 'delete',
-      action: `/admin/api/${path}`,
-    });
-  };
 
   let path = `/admin/${entityToPathSegment(entityType)}`;
   if (entityType !== EntityTypeValue.USER) {
@@ -150,25 +138,6 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         </Form>
       </div>
     </div>
-    {entityType === EntityTypeValue.USER &&
-      <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
-        <div className="w-full max-w-prose mx-auto">
-          <H1>Danger Zone</H1>
-          <div className="flex flex-col items-center max-w-md mx-auto mt-8 gap-4">
-            <ActionButton content="Change Password" action={() => fetcher.submit({}, {
-              action: '/admin/api/password',
-              method: 'post',
-            })} />
-            <ActionButton content="Delete" action={() => setModalOpen(true)} />
-          </div>
-        </div>
-      </div>
-    }
-    <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
-      <AskModalBody message={`Do you really want to delete your account?`}
-        primaryButton={{ text: 'Yes', onClick: handleDelete }}
-        secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }} />
-    </Modal>
 
   </>;
 };
