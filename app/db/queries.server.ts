@@ -73,7 +73,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               --
               -- game
               --
-        INNER JOIN
+        LEFT OUTER JOIN
               "game" gam
            ON gtu."A" = gam.id  
            AND gam.name LIKE ${gameString}
