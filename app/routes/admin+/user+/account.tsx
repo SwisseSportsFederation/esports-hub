@@ -1,14 +1,20 @@
-import styles from 'react-image-crop/dist/ReactCrop.css?url'
-import dateInputStyles from "~/styles/date-input.css?url";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { checkUserAuth } from "~/utils/auth.server";
-import { json, useLoaderData } from "@remix-run/react";
+import { json, useFetcher, useLoaderData } from "@remix-run/react";
+import { useState } from 'react';
+import styles from 'react-image-crop/dist/ReactCrop.css?url';
+import { z } from "zod";
+import { zx } from 'zodix';
+import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import ActionButton from '~/components/Button/ActionButton';
+import AskModalBody from '~/components/Notifications/AskModalBody';
+import Modal from '~/components/Notifications/Modal';
+import H1 from '~/components/Titles/H1';
+import { entityToPathSegment } from '~/helpers/entityType';
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import { zx } from 'zodix';
-import { z } from "zod";
-import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import { createFlashMessage } from "~/services/toast.server";
+import dateInputStyles from "~/styles/date-input.css?url";
+import { checkUserAuth } from "~/utils/auth.server";
 
 export function links() {
   return [
@@ -18,15 +24,16 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { handle, name, surname, birthDate, description, canton, languages, has_data_policy } = await zx.parseForm(request, {
+  const { handle, name, surname, birthDate, description, canton, languages, has_data_policy, is_searchable } = await zx.parseForm(request, {
     handle: z.string().min(2),
     name: z.string().min(3),
-    surname: z.string().min(3),
+    surname: z.string().optional(),
     birthDate: z.string().optional(),
     description: z.string().optional(),
     canton: zx.NumAsString.optional(),
     languages: z.string(),
     has_data_policy: z.string(),
+    is_searchable: z.string().optional(),
   });
   const user = await checkUserAuth(request);
   try {
@@ -59,6 +66,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           set: languageIds
         },
         ...(has_data_policy && ({ has_data_policy: true })),
+        ...({ is_searchable: !!is_searchable }),
       }
     });
   } catch (error) {
@@ -82,7 +90,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   });
 
-
   if (!userData) {
     throw json({}, 404);
   }
@@ -95,6 +102,37 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function () {
   const { user, searchParams } = useLoaderData<typeof loader>();
-  return <EntityDetailBlock {...user} entityId={user.id} entityType='USER' entityBirthday={user.birth_date}
-    imageId={user.image} searchParams={searchParams} />
+  const [modalOpen, setModalOpen] = useState(false);
+  const fetcher = useFetcher();
+  const handleDelete = () => {
+    setModalOpen(false);
+    const path = entityToPathSegment('USER');
+    fetcher.submit({
+      entityId: user.id.toString(),
+    }, {
+      method: 'delete',
+      action: `/admin/api/${path}`,
+    });
+  };
+  return <>
+    <EntityDetailBlock {...user} entityId={user.id} entityType='USER' entityBirthday={user.birth_date}
+      imageId={user.image} searchParams={searchParams} />
+    <div className="bg-red-600/25 py-8 lg:pb-12 my-8 px-5">
+      <div className="w-full max-w-prose mx-auto">
+        <H1>Danger Zone</H1>
+        <div className="flex flex-col items-center max-w-md mx-auto mt-8 gap-4">
+          <ActionButton content="Change Password" action={() => fetcher.submit({}, {
+            action: '/admin/api/password',
+            method: 'post',
+          })} />
+          <ActionButton content="Delete" action={() => setModalOpen(true)} />
+        </div>
+      </div>
+    </div>
+    <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
+      <AskModalBody message={`Do you really want to delete your account?`}
+        primaryButton={{ text: 'Yes', onClick: handleDelete }}
+        secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }} />
+    </Modal>
+  </>
 }

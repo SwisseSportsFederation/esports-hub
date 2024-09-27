@@ -36,6 +36,7 @@ type EntityDetailBlockProps = {
   zip?: StringOrNull,
   country?: StringOrNull,
   has_data_policy?: boolean,
+  is_searchable?: boolean,
   create: boolean
 }
 
@@ -56,21 +57,10 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     surname,
     game,
     has_data_policy = false,
+    is_searchable = false,
     create = false,
   } = props;
-  const [modalOpen, setModalOpen] = useState(false);
   const [profilePicReady, setProfilePicReady] = useState(true);
-  const fetcher = useFetcher();
-  const handleDelete = () => {
-    setModalOpen(false);
-    const path = entityToPathSegment(entityType);
-    fetcher.submit({
-      entityId: entityId.toString(),
-    }, {
-      method: 'delete',
-      action: `/admin/api/${path}`,
-    });
-  };
 
   let path = `/admin/${entityToPathSegment(entityType)}`;
   if (entityType !== EntityTypeValue.USER) {
@@ -97,7 +87,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
             defaultValue={name} required={true} />
           {
             entityType === EntityTypeValue.USER &&
-            <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} required={true} />
+            <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} />
           }
           <DateInput name={entityType === EntityTypeValue.USER ? 'birthDate' : 'founded'}
             label={entityType === EntityTypeValue.USER ? 'Birthdate' : 'Founded'} value={date}
@@ -134,33 +124,20 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           {entityType === EntityTypeValue.USER &&
             <div className="flex items-center my-2 relative flex-row-reverse gap-4">
               <label htmlFor="data-policy" className={!has_data_policy ? '' : 'text-gray-500'}>I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">privacy policy</a>.</label>
-              {!has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" defaultChecked={has_data_policy} />}
+              {!has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" defaultChecked={has_data_policy} required />}
               {has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" checked={has_data_policy} /> /* Read only after accept */}
+            </div>
+          }
+          {entityType === EntityTypeValue.USER &&
+            <div className="flex items-center my-2 relative flex-row-reverse gap-4">
+              <label htmlFor="is-searchable">I want to be findable in the search.</label>
+              <input type="checkbox" name="is_searchable" id="is-searchable" defaultChecked={is_searchable} onChange={() => { }} />
             </div>
           }
           <ActionButton content="Save" type="submit" disabled={!profilePicReady} />
         </Form>
       </div>
     </div>
-    {entityType === EntityTypeValue.USER &&
-      <div className="bg-red-600/25 py-8 lg:py-12 my-8 px-5">
-        <div className="w-full max-w-prose mx-auto">
-          <H1>Danger Zone</H1>
-          <div className="flex flex-col items-center max-w-md mx-auto mt-8 gap-4">
-            <ActionButton content="Change Password" action={() => fetcher.submit({}, {
-              action: '/admin/api/password',
-              method: 'post',
-            })} />
-            <ActionButton content="Delete" action={() => setModalOpen(true)} />
-          </div>
-        </div>
-      </div>
-    }
-    <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
-      <AskModalBody message={`Do you really want to delete your account?`}
-        primaryButton={{ text: 'Yes', onClick: handleDelete }}
-        secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }} />
-    </Modal>
 
   </>;
 };

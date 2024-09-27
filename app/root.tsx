@@ -23,7 +23,7 @@ import { commitSession, getSession } from "~/services/session.server";
 import { getThemeSession } from "~/services/theme.server";
 import LinkButton from "./components/Button/LinkButton";
 import { ImageProvider } from "./context/image-provider";
-import { getImageRoot } from "./services/admin/api/cloudflareImages.server";
+import { getImageRoot } from "./services/admin/api/imageStore.server";
 import styles from "./styles/tailwind.css?url";
 import { ToastProvider } from "./context/toast-provider";
 
@@ -36,6 +36,50 @@ export const meta: MetaFunction = () => {
     { charset: "utf-8" },
     { title: "Swiss Esports Hub" },
     { name: "viewport", content: "width=device-width,initial-scale=1" },
+    {
+      name: "description",
+      content: "Where you can find every player, team and organisation active in the Swiss Esports scene.",
+    },
+    {
+      property: "og:title",
+      content: "Swiss Esports Hub",
+    },
+    {
+      name: "og:description",
+      content: "Where you can find every player, team and organisation active in the Swiss Esports scene.",
+    },
+    {
+      property: "og:url",
+      content: "https://hub.sesf.ch",
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+    {
+      property: "og:image",
+      content: "https://hub.sesf.ch/assets/ogImage.avif",
+    },
+    {
+      property: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      property: "twitter:domain",
+      content: "hub.sesf.ch",
+    },
+    {
+      property: "twitter:url",
+      content: "https://hub.sesf.ch",
+    },
+    {
+      property: "twitter:title",
+      content: "Swiss Esports Hub",
+    },
+    {
+      property: "twitter:image",
+      content: "https://hub.sesf.ch/assets/ogImage.avif",
+    },
   ]
 };
 

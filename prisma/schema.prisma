@@ -119,7 +119,7 @@ model User {
   email              String
   handle             String            @unique
   name               String
-  surname            String
+  surname            String?
   birth_date         DateTime?         @db.Timestamptz(6)
   description        String
   image              String?
@@ -133,6 +133,7 @@ model User {
   languages          Language[]
   socials            Social[]
   has_data_policy    Boolean           @default(false)
+  is_searchable      Boolean           @default(false)
   is_superadmin      Boolean?          @default(false)
 
   @@map("user")

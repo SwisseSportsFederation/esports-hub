@@ -4,7 +4,7 @@ import { searchQuery } from "~/db/queries.server";
 import getCache from "~/services/cache.server";
 import { db } from "~/services/db.server";
 
-export type IdValue = { name: string, id: string };
+export type IdValue = { name: string, id: string | bigint };
 
 export type SearchParams = {
   games: IdValue[],

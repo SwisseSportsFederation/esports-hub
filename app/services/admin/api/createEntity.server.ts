@@ -2,7 +2,7 @@ import { AccessRight, EntityType, Prisma, RequestStatus } from '@prisma/client';
 import { json, redirect } from '@remix-run/server-runtime';
 import { z } from 'zod';
 import { zx } from 'zodix';
-import { resize, upload } from '~/services/admin/api/cloudflareImages.server';
+import { resize, upload } from '~/services/admin/api/imageStore.server';
 import { AuthUser } from '~/services/auth.server';
 import { db } from '~/services/db.server';
 import { createFlashMessage } from '~/services/toast.server';

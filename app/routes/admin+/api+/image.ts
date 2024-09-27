@@ -2,7 +2,7 @@ import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix
 import { z } from "zod";
 import { zx } from 'zodix';
 import { StringOrNull } from "~/db/queries.server";
-import { deleteImage, resize, upload } from "~/services/admin/api/cloudflareImages.server";
+import { deleteImage, resize, upload } from "~/services/admin/api/imageStore.server";
 import { db } from "~/services/db.server";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
