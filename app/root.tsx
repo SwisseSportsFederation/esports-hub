@@ -36,6 +36,50 @@ export const meta: MetaFunction = () => {
     { charset: "utf-8" },
     { title: "Swiss Esports Hub" },
     { name: "viewport", content: "width=device-width,initial-scale=1" },
+    {
+      name: "description",
+      content: "Where you can find every player, team and organisation active in the Swiss Esports scene.",
+    },
+    {
+      property: "og:title",
+      content: "Swiss Esports Hub",
+    },
+    {
+      name: "og:description",
+      content: "Where you can find every player, team and organisation active in the Swiss Esports scene.",
+    },
+    {
+      property: "og:url",
+      content: "https://hub.sesf.ch",
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+    {
+      property: "og:image",
+      content: "https://hub.sesf.ch/assets/ogImage.avif",
+    },
+    {
+      property: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      property: "twitter:domain",
+      content: "hub.sesf.ch",
+    },
+    {
+      property: "twitter:url",
+      content: "https://hub.sesf.ch",
+    },
+    {
+      property: "twitter:title",
+      content: "Swiss Esports Hub",
+    },
+    {
+      property: "twitter:image",
+      content: "https://hub.sesf.ch/assets/ogImage.avif",
+    },
   ]
 };
 
