@@ -7,13 +7,13 @@ import { useImage } from "~/context/image-provider";
 
 export interface ITeaserCoreProps {
   avatarPath: StringOrNull,
-  name: string,
+  name: StringOrNull,
   team: StringOrNull,
   games: Omit<Game, 'id'>[],
 }
 
 const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
-  const { name, team, avatarPath, games, className = '' } = props;
+  const { name = '', team = '', avatarPath, games = [], className = '' } = props;
   const imageRoot = useImage();
 
   const background = classNames({
@@ -28,15 +28,18 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
     </div>
     <div className="flex-grow overflow-hidden">
       <div className="mx-1 flex items-center gap-3">
-        <span className="font-bold break-all block">{name}</span>
+        <span className="font-bold break-all block">{name ?? ''}</span>
         {team &&
-          <span className="text-sm"> ({team})</span>
+          <span className="text-sm"> ({team ?? ''})</span>
         }
       </div>
-      {games && games.map((game: Omit<Game, 'id'>) =>
-        <span key={game.name} className="rounded-full whitespace-nowrap text-sm px-3 mx-1 bg-gray-6 dark:bg-gray-3">
-          {game.name}
-        </span>)
+      {games && games.map((game: Omit<Game, 'id'>) => {
+        if (!!game) {
+          return <span key={game.name} className="rounded-full whitespace-nowrap text-sm px-3 mx-1 bg-gray-6 dark:bg-gray-3">
+            {game.name}
+          </span>
+        }
+      })
       }
     </div>
   </div>;

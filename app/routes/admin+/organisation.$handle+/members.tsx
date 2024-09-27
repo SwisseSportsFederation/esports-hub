@@ -78,36 +78,34 @@ export default function () {
   const types = Object.keys(AccessRightValue);
 
   return <>
-    <div className="mx-3">
-      <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
-        <H1Nav path={'..'} title='Members'>
-          <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5' />
-        </H1Nav>
-        <H1 className='px-2 mb-1 w-full'>Members</H1>
-        {
-          members.map(member => {
-            // Update Member
-            return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
-              team={member.user.groups[0].group.handle}
-              games={member.user.games}>
-              <fetcher.Form method='put' action={'/admin/api/group/members'} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
-                <input type='hidden' name='groupId' value={organisation.id} />
-                <TextInput id='role' label='Role' defaultValue={member.role} />
-                <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights} />
-                <div className='w-full flex flex-row space-x-4 justify-center'>
-                  <ActionButton content='Save' type='submit' name='userId' value={member.user.id} />
-                  <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)} />
-                </div>
-              </fetcher.Form>
-            </ExpandableTeaser>
-          })
-        }
-        <TeaserList title={'Invitation Requests'} teasers={invited}
-          iconFactory={(teaser) => addInvitationIcons(teaser, organisation.id, fetcher)} />
-        <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
-          <Icons iconName='clock' className='h-8 w-8' />
-        } />
-      </div>
+    <div className="w-full max-w-prose mx-auto lg:mx-0 space-y-4 flex flex-col">
+      <H1Nav path={'..'} title='Members'>
+        <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5 ml-8' />
+      </H1Nav>
+      <H1 className='px-2 mb-1 w-full'>Members</H1>
+      {
+        members.map(member => {
+          // Update Member
+          return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
+            team={member.user.groups[0].group.handle}
+            games={member.user.games}>
+            <fetcher.Form method='put' action={'/admin/api/group/members'} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
+              <input type='hidden' name='groupId' value={organisation.id} />
+              <TextInput id='role' label='Role' defaultValue={member.role} />
+              <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights} />
+              <div className='w-full flex flex-row space-x-4 justify-center'>
+                <ActionButton content='Save' type='submit' name='userId' value={member.user.id} />
+                <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)} />
+              </div>
+            </fetcher.Form>
+          </ExpandableTeaser>
+        })
+      }
+      <TeaserList title={'Invitation Requests'} teasers={invited}
+        iconFactory={(teaser) => addInvitationIcons(teaser, organisation.id, fetcher)} />
+      <TeaserList title={'Invitation Pending'} teasers={pending} staticIcon={
+        <Icons iconName='clock' className='h-8 w-8' />
+      } />
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
       <div className="flex justify-center text-center text-2xl mb-8 text-color">

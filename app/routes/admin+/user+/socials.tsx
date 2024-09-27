@@ -28,10 +28,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function () {
   const { socials, user } = useLoaderData<typeof loader>();
 
-  return <div className="mx-3">
-    <div className="w-full max-w-prose mx-auto">
-      <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Socials' />
-      <SocialSelect id={Number(user.db.id)} entityType='USER' socials={socials} />
-    </div>
+  return <div className="w-full max-w-prose mx-auto lg:mx-0">
+    <H1Nav paths={{ small: '/admin/user', big: '/admin', breakpoint: 'lg' }} title='Socials' />
+    <SocialSelect id={Number(user.db.id)} entityType='USER' socials={socials} />
   </div>;
 };

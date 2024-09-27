@@ -19,16 +19,16 @@ type ITeaserListProps = {
 });
 
 const TeaserList = ({
-                      title,
-                      type = 'Link',
-                      teasers,
-                      className = '',
-                      teaserClassName = '',
-                      iconFactory,
-                      staticIcon
-                    }: PropsWithClassName<ITeaserListProps>) => {
+  title,
+  type = 'Link',
+  teasers,
+  className = '',
+  teaserClassName = '',
+  iconFactory,
+  staticIcon
+}: PropsWithClassName<ITeaserListProps>) => {
 
-  if(teasers.length === 0) {
+  if (teasers.length === 0) {
     return null;
   }
 
@@ -36,11 +36,13 @@ const TeaserList = ({
     <H1 className={`mx-2 px-2 mb-1 ${className}`}>{title}</H1>
     {!!teasers && teasers.length > 0 &&
       teasers.map((teaser: ITeaserProps, index: number) => {
-        const icons = staticIcon ?? iconFactory?.(teaser);
-        if(type === 'Link') {
-          return <LinkTeaser key={`${teaser.name}-${index}`} icons={icons} {...teaser} className={teaserClassName}/>
+        if (!!teaser) {
+          const icons = staticIcon ?? iconFactory?.(teaser);
+          if (type === 'Link') {
+            return <LinkTeaser key={`${teaser.name}-${index}`} icons={icons} {...teaser} className={teaserClassName} />
+          }
+          return <Teaser key={`${teaser.name}-${index}`} {...teaser} icons={icons} className={teaserClassName} />
         }
-        return <Teaser key={`${teaser.name}-${index}`} {...teaser} icons={icons} className={teaserClassName}/>
       })
     }
   </div>;

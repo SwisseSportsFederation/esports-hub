@@ -87,9 +87,14 @@ export async function action({ request }: ActionFunctionArgs) {
       try {
         const teams = await db.group.findMany({
           where: {
-            OR: [
-              { name: query() },
-              { handle: query() }
+            AND: [
+              {
+                OR: [
+                  { name: query() },
+                  { handle: query() }
+                ],
+              },
+              { group_type: 'TEAM' }
             ]
           },
           include: { game: true }
@@ -113,8 +118,12 @@ export async function action({ request }: ActionFunctionArgs) {
         });
         const headers = await createFlashMessage(request, 'Team invited');
         return json({ searchResult: [] }, headers);
-      } catch (error) {
+      } catch (error: any) {
         console.log(error);
+        if (error?.message.includes('constraint')) {
+          const headers = await createFlashMessage(request, 'Error: Team already has Organisation.');
+          return json({}, headers);
+        }
         throw json({}, 500);
       }
     case "removeTeam":
@@ -171,16 +180,14 @@ export default function () {
   }
 
   return <>
-    <div className="mx-3">
-      <div className="w-full max-w-prose mx-auto">
-        <H1Nav path={'..'} title='Teams'>
-          <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5' />
-        </H1Nav>
-        <TeaserList title={'Teams in Organisation'} teasers={accepted} iconFactory={addAcceptedIcons} />
-        <TeaserList title={'Invitations'} teasers={invitations} iconFactory={addInvitationIcons} />
-        <TeaserList title={'Invitation Requests'} teasers={pending}
-          staticIcon={<Icons iconName='clock' className='h-8 w-8' />} />
-      </div>
+    <div className="w-full max-w-prose mx-auto lg:mx-0">
+      <H1Nav path={'..'} title='Teams'>
+        <ActionButton content='Invite' action={() => setInviteModalOpen(true)} className='w-1/5' />
+      </H1Nav>
+      <TeaserList title={'Teams in Organisation'} teasers={accepted} iconFactory={addAcceptedIcons} />
+      <TeaserList title={'Invitations'} teasers={invitations} iconFactory={addInvitationIcons} />
+      <TeaserList title={'Invitation Requests'} teasers={pending}
+        staticIcon={<Icons iconName='clock' className='h-8 w-8' />} />
     </div>
     <Modal isOpen={!!deleteModalOpen} handleClose={() => setDeleteModalOpen(null)}>
       <div className="flex justify-center text-center text-2xl mb-8 text-color">

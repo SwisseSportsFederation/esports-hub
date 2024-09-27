@@ -98,8 +98,8 @@ export default function () {
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
 
   return <>
-    <div className="mx-3">
-      <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
+    <div>
+      <div className="w-full max-w-lg mx-auto lg:mx-0 space-y-4 flex flex-col items-center">
         <H1Nav path={'..'} title='Organisation' />
         {orgTeams.length > 0 ?
           <H1 className='px-4 mb-1 w-full'>Current</H1>

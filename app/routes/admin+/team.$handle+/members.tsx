@@ -89,10 +89,10 @@ export default function () {
   const allowedTypes = types.slice(0, types.indexOf(teamUser.access_rights) + 1);
 
   return <>
-    <div className="mx-3">
-      <div className="w-full max-w-lg mx-auto space-y-4 flex flex-col items-center">
+    <div>
+      <div className="w-full max-w-lg mx-auto lg:mx-0 space-y-4 flex flex-col items-center">
         <H1Nav path={'..'} title="Members">
-          <ActionButton content="Invite" action={() => setInviteModalOpen(true)} className="w-1/5" />
+          <ActionButton content="Invite" action={() => setInviteModalOpen(true)} className="ml-8 w-1/5" />
         </H1Nav>
         <H1 className="px-4 mb-1 w-full">Members</H1>
         {

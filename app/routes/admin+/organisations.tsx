@@ -94,12 +94,12 @@ export default function () {
     }
   }, [fetcher.data]);
   return <>
-    <div className="mx-3">
-      <div className="w-full max-w-lg mx-auto flex flex-col items-center">
+    <div>
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center lg:mx-0">
         <H1Nav path={'/admin'} title="My Organisations" />
         <TeaserList title={'Invitation Requests'} teasers={invited} />
-        <TeaserList title={'Invitation Pending'} teasers={pending} />
-        <div className="flex flex-col gap-4 w-full mt-8">
+        <TeaserList title={'Invitation Pending'} teasers={pending} className="mb-8" />
+        <div className="flex flex-col gap-4 w-full">
           <H1 className="px-2 mb-1 w-full">Active</H1>
           {
             organisations.length === 0 &&

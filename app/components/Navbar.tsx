@@ -40,7 +40,7 @@ const membershipLinkBlock = (membership: Membership, type: EntityType) => {
 export default function Navbar() {
   const { memberships, isSuperAdmin } = useLoaderData();
 
-  return <div className="hidden lg:block h-full z-10 fixed top-20 bg-white dark:bg-gray-2 w-72 text-color p-4 overflow-y-auto">
+  return <div className="hidden lg:block fixed h-full min-h-screen z-10 top-20 bg-white dark:bg-gray-2 w-72 text-color p-4 overflow-y-auto">
     <div className="mb-16">
       <div className="text-xl font-bold mb-4">User</div>
       <NavbarLink path={`/admin/user/account`} title="Account" />
