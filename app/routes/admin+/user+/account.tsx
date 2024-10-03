@@ -40,6 +40,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
   const user = await checkUserAuth(request);
   try {
+    if (handle === email) {
+      const headers = await createFlashMessage(request, `Nickname cannot be email`);
+      return json({}, { status: 400, ...headers });
+    }
+
     const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
     const user_id = Number(user.db.id);
     await db.user.update({
@@ -74,7 +79,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     });
 
-    if (!!email) {
+    if (!!email && email !== user.db.email) {
       await updateEmail(user, user_id, email);
       return logout(request, '/auth/verify');
     }

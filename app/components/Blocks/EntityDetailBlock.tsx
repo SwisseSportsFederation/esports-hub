@@ -69,6 +69,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     bigPath = path;
   }
   const date = entityBirthday ? new Date(entityBirthday) : null;
+  const isUser = entityType === EntityTypeValue.USER;
   return <>
     <div className="w-full mx-auto lg:mx-0">
       {!create && <H1Nav paths={{ small: path, big: bigPath, breakpoint: 'lg' }} title="Details" />}
@@ -85,18 +86,19 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         <input name="id" type="hidden" value={String(entityId)} />
         <input name="oldHandle" type="hidden" value={handle} />
         <input name="entityType" type="hidden" value={entityType} />
-        <TextInput id="handle" label="Short Name" defaultValue={handle} required={true} />
-        <TextInput id="name" label={entityType === EntityTypeValue.USER ? 'Firstname' : 'Name'}
+        <TextInput id="handle" label={isUser ? 'Nickname' : 'Short Name'}
+          defaultValue={handle} required={true} />
+        <TextInput id="name" label={isUser ? 'Firstname' : 'Name'}
           defaultValue={name} required={true} />
         {
-          entityType === EntityTypeValue.USER &&
+          isUser &&
           <>
             <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} />
             <TextInput id="email" label="Email" defaultValue={email ?? ''} placeholder='leeroy.jenkins@example.com' />
           </>
         }
-        <DateInput name={entityType === EntityTypeValue.USER ? 'birthDate' : 'founded'}
-          label={entityType === EntityTypeValue.USER ? 'Birthdate' : 'Founded'} value={date}
+        <DateInput name={isUser ? 'birthDate' : 'founded'}
+          label={isUser ? 'Birthdate' : 'Founded'} value={date}
           min={new Date(1900, 0, 0)} max={new Date()} />
         {
           entityType === EntityTypeValue.TEAM &&
@@ -127,14 +129,14 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
         </div>
         <DropDownAdder name="languages" label="Language" values={searchParams.languages}
           defaultValues={languages} required={true} />
-        {entityType === EntityTypeValue.USER &&
+        {isUser &&
           <div className="flex my-2 relative flex-row-reverse gap-4">
             <label htmlFor="data-policy" className={!has_data_policy ? '' : 'text-gray-500'}>I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">privacy policy</a>.</label>
             {!has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" defaultChecked={has_data_policy} required />}
             {has_data_policy && <input type="checkbox" name="has_data_policy" id="data-policy" checked={has_data_policy} readOnly={true} /> /* Read only after accept */}
           </div>
         }
-        {entityType === EntityTypeValue.USER &&
+        {isUser &&
           <div className="flex my-2 relative flex-row-reverse gap-4">
             <label htmlFor="is-searchable">I want to be findable in the search.</label>
             <input type="checkbox" name="is_searchable" id="is-searchable" defaultChecked={is_searchable} onChange={() => { }} />
