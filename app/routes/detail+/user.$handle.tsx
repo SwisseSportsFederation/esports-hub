@@ -79,6 +79,7 @@ export default function () {
     <div className="max-w-prose lg:max-w-6xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-12">
         <DetailHeader name={`${user.name} ${user.surname}`}
+          handle={user.handle}
           imagePath={user.image}
           entitySocials={user.socials}
           isActive={user.is_active}
@@ -87,7 +88,7 @@ export default function () {
           <DetailContentBlock {...user} />
           <div className="">
             <TeamHistory memberships={teamMemberships} formerTeams={formerTeams} />
-            <TeaserList title="Organisations" teasers={organisationTeasers} />
+            <TeaserList title="Organisations" teasers={organisationTeasers} className="mt-4" />
           </div>
         </div>
       </div>

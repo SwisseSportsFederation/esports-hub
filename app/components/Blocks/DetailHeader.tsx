@@ -9,6 +9,7 @@ import SocialIconButton from "../Button/SocialIconButton";
 type IDetailHeaderProps = {
   imagePath: StringOrNull,
   name: string,
+  handle: string,
   entitySocials?: Social[],
   games?: Game[],
   isActive?: boolean,
@@ -23,7 +24,7 @@ type IDetailHeaderProps = {
 })
 
 const DetailHeader = (props: IDetailHeaderProps) => {
-  const { imagePath, name, parentLink, parentName, entitySocials, games, isActive, showApply, onApply } = props;
+  const { imagePath, name, handle, parentLink, parentName, entitySocials, games, isActive, showApply, onApply } = props;
   const imageRoot = useImage();
 
   return (
@@ -43,6 +44,9 @@ const DetailHeader = (props: IDetailHeaderProps) => {
         </div>
         <div className="flex justify-center items-center mb-2 font-bold text-2xl">
           {name}
+        </div>
+        <div className="flex justify-center items-center mb-2 font-bold text-lg">
+          ({handle})
         </div>
         {parentLink && parentName &&
           <div className="flex justify-center items-center mb-3 text-red-1 text-xl">
