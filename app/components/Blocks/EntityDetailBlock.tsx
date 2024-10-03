@@ -1,7 +1,8 @@
-import type { Canton, Game, EntityType } from '@prisma/client';
-import { Form, useFetcher } from '@remix-run/react';
+import type { Canton, EntityType, Game } from '@prisma/client';
+import { Form } from '@remix-run/react';
 import type { SerializeFrom } from '@remix-run/server-runtime';
 import { useState } from 'react';
+import ImageCropBlock from '~/components/Blocks/ImageBlock/ImageCropBlock';
 import ImageUploadBlock from '~/components/Blocks/ImageUploadBlock';
 import ActionButton from '~/components/Button/ActionButton';
 import DateInput from '~/components/Forms/DateInput';
@@ -9,15 +10,12 @@ import DropDownAdder from '~/components/Forms/DropDownAdder';
 import DropdownInput from '~/components/Forms/DropdownInput';
 import TextareaInput from '~/components/Forms/TextareaInput';
 import TextInput from '~/components/Forms/TextInput';
-import AskModalBody from '~/components/Notifications/AskModalBody';
-import Modal from '~/components/Notifications/Modal';
 import H1Nav from '~/components/Titles/H1Nav';
 import type { StringOrNull } from '~/db/queries.server';
 import { entityToPathSegment } from '~/helpers/entityType';
+import { EntityTypeValue } from '~/models/database.model';
 import type { IdValue, SearchParams } from '~/services/search.server';
 import H1 from '../Titles/H1';
-import ImageCropBlock from '~/components/Blocks/ImageBlock/ImageCropBlock';
-import { EntityTypeValue } from '~/models/database.model';
 
 type EntityDetailBlockProps = {
   entityId: number,
@@ -25,6 +23,7 @@ type EntityDetailBlockProps = {
   handle: string,
   name: string,
   surname?: string,
+  email?: string,
   entityBirthday: StringOrNull
   description: string,
   imageId: StringOrNull,
@@ -55,6 +54,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
     entityType,
     entityBirthday,
     surname,
+    email,
     game,
     has_data_policy = false,
     is_searchable = false,
@@ -90,7 +90,10 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
           defaultValue={name} required={true} />
         {
           entityType === EntityTypeValue.USER &&
-          <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} />
+          <>
+            <TextInput id="surname" label="Surname" defaultValue={surname ?? ''} />
+            <TextInput id="email" label="Email" defaultValue={email ?? ''} placeholder='leeroy.jenkins@example.com' />
+          </>
         }
         <DateInput name={entityType === EntityTypeValue.USER ? 'birthDate' : 'founded'}
           label={entityType === EntityTypeValue.USER ? 'Birthdate' : 'Founded'} value={date}
