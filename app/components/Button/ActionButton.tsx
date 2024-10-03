@@ -26,7 +26,7 @@ const ActionButton = (props: PropsWithClassName<IActionButtonProps>) => {
   const { action, content, type = 'button', className = '', buttonTextColor = 'text-white', disabled = false, name = '', value = '' } = props;
   return <button disabled={disabled}
     onClick={action} type={type} name={name} value={value}
-    className={`w-full max-w-xs flex items-center justify-center rounded-xl
+    className={`w-full lg:max-w-xs flex items-center justify-center rounded-xl
         bg-red-1 py-2 disabled:bg-gray-400 hover:bg-red-600 transition-colors ${className} ${buttonTextColor}`}>
     {content}
   </button>;

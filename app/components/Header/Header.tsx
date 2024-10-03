@@ -82,7 +82,7 @@ const Header = (props: { forceWhiteText: boolean }) => {
       {/* Header Bar */}
       <div className="flex items-center justify-between p-4 md:px-8">
         <Link to={'/'} className="relative">
-          <Icon iconName='logo' className={textColor + " w-full h-20 max-h-[60px]"} />
+          <Icon iconName='logo' className={textColor + " h-20 max-h-[60px]"} />
           <span className="text-white text-xs absolute bottom-3 right-2 bg-red-500 p-1 rounded-md">BETA</span>
         </Link>
         <div className='flex-1' />
