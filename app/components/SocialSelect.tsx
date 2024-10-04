@@ -47,6 +47,10 @@ const getPlaceHolderForSocial = (social: SelectableSocial) => {
       return "yourNickname"
     case "UPLAY":
       return "yourNickname"
+    case "TIKTOK":
+      return "https://www.tiktok.com/@yourname"
+    case "YOUTUBE":
+      return "https://www.youtube.com/channel/your-channel-id"
     case "WEBSITE":
       return "https://sesf.ch"
     default:

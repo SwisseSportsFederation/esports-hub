@@ -21,6 +21,8 @@ enum SocialPlatform {
   BATTLENET
   UPLAY
   WEBSITE
+  TIKTOK
+  YOUTUBE
 }
 
 enum RequestStatus {

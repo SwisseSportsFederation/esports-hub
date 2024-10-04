@@ -416,6 +416,16 @@ const SunIcon = ({ className }: PropsWithClassName<{}>) =>
     </g>
   </svg>
 
+const TiktokIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg fill="currentColor" className={className} width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z" />
+  </svg>
+
+const YoutubeIcon = ({ className }: PropsWithClassName<{}>) =>
+  <svg fill="currentColor" className={className} width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.593 7.203a2.506 2.506 0 0 0-1.762-1.766C18.265 5.007 12 5 12 5s-6.264-.007-7.831.404a2.56 2.56 0 0 0-1.766 1.778c-.413 1.566-.417 4.814-.417 4.814s-.004 3.264.406 4.814c.23.857.905 1.534 1.763 1.765 1.582.43 7.83.437 7.83.437s6.265.007 7.831-.403a2.515 2.515 0 0 0 1.767-1.763c.414-1.565.417-4.812.417-4.812s.02-3.265-.407-4.831zM9.996 15.005l.005-6 5.207 3.005-5.212 2.995z" />
+  </svg>
+
 const iconMap = {
   "accept": AcceptIcon,
   "add": AddIcon,
@@ -443,6 +453,8 @@ const iconMap = {
   "website": WebsiteIcon,
   "twitch": TwitchIcon,
   "origin": OriginIcon,
+  "tiktok": TiktokIcon,
+  "youtube": YoutubeIcon,
   "upload": UploadIcon,
   "date": DateIcon,
   "moon": MoonIcon,
@@ -475,6 +487,8 @@ export type IconType =
   | "website"
   | "twitch"
   | "origin"
+  | "tiktok"
+  | "youtube"
   | "upload"
   | "date"
   | "moon"
