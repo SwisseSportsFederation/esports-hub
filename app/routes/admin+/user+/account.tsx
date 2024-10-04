@@ -10,11 +10,12 @@ import AskModalBody from '~/components/Notifications/AskModalBody';
 import Modal from '~/components/Notifications/Modal';
 import H1 from '~/components/Titles/H1';
 import { entityToPathSegment } from '~/helpers/entityType';
+import { updateEmail } from "~/services/admin/api/user.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
 import { createFlashMessage } from "~/services/toast.server";
 import dateInputStyles from "~/styles/date-input.css?url";
-import { checkUserAuth } from "~/utils/auth.server";
+import { checkUserAuth, logout } from "~/utils/auth.server";
 
 export function links() {
   return [
@@ -24,10 +25,11 @@ export function links() {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { handle, name, surname, birthDate, description, canton, languages, has_data_policy, is_searchable } = await zx.parseForm(request, {
+  const { handle, name, surname, email, birthDate, description, canton, languages, has_data_policy, is_searchable } = await zx.parseForm(request, {
     handle: z.string().min(2),
     name: z.string().min(3),
     surname: z.string().optional(),
+    email: z.string().email('Email is not correct').optional(),
     birthDate: z.string().optional(),
     description: z.string().optional(),
     canton: zx.NumAsString.optional(),
@@ -37,7 +39,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
   const user = await checkUserAuth(request);
   try {
+    if (handle === email) {
+      const headers = await createFlashMessage(request, `Nickname cannot be email`);
+      return json({}, { status: 400, ...headers });
+    }
+
     const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
+    const user_id = Number(user.db.id);
     await db.user.update({
       where: {
         id: Number(user.db.id)
@@ -69,9 +77,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         ...({ is_searchable: !!is_searchable }),
       }
     });
-  } catch (error) {
+
+    if (!!email && email !== user.db.email) {
+      await updateEmail(user, user_id, email);
+      return logout(request, '/auth/verify');
+    }
+  } catch (error: any) {
     console.log(error);
-    return json({}, 500);
+    const headers = await createFlashMessage(request, `Error updating user: ${error.message ?? ''}`);
+    return json({}, { status: 500, ...headers });
   }
   const headers = await createFlashMessage(request, 'Account update is done');
   return json({}, headers);

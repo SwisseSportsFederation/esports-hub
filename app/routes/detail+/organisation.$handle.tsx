@@ -133,6 +133,7 @@ export default function () {
     <div className="max-w-prose lg:max-w-6xl w-full mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-12">
         <DetailHeader name={organisation.name}
+          handle={organisation.handle}
           imagePath={organisation.image}
           entitySocials={organisation.socials}
           games={getOrganisationGames(organisation)}

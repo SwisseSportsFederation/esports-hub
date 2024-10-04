@@ -142,6 +142,7 @@ export default function () {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-y-4 lg:gap-12">
         <DetailHeader name={team.name}
           {...orgHeaderProps}
+          handle={team.handle}
           imagePath={team.image}
           entitySocials={team.socials}
           games={team.game ? [team.game] : undefined}
