@@ -1,6 +1,5 @@
-import { User } from "@prisma/client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, useFetcher, useLoaderData } from "@remix-run/react";
+import { json, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from 'react';
 import styles from 'react-image-crop/dist/ReactCrop.css?url';
 import { z } from "zod";
@@ -11,12 +10,12 @@ import AskModalBody from '~/components/Notifications/AskModalBody';
 import Modal from '~/components/Notifications/Modal';
 import H1 from '~/components/Titles/H1';
 import { entityToPathSegment } from '~/helpers/entityType';
+import { updateEmail } from "~/services/admin/api/user.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
 import { createFlashMessage } from "~/services/toast.server";
 import dateInputStyles from "~/styles/date-input.css?url";
 import { checkUserAuth, logout } from "~/utils/auth.server";
-import { updateEmail } from "../api+/user";
 
 export function links() {
   return [

@@ -1,9 +1,8 @@
 import { json, redirect, type ActionFunction, type LoaderFunction } from '@remix-run/node';
-import { ManagementClient } from 'auth0';
 import { z } from 'zod';
 import { zx } from 'zodix';
-import { AuthUser } from '~/services/auth.server';
-import { db } from '~/services/db.server';
+import { deleteUser } from '~/services/admin/api/user.server';
+import { createFlashMessage } from '~/services/toast.server';
 import { checkUserAuth, logout } from '~/utils/auth.server';
 
 export let loader: LoaderFunction = () => redirect('/admin');
@@ -32,56 +31,9 @@ export const action: ActionFunction = async ({ request }) => {
       return logout(request, '/');
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
-    throw json({}, 500);
+    const headers = await createFlashMessage(request, `Error updating user: ${error.message ?? ''}`);
+    return json({}, { status: 500, ...headers });
   }
 };
-
-export const updateEmail = async (user: AuthUser, user_id: number, email: string) => {
-  const managementClient = new ManagementClient({
-    clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID,
-    clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET,
-    domain: process.env.AUTH0_DOMAIN,
-  });
-
-  await db.user.update({
-    where: {
-      id: user_id,
-    },
-    data: {
-      email: email
-    }
-  });
-
-  //const auth0ConnectionId = (await managementClient.connections.get({ id: user.db.auth_id! })).data.id
-  const emailChangeResponse = await managementClient.users.update({ id: user.db.auth_id! }, { email: email });
-  if (emailChangeResponse.status > 400) {
-    // TODO maybe rollback email changes
-    console.error(emailChangeResponse.statusText)
-    throw new Error('Error changing Email for Authentication');
-  }
-  const emailVerifyResponse = await managementClient.jobs.verifyEmail({ user_id: user.db.auth_id! });
-  if (emailVerifyResponse.status > 400) {
-    // TODO maybe rollback email changes
-    console.error(emailVerifyResponse.statusText)
-    throw new Error('Error sending verification email');
-  }
-  return json({}, 200);
-}
-
-const deleteUser = async (user: AuthUser, user_id: number) => {
-  const managementClient = new ManagementClient({
-    clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID,
-    clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET,
-    domain: process.env.AUTH0_DOMAIN,
-  });
-
-  await db.user.delete({
-    where: {
-      id: user_id,
-    },
-  });
-
-  return await managementClient.users.delete({ id: user.db.auth_id! });
-}
