@@ -29,29 +29,29 @@ const getErrorForPath = (path: string, data: any) => {
 
 const getPlaceHolderForSocial = (social: SelectableSocial) => {
   switch (social.platform) {
-    case "TWITTER":
+    case SocialPlatformValue.TWITTER:
       return "https://x.com/yourname"
-    case "FACEBOOK":
+    case SocialPlatformValue.FACEBOOK:
       return "https://facebook.com/yourname"
-    case "DISCORD":
+    case SocialPlatformValue.DISCORD:
       return "yourtag"
-    case "BATTLENET":
+    case SocialPlatformValue.BATTLENET:
       return "yourtag#1234"
-    case "INSTAGRAM":
+    case SocialPlatformValue.INSTAGRAM:
       return "https://instagram.com/yourname"
-    case "ORIGIN":
+    case SocialPlatformValue.ORIGIN:
       return "yourname"
-    case "TWITCH":
+    case SocialPlatformValue.TWITCH:
       return "https://twitch.tv/yourname"
-    case "STEAM":
+    case SocialPlatformValue.STEAM:
       return "yourNickname"
-    case "UPLAY":
+    case SocialPlatformValue.UPLAY:
       return "yourNickname"
-    case "TIKTOK":
+    case SocialPlatformValue.TIKTOK:
       return "https://www.tiktok.com/@yourname"
-    case "YOUTUBE":
+    case SocialPlatformValue.YOUTUBE:
       return "https://www.youtube.com/channel/your-channel-id"
-    case "WEBSITE":
+    case SocialPlatformValue.WEBSITE:
       return "https://sesf.ch"
     default:
       return social.platform
