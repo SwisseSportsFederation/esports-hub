@@ -1,4 +1,4 @@
-import type { SocialPlatform, EntityType, AccessRight, RequestStatus , VerificationLevel } from '@prisma/client';
+import type { SocialPlatform, EntityType, AccessRight, RequestStatus, VerificationLevel } from '@prisma/client';
 
 export const SocialPlatformValue = {
   INSTAGRAM: 'INSTAGRAM',
@@ -11,6 +11,8 @@ export const SocialPlatformValue = {
   BATTLENET: 'BATTLENET',
   UPLAY: 'UPLAY',
   WEBSITE: 'WEBSITE',
+  TIKTOK: 'TIKTOK',
+  YOUTUBE: 'YOUTUBE',
 } satisfies typeof SocialPlatform;
 
 export const EntityTypeValue = {
