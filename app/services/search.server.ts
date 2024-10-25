@@ -42,7 +42,7 @@ export async function searchForUsers(searchParams: URLSearchParams): Promise<Sea
   const results = queryResults.map(result => ({
     id: String(result.id),
     handle: result.handle,
-    name: result.handle,
+    name: result.name,
     image: result.image,
     team: result.team ? result.team : "",
     games: result.games.filter((game: string) => !!game).map((game: string) => { return { id: 0, name: game } }),

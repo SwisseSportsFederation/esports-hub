@@ -40,6 +40,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
     SELECT
         ent.id,
         ent.handle,
+        ent.name,
         ent.image,
         ent.games,
         ent.team,
@@ -51,6 +52,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         SELECT
               usr.id               AS id,
               usr.handle           AS handle,
+              usr.name             AS name,
               usr.image            AS image,
               array_agg(DISTINCT gam.name)  AS games,    -- ARRAY ARGUMENTS
               gro1.name             AS team,
@@ -115,16 +117,19 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         AND
             usr.is_searchable = TRUE
         AND
-            LOWER(usr.handle) LIKE ${searchString}
+            (LOWER(usr.handle) LIKE ${searchString}
+            OR
+            LOWER(usr.name) LIKE ${searchString})
              --
              --  GROUP BY
              --
        GROUP BY
               1,
               2,
-              3,    
-          -- 4,-- ARRAY ARGUMENTS
-              5       
+              3,
+              4,    
+          -- 5,-- ARRAY ARGUMENTS
+              6       
              -- ---------------------------------
              -- UNION ALL
              -- ---------------------------------
@@ -135,6 +140,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         SELECT
               gro2.id              AS id,
               gro2.handle          AS handle,
+              gro2.name            AS name,
               gro2.image           AS image,
               array_agg(DISTINCT gam2.name) AS games,    -- ARRAY ARGUMENTS
               ''                  AS team,
@@ -184,7 +190,9 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         AND
             gro2.is_active = TRUE
         AND
-            LOWER(gro2.handle) LIKE ${searchString}
+            (LOWER(gro2.handle) LIKE ${searchString}
+            OR
+            LOWER(gro2.name) LIKE ${searchString})
         AND (gam2.name LIKE ${gameString} OR ${gameString} = '%')
               --
               --   GROUP BY
@@ -193,11 +201,12 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
               1,
               2,
               3,
-              -- 4, ignore games
-              -- 5, ignore team
-              6
+              4,
+              -- 5, ignore games
+              -- 6, ignore team
+              7
         ) AS ent
-    ORDER BY ent.handle
+    ORDER BY ent.name
     LIMIT 15
     OFFSET ${offset}
 `

@@ -44,14 +44,15 @@ export default function () {
     setResults([...searchResults.results]);
   }, [searchParams])
 
-  return <div className="max-w-md lg:max-w-lg w-full mx-auto px-4 pt-8">
+  return <div className="w-full px-4 pt-8">
     <SearchBox games={searchParams.games} cantons={searchParams.cantons ?? []}
       languages={searchParams.languages ?? []} />
-
-    {results && results.map((teaser: UserSearchResult, index: number) =>
-      <LinkTeaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games}
-        avatarPath={teaser.image} type={teaser.type} handle={teaser.handle} />
-    )}
+    <div className="max-w-md lg:max-w-lg mx-auto">
+      {results && results.map((teaser: UserSearchResult, index: number) =>
+        <LinkTeaser key={index} id={teaser.id} name={teaser.name} team={teaser.team} games={teaser.games}
+          avatarPath={teaser.image} type={teaser.type} handle={teaser.handle} />
+      )}
+    </div>
     {results && hasNext && <fetcher.Form method="get" action={'/search'} className="flex justify-center pt-4">
       <input type="hidden" name="game" value={params.get("game")!} />
       <input type="hidden" name="canton" value={params.get("canton")!} />
