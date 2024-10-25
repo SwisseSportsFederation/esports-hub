@@ -98,8 +98,8 @@ const formerTeamModal = (isOpen: boolean, handleClose: (value: boolean) => void,
       <input type='hidden' name='intent' value='CREATE_FORMER_TEAM' />
       <input type='hidden' name='userId' value={userId} />
       <TextInput id='name' label='Team name' defaultValue={""} />
-      <DateInput name='from' label='From' value={new Date()} />
-      <DateInput name='to' label='To' value={new Date()} />
+      <DateInput name='from' label='From' value={new Date()} required={true} />
+      <DateInput name='to' label='To' value={new Date()} required={true} />
       <div className='w-full flex flex-row space-x-4 justify-center'>
         <ActionButton content='Create' type='submit' />
         <ActionButton content='Cancel' action={() => handleClose(false)} />
@@ -152,7 +152,7 @@ export default function () {
                   <fetcher.Form method='post' action={`/admin/api/group/member`} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
                     <input type='hidden' name='intent' value='UPDATE_GROUP' />
                     <input type='hidden' name='userId' value={user.db.id} />
-                    <DateInput name='joinedAt' label='Joined at' value={new Date(member.joined_at)} />
+                    <DateInput name='joinedAt' label='Joined at' value={new Date(member.joined_at)} required={true} />
                     <div className='w-full flex flex-row space-x-4 justify-center'>
                       <ActionButton content='Save' type='submit' name='groupId' value={member.id} />
                       <ActionButton content='Leave' action={() => setDeleteModalOpen(member.id)} />
@@ -176,8 +176,8 @@ export default function () {
                   <input type='hidden' name='intent' value='UPDATE_FORMER_TEAM' />
                   <input type='hidden' name='userId' value={user.db.id} />
                   <TextInput id='name' label='Team name' defaultValue={formerTeam.name} />
-                  <DateInput name='from' label='From' value={new Date(formerTeam.from || "")} />
-                  <DateInput name='to' label='To' value={new Date(formerTeam.to || "")} />
+                  <DateInput name='from' label='From' value={new Date(formerTeam.from || "")} required={true} />
+                  <DateInput name='to' label='To' value={new Date(formerTeam.to || "")} required={true} />
                   <div className='w-full flex flex-row space-x-4 justify-center'>
                     <ActionButton content='Save' type='submit' name='formerTeamName' value={formerTeam.name} />
                     <ActionButton content='Remove' action={() => setDeleteFormerModalOpen(formerTeam.name)} />
