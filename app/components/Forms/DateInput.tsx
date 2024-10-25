@@ -11,9 +11,10 @@ interface IDateInputProps {
   value: Date | null;
   min?: Date;
   max?: Date;
+  required?: boolean;
 }
 
-const DateInput = ({ label, name, value: defaultValue, min, max, className }: PropsWithClassName<IDateInputProps>) => {
+const DateInput = ({ label, name, value: defaultValue, min, max, required = false, className }: PropsWithClassName<IDateInputProps>) => {
   const [value, onChange] = useState<Date | null>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -23,21 +24,22 @@ const DateInput = ({ label, name, value: defaultValue, min, max, className }: Pr
       <div className={`text-black h-10 text-md px-4 cursor-pointer 
                        relative inline-flex items-center justify-between
                        rounded-xl bg-white borderborder-gray-300 w-full`}>
-        <input type="date" name={name} 
+        <input type="date" name={name}
           value={value ? toISODateString(value) : ""}
           onChange={(el) => onChange(new Date(el.target.value))}
-          className="bg-transparent focus:ring-0 outline-none"/>
-          <div>
-            { value && <IconButton icon='remove' type='button' className="text-red-600 mr-1" action={() => onChange(null)}/>}
-            <IconButton icon='date' type='button' action={() => setIsOpen(true)}/>
-          </div>
+          className="bg-transparent focus:ring-0 outline-none"
+          required={required} />
+        <div>
+          {value && <IconButton icon='remove' type='button' className="text-red-600 mr-1" action={() => onChange(null)} />}
+          <IconButton icon='date' type='button' action={() => setIsOpen(true)} />
+        </div>
       </div>
     </div>
     <Modal isOpen={isOpen} handleClose={() => setIsOpen(false)}>
       <Calendar onChange={(e: Date) => {
         onChange(e);
         setIsOpen(false);
-      }} value={value} minDate={min} maxDate={max} locale="ch-DE" className='!w-full'/>
+      }} value={value} minDate={min} maxDate={max} locale="ch-DE" className='!w-full' />
     </Modal>
   </>;
 };

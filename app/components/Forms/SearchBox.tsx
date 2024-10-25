@@ -63,7 +63,7 @@ const SearchBox = ({ games = [], cantons = [], languages = [], small = false }: 
           className={`${showFiltersMobile ? 'rotate-180' : ''} mt-3 ml-2 lg:hidden bg-gray-400 transition-transform`}
           action={() => setShowFiltersMobile(!showFiltersMobile)} />
       </div>
-      <div className="pt-5 -mt-5 w-full mx-auto max-w-sm md:max-w-lg">
+      <div className="pt-5 -mt-5 w-full mx-auto">
         {!small &&
           <div className="relative">
             <div className={filterClassNames}>

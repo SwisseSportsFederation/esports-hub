@@ -1,4 +1,5 @@
 import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { zx } from 'zodix';
 import { StringOrNull } from "~/db/queries.server";
@@ -101,7 +102,7 @@ const putAction = async (request: Request) => {
     await deleteImage(image.image);
     const buffer = Buffer.from(await file.arrayBuffer())
     const croppedImage = await resize(buffer, cropData);
-    const { result } = await upload(croppedImage, 'image-' + entityId);
+    const { result } = await upload(croppedImage, 'image-' + randomUUID());
     const query = {
       where: {
         id: entityId

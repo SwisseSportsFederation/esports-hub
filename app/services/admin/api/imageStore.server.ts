@@ -16,8 +16,8 @@ export const resize = async (original: Buffer, cropData: Crop): Promise<File> =>
   const buffer = await sharp(original)
     .extract(region)
     .resize({
-      height: 150,
-      width: 150
+      height: 500,
+      width: 500
     })
     .webp()
     .toBuffer();
