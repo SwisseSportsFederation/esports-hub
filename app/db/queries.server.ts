@@ -52,7 +52,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         SELECT
               usr.id               AS id,
               usr.handle           AS handle,
-              usr.name             AS name,
+              concat(usr.name, ' ', usr.surname) AS name,
               usr.image            AS image,
               array_agg(DISTINCT gam.name)  AS games,    -- ARRAY ARGUMENTS
               gro1.name             AS team,
@@ -119,7 +119,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
         AND
             (LOWER(usr.handle) LIKE ${searchString}
             OR
-            LOWER(usr.name) LIKE ${searchString})
+            LOWER(concat(usr.name,' ',usr.surname)) LIKE ${searchString})
              --
              --  GROUP BY
              --
