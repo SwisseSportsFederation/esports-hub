@@ -20,15 +20,15 @@ export const getTeamTeasers = (teams: (Group & { game: Game | null })[]): Omit<I
 type GroupWithTeamGames = Group & { children: { child: { game: Game | null } }[] };
 export const getOrganisationTeasers = (groups: GroupWithTeamGames[]): Omit<ITeaserProps, 'icons'>[] => {
   return groups.map((organisation) => ({
-      id: String(organisation.id),
-      handle: organisation.handle,
-      type: EntityTypeValue.ORGANISATION,
-      avatarPath: organisation.image,
-      name: organisation.name,
-      games: getOrganisationGames(organisation),
-      team: null,
-      icons: undefined
-    })
+    id: String(organisation.id),
+    handle: organisation.handle,
+    type: EntityTypeValue.ORGANISATION,
+    avatarPath: organisation.image,
+    name: organisation.name,
+    games: getOrganisationGames(organisation),
+    team: null,
+    icons: undefined
+  })
   );
 };
 
@@ -43,6 +43,7 @@ export const getTeamMemberTeasers = (teamName: string, members: GroupMemberWithU
       handle: member.user.handle,
       type: EntityTypeValue.USER,
       name: member.user.handle,
+      description: member.role,
       team: teamName,
       games: member.user.games || [],
       avatarPath: member.user.image
@@ -57,7 +58,7 @@ export const getOrganisationMemberTeasers = (members: GroupMemberWithUser[]): Om
       handle: member.user.handle,
       type: EntityTypeValue.USER,
       name: member.user.handle,
-      team: member.role,
+      description: member.role,
       games: member.user.games || [],
       avatarPath: member.user.image,
     };
