@@ -120,6 +120,7 @@ const searchQuery = (search?: string, canton?: string, game?: string, language?:
             (LOWER(usr.handle) LIKE ${searchString}
             OR
             LOWER(concat(usr.name,' ',usr.surname)) LIKE ${searchString})
+        AND (gam.name LIKE ${gameString} OR ${gameString} = '%')
              --
              --  GROUP BY
              --
