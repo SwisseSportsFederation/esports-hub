@@ -23,6 +23,9 @@ const UserState = (props: { textColor: string }) => {
           <li className="cursor-pointer hover:text-red-1 w-full px-8">
             <Link to={'/admin'}>Admin</Link>
           </li>
+          <li className="cursor-pointer hover:text-red-1 w-full px-8">
+            <Link to={'/admin/user/account'}>Profile</Link>
+          </li>
           <li>
             <Logout textColor={props.textColor} />
           </li>
