@@ -4,6 +4,7 @@ import { zx } from 'zodix';
 import { z } from "zod";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { RequestStatus } from "@prisma/client";
+import { json } from '@remix-run/server-runtime';
 
 export let loader: LoaderFunction = () => redirect("/admin");
 

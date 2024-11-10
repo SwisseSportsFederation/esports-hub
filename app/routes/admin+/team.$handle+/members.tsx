@@ -68,7 +68,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: FetcherWithComponents<any>) => {
-  return <fetcher.Form method="post" action={'/admin/api/invitation'} encType="multipart/form-data">
+  return <fetcher.Form method="post" action={'/admin/api/invitation'} encType="multipart/form-data" className="flex gap-x-2">
     <input type="hidden" name="entityId" value={groupId} />
     <input type="hidden" name="userId" value={teaser.id} />
     <IconButton icon="accept" type="submit" name="action" value="ACCEPT" />
