@@ -68,7 +68,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: FetcherWithComponents<any>) => {
-  return <fetcher.Form method="post" action={'/admin/api/invitation'} encType="multipart/form-data">
+  return <fetcher.Form method="post" action={'/admin/api/invitation'} encType="multipart/form-data" className="flex gap-x-2">
     <input type="hidden" name="entityId" value={groupId} />
     <input type="hidden" name="userId" value={teaser.id} />
     <IconButton icon="accept" type="submit" name="action" value="ACCEPT" />
@@ -98,18 +98,25 @@ export default function () {
         {
           // Update Member
           members.map(member => {
+            const isCurrentUser = member.user.id === teamUser.user_id
             return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
               team={team.handle}
               games={member.user.games}
-              expandable={allowedTypes.some(type => type === member.access_rights) && member.user.id !== teamUser.user_id}>
+              expandable={allowedTypes.some(type => type === member.access_rights)}>
               <fetcher.Form method="put" action={'/admin/api/group/members'}
                 className="p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto">
                 <input type="hidden" name="groupId" value={team.id} />
                 <TextInput id="role" label="Role" defaultValue={member.role} />
-                <RadioButtonGroup values={allowedTypes} id={`user-rights`} selected={member.access_rights} />
+                {!isCurrentUser &&
+                  <RadioButtonGroup values={allowedTypes} id={`user-rights`} selected={member.access_rights} />
+                }
+                {isCurrentUser &&
+                  <input type="hidden" name={`user-rights`} value={member.access_rights} />
+                }
                 <div className="w-full flex flex-row space-x-4 justify-center">
                   <ActionButton content="Save" type="submit" name="userId" value={member.user.id} />
-                  <ActionButton content="Kick" action={() => setDeleteModalOpen(member.user.id)} />
+                  {!isCurrentUser &&
+                    <ActionButton content="Kick" action={() => setDeleteModalOpen(member.user.id)} />}
                 </div>
               </fetcher.Form>
             </ExpandableTeaser>;

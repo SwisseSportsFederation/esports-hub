@@ -26,7 +26,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
     handle: z.string()
   })
-  await checkUserAuth(request);
+  const user = await checkUserAuth(request);
+
+  const groupUser = await db.groupMember.findFirstOrThrow({
+    where: {
+      user_id: Number(user.db.id),
+      group: {
+        handle,
+      },
+    },
+  });
+
   const allMembers = await db.groupMember.findMany({
     where: {
       group: {
@@ -51,6 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const pending = allMembers.filter(mem => mem.request_status === RequestStatusValue.PENDING_USER);
 
   return json({
+    groupUser,
     members: members,
     invited: getOrganisationMemberTeasers(invited),
     pending: getOrganisationMemberTeasers(pending)
@@ -68,7 +79,7 @@ const addInvitationIcons = (teaser: ITeaserProps, groupId: string, fetcher: Fetc
 };
 
 export default function () {
-  const { members, invited, pending } = useLoaderData<typeof loader>();
+  const { groupUser, members, invited, pending } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>()
@@ -77,6 +88,8 @@ export default function () {
 
   const types = Object.keys(AccessRightValue);
 
+  const allowedTypes = types.slice(0, types.indexOf(groupUser.access_rights) + 1);
+
   return <>
     <div className="w-full max-w-prose mx-auto lg:mx-0 space-y-4 flex flex-col">
       <H1Nav path={'..'} title='Members'>
@@ -84,18 +97,27 @@ export default function () {
       </H1Nav>
       <H1 className='px-2 mb-1 w-full'>Members</H1>
       {
+        // Update Member
         members.map(member => {
-          // Update Member
+          const isCurrentUser = member.user.id === groupUser.user_id
           return <ExpandableTeaser key={member.user.id} avatarPath={member.user.image} name={member.user.handle}
             team={member.user.groups[0].group.handle}
-            games={member.user.games}>
+            games={member.user.games}
+            expandable={allowedTypes.some(type => type === member.access_rights)}>
             <fetcher.Form method='put' action={'/admin/api/group/members'} className='p-5 flex items-center flex-col space-y-4 w-full max-w-xl mx-auto'>
               <input type='hidden' name='groupId' value={organisation.id} />
               <TextInput id='role' label='Role' defaultValue={member.role} />
-              <RadioButtonGroup values={types} id={`user-rights`} selected={member.access_rights} />
+              {!isCurrentUser &&
+                <RadioButtonGroup values={allowedTypes} id={`user-rights`} selected={member.access_rights} />
+              }
+              {isCurrentUser &&
+                <input type="hidden" name={`user-rights`} value={member.access_rights} />
+              }
               <div className='w-full flex flex-row space-x-4 justify-center'>
                 <ActionButton content='Save' type='submit' name='userId' value={member.user.id} />
-                <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)} />
+                {!isCurrentUser &&
+                  <ActionButton content='Kick' action={() => setDeleteModalOpen(member.user.id)} />
+                }
               </div>
             </fetcher.Form>
           </ExpandableTeaser>

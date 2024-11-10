@@ -8,12 +8,13 @@ import { useImage } from "~/context/image-provider";
 export interface ITeaserCoreProps {
   avatarPath: StringOrNull,
   name: StringOrNull,
-  team: StringOrNull,
+  team?: StringOrNull,
+  description?: StringOrNull,
   games: Omit<Game, 'id'>[],
 }
 
 const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
-  const { name = '', team = '', avatarPath, games = [], className = '' } = props;
+  const { name = '', team = '', description = '', avatarPath, games = [], className = '' } = props;
   const imageRoot = useImage();
 
   const background = classNames({
@@ -33,6 +34,11 @@ const TeaserCore = (props: PropsWithClassName<ITeaserCoreProps>) => {
           <span className="text-sm"> ({team ?? ''})</span>
         }
       </div>
+      {!!description &&
+        <div className="mx-1">
+          <span className="text-sm">{description}</span>
+        </div>
+      }
       {games && games.map((game: Omit<Game, 'id'>) => {
         if (!!game) {
           return <span key={game.name} className="rounded-full whitespace-nowrap text-sm px-3 mx-1 bg-gray-6 dark:bg-gray-3">

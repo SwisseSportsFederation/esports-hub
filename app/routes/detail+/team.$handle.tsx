@@ -27,18 +27,30 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         handle
       }
     });
-    await db.groupMember.create({
-      data: {
-        access_rights: AccessRightValue.MEMBER,
-        request_status: RequestStatusValue.PENDING_GROUP,
-        joined_at: new Date(),
-        is_main_group: false,
-        role: "Member",
-        user: { connect: { id: BigInt(user.db.id) } },
-        group: { connect: { id: group.id } }
+    const existingGroupMember = await db.groupMember.findFirst({
+      where: {
+        user_id: user.db.id,
+        group_id: group.id
       }
-    })
-    console.log(`user ${user.db.id} applied for team ${group.id}`)
+    });
+    if (!existingGroupMember) {
+      await db.groupMember.create({
+        data: {
+          access_rights: AccessRightValue.MEMBER,
+          request_status: RequestStatusValue.PENDING_GROUP,
+          joined_at: new Date(),
+          is_main_group: false,
+          role: "Member",
+          user: { connect: { id: BigInt(user.db.id) } },
+          group: { connect: { id: group.id } }
+        }
+      })
+      console.log(`user ${user.db.id} applied for team ${group.id}`)
+    } else {
+      console.log(`user ${user.db.id} already has membership in ${group.id}`)
+      const headers = await createFlashMessage(request, 'You already applied for this team.');
+      return json({}, headers);
+    }
   } catch (error) {
     console.log(error);
     const headers = await createFlashMessage(request, 'Error while applying for team');

@@ -23,7 +23,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { id, oldHandle, handle, founded, name, game, description, canton, languages } = await zx.parseForm(request, {
     id: z.string(),
     oldHandle: z.string(),
-    handle: z.string().min(3),
+    handle: z.string().min(2),
     name: z.string().min(3),
     founded: z.string().optional(),
     game: zx.NumAsString,

@@ -71,7 +71,7 @@ export const createEntity = async (request: Request) => {
       image
     } = await zx.parseForm(request, {
       id: z.string(),
-      handle: z.string().min(3),
+      handle: z.string().min(2),
       name: z.string().min(3),
       founded: z.string().optional(),
       game: zx.NumAsString.optional(),

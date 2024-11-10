@@ -31,13 +31,13 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], userId: s
     let icons = <fetcher.Form method="post" action={`/admin/api/invitation`} className="flex space-x-2">
       <input type="hidden" name="entityId" value={`${invitation.id}`} />
       <input type="hidden" name="userId" value={userId} />
-      <IconButton icon="accept" type="submit" name="action" value="ACCEPT" />
+      {pending &&
+        <Icons iconName="clock" className="h-8 w-8" />
+        ||
+        <IconButton icon="accept" type="submit" name="action" value="ACCEPT" />
+      }
       <IconButton icon="decline" type="submit" name="action" value="DECLINE" />
     </fetcher.Form>;
-
-    if (pending) {
-      icons = <Icons iconName="clock" className="h-8 w-8" />;
-    }
 
     return {
       type: EntityTypeValue.ORGANISATION,
@@ -98,7 +98,7 @@ export default function () {
       <div className="w-full max-w-lg mx-auto flex flex-col items-center lg:mx-0">
         <H1Nav path={'/admin'} title="My Organisations" />
         <TeaserList title={'Invitation Requests'} teasers={invited} />
-        <TeaserList title={'Invitation Pending'} teasers={pending} className="mb-8" />
+        <TeaserList title={'Invitation Pending'} teasers={pending} />
         <div className="flex flex-col gap-4 w-full">
           <H1 className="px-2 mb-1 w-full">Active</H1>
           {
