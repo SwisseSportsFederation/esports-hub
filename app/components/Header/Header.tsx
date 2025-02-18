@@ -17,8 +17,8 @@ const UserState = (props: { textColor: string }) => {
         <Icon iconName='user' className={"text-white p-0 m-0 w-6 h-6 md:w-5 md:h-5"} />
       </Link>
       <div
-        className="hidden md:block absolute z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
-        group-hover:opacity-100">
+        className="hidden md:block absolute pointer-events-none z-30 bg-white dark:bg-gray-2 py-4 rounded-md top-full right-0 opacity-0
+        group-hover:opacity-100 group-hover:block group-hover:pointer-events-auto">
         <ul className="space-y-2 text-right">
           <li className="cursor-pointer hover:text-red-1 w-full px-8">
             <Link to={'/admin'}>Admin</Link>
