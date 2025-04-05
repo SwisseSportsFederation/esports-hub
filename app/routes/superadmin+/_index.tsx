@@ -14,31 +14,43 @@ import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkSuperAdmin(user.db.id);
-  const games = await getGameRequests(user);
+  const { gameRequests, similarGames } = await getGameRequests(user);
   const superadmins = await getSuperAdmins(user);
   return json({
     user,
-    games,
+    gameRequests,
+    similarGames,
     superadmins
   });
 }
 
-const getRequestTeaser = (requests: SerializeFrom<Game>[], userId: string, fetcher: FetcherWithComponents<any>): JSX.Element[] => {
-  return requests.map(request => {
-    return <div className={`w-full flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl bg-white dark:bg-gray-2`}>
-      <div className="flex-grow overflow-hidden">
-        <div className="mx-1 flex items-center gap-3">
-          <span className="font-bold break-all block">{request.name}</span>
+const getRequestTeaser = (requests: SerializeFrom<Game>[], similarGames: SerializeFrom<Game>[], userId: string, fetcher: FetcherWithComponents<any>): JSX.Element => {
+  return <div>
+    {requests.map(request => {
+      return <div className={`w-full flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl bg-white dark:bg-gray-2`}>
+        <div className="flex-grow overflow-hidden">
+          <div className="mx-1 flex items-center gap-3">
+            <span className="font-bold break-all block">{request.name}</span>
+          </div>
         </div>
-      </div>
-      <fetcher.Form method='post' action={`/superadmin/api/game/request`} className="flex space-x-2">
-        <input type='hidden' name='entityId' value={`${request.id}`} />
-        <input type='hidden' name='userId' value={userId} />
-        <IconButton icon='accept' type='submit' name='action' value='ACCEPT' />
-        <IconButton icon='decline' type='submit' name='action' value='DECLINE' />
-      </fetcher.Form>
-    </div>;
-  });
+        <fetcher.Form method='post' action={`/superadmin/api/game/request`} className="flex space-x-2">
+          <input type='hidden' name='entityId' value={`${request.id}`} />
+          <input type='hidden' name='userId' value={userId} />
+          <IconButton icon='accept' type='submit' name='action' value='ACCEPT' />
+          <IconButton icon='decline' type='submit' name='action' value='DECLINE' />
+        </fetcher.Form>
+      </div>;
+    })}
+    {similarGames.map(game => {
+      return <div className={`w-full flex items-center max-w-lg p-3 pr-16 my-2 rounded-xl bg-yellow-600`}>
+        <div className="flex-grow overflow-hidden">
+          <div className="mx-1 flex items-center gap-3">
+            <span className="font-bold break-all block">similar: {game.name}</span>
+          </div>
+        </div>
+      </div>;
+    })}
+  </div>
 }
 
 const getSuperAdminTeaser = (invitations: SerializeFrom<User>[], type: EntityType): ITeaserProps[] => {
@@ -56,11 +68,11 @@ const getSuperAdminTeaser = (invitations: SerializeFrom<User>[], type: EntityTyp
 }
 
 export default function () {
-  const { user, games, superadmins } = useLoaderData<typeof loader>();
+  const { user, gameRequests, similarGames, superadmins } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
 
   const superadminTeasers = getSuperAdminTeaser(superadmins, 'USER')
-  const gameRequestTeasers = getRequestTeaser(games, user.db.id, fetcher);
+  const gameRequestTeasers = getRequestTeaser(gameRequests, similarGames, user.db.id, fetcher);
 
   return <div className="mt-5 flex flex-col xl:ml-0 lg:ml-72 ml-0">
     <div className="max-w-prose mx-auto">
