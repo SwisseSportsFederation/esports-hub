@@ -10,6 +10,7 @@ import DateInput from "~/components/Forms/DateInput";
 import ActionButton from "~/components/Button/ActionButton";
 import dateInputStyles from '~/styles/date-input.css?url';
 import { Resend } from "resend";
+import { db } from "~/services/db.server";
 
 export function links() {
 	return [
@@ -26,7 +27,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 		const locationEmail = 'info@manabar.ch'; // TODO get correct email from db
 
 		const { success, data: formData, error: zodError } = await zx.parseFormSafe(request, {
-			userId: z.string(),
 			locationId: z.string(),
 			from: z.string().date(),
 			to: z.string().date(),
@@ -100,27 +100,46 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const loggedIn = await isLoggedIn(request);
 
+	const { slug } = zx.parseParams(params, {
+		slug: z.string()
+	});
+	const location = await db.location.findFirst({
+		where: {
+			slug
+		},
+		include: {
+			prices: true,
+		}
+	});
+
 	return json({
+		location,
 		loggedIn
 	});
 }
 
 export default function () {
-	const { loggedIn } = useLoaderData<typeof loader>();
+	const { location, loggedIn } = useLoaderData<typeof loader>();
 
+	if (!location) {
+		return <div className="mx-3 py-7">
+			<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
+				<h1 className="text-4xl font-bold mb-2">Location not found</h1>
+			</div>
+		</div>;
+	}
 	return <div className="mx-3 py-7">
 		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
 			<div className="grid grid-cols-2 gap-4 mb-8">
 				<div className="col-span-2 lg:col-span-1">
-					<img src="https://directus.manabar.ch/assets/854a06a3-a2b8-4c6a-b910-15ee969a867e" alt="House" className="w-full h-80 object-cover rounded-lg" />
+					<img src={location.image} alt="House" className="w-full h-80 object-cover rounded-lg" />
 				</div>
 				<div className="col-span-2 lg:col-span-1">
-					<h1 className="text-4xl font-bold mb-2">ManaBar</h1>
-					<p className="mb-2">ManaBar is super. Der «Verein für Aufklärung über Internet und Spielkultur» (Kurzform: VAISk) ist seit 2015 das durchführende Organ für Spielkulturanlässe in Basel. Im 2016 wurde dieser Verein als offizieller Rechtsköper gegründet.
-						Der Verein hat sich zum Ziel gesetzt, die Spielkulturszene in Basel zu beleben und zu vereinen, was bisher auch bereits schon in Form von kleineren und grösseren Spielkulturanlässen erfolgt ist, dank der grosszügigen Unterstützung der Christoph Merian Stiftung (CMS).</p>
-					<p className="mb-2"><b className="font-bold">Address: </b>Güterstrasse 99, 4053 Basel</p>
-					<p className="mb-4"><b className="font-bold">Space: </b> 12 players</p>
-					<LinkButton path="https://manabar.ch" target="_blank" title="Website"></LinkButton>
+					<h1 className="text-4xl font-bold mb-2">{location.name}</h1>
+					<p className="mb-2">{location.description}</p>
+					<p className="mb-2"><b className="font-bold">Address: </b>{location.address}</p>
+					<p className="mb-4"><b className="font-bold">Space: </b>{location.max_capacity} players</p>
+					{location.website && <LinkButton path={location.website} target="_blank" title="Website"></LinkButton>}
 				</div>
 			</div>
 			<div>
@@ -135,24 +154,14 @@ export default function () {
 						</tr>
 					</thead>
 					<tbody>
-						<tr className="hover:bg-gray-6 dark:hover:bg-gray-3">
-							<td>PCs</td>
-							<td>6</td>
-							<td>CHF 300.00</td>
-							<td>1 day</td>
-						</tr>
-						<tr className="hover:bg-gray-6 dark:hover:bg-gray-3">
-							<td>PCs Weekend</td>
-							<td>6</td>
-							<td>CHF 600.00</td>
-							<td>2 days</td>
-						</tr>
-						<tr className="hover:bg-gray-6 dark:hover:bg-gray-3">
-							<td>+ Hotel (variable)</td>
-							<td>6</td>
-							<td>CHF 190.00</td>
-							<td>per night</td>
-						</tr>
+						{location.prices.map((price) => {
+							return <tr key={price.id} className="hover:bg-gray-6 dark:hover:bg-gray-3">
+								<td>{price.name}</td>
+								<td>{price.people_count}</td>
+								<td>CHF {price.price.toFixed(2)}</td>
+								<td>{price.duration}</td>
+							</tr>;
+						})}
 					</tbody>
 				</table>
 			</div>
@@ -164,8 +173,7 @@ export default function () {
 					<h2 className="mt-8 mb-4 font-bold text-3xl">Book</h2>
 					<Form method="post"
 						encType="multipart/form-data">
-						<input name="userId" type="hidden" value={String(1)} />{/** TODO add correct ID */}
-						<input name="locationId" type="hidden" value={String(123)} />{/** TODO add correct ID */}
+						<input name="locationId" type="hidden" value={String(location.id)} />
 						<div className="grid grid-cols-2 gap-6 mb-8">
 							<div className="col-span-2 lg:col-span-1">
 								<DateInput name='from'
