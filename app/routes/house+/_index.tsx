@@ -29,6 +29,8 @@ function LocationTeaser({ name, address, price, image, showBook, link }: { name:
 export default function () {
 	const { loggedIn } = useLoaderData<typeof loader>();
 
+	// TODO load locations from database
+
 	return <div className="mx-3 py-7">
 		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
 			<h1 className="text-4xl font-bold mb-2">Esports House</h1>

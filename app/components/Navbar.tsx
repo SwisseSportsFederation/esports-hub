@@ -71,6 +71,7 @@ export default function Navbar() {
       <div className="mb-16">
         <div className="text-xl font-bold mb-4">Superadmin</div>
         <NavbarLink path={`/superadmin`} title="Superadmin" />
+        <NavbarLink path={`/superadmin/esports-house`} title="Esports House" />
       </div>
     }
   </div>

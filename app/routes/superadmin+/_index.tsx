@@ -8,16 +8,16 @@ import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import H1 from "~/components/Titles/H1";
 import { getGameRequests, getSuperAdmins } from "~/services/superadmin/index.server";
-import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
+import { checkUserAuth } from "~/utils/auth.server";
+import type { loader as superadminLoader } from "~/routes/superadmin+/_layout";
+import { useOutletContext } from "@remix-run/react";
 
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
-  await checkSuperAdmin(user.db.id);
   const { gameRequests, similarGames } = await getGameRequests(user);
   const superadmins = await getSuperAdmins(user);
   return json({
-    user,
     gameRequests,
     similarGames,
     superadmins
@@ -68,7 +68,8 @@ const getSuperAdminTeaser = (invitations: SerializeFrom<User>[], type: EntityTyp
 }
 
 export default function () {
-  const { user, gameRequests, similarGames, superadmins } = useLoaderData<typeof loader>();
+  const { gameRequests, similarGames, superadmins } = useLoaderData<typeof loader>();
+  const { user } = useOutletContext<SerializeFrom<typeof superadminLoader>>();
   const fetcher = useFetcher();
 
   const superadminTeasers = getSuperAdminTeaser(superadmins, 'USER')
