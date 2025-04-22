@@ -76,20 +76,20 @@ async function seed() {
 seed();
 
 function fakeBigInt(min: number, max: number) {
-  return faker.datatype.bigInt({
+  return faker.number.bigInt({
     min,
     max
   })
 }
 
 function common() {
-  const languagesCount = faker.datatype.number({
+  const languagesCount = faker.number.int({
     min: 1,
     max: 3
   });
 
   return {
-    handle: faker.name.firstName(),
+    handle: faker.person.firstName(),
     verification_level: faker.helpers.objectValue(VerificationLevel),
     name: faker.company.name(),
     description: faker.lorem.lines(3),
@@ -122,7 +122,7 @@ function createUsers(): Prisma.UserCreateInput[] {
     return {
       ...common(),
       email: faker.internet.email(),
-      surname: faker.name.lastName(),
+      surname: faker.person.lastName(),
       groups: {
         createMany: {
           data: createGroupMember()
@@ -149,8 +149,8 @@ function createFormerTeams(): Prisma.FormerTeamCreateManyUserInput[] {
   return array().map(() => {
     return {
       name: faker.company.name(),
-      from: faker.datatype.datetime(),
-      to: faker.datatype.datetime(),
+      from: faker.date.between({ from: '2020-01-01T00:00:00.000Z', to: '2021-01-01T00:00:00.000Z' }),
+      to: faker.date.between({ from: '2022-01-01T00:00:00.000Z', to: '2024-01-01T00:00:00.000Z' }),
     }
   });
 
@@ -162,8 +162,8 @@ function createGroupMember(): Prisma.GroupMemberCreateManyUserInput[] {
       access_rights: faker.helpers.objectValue(AccessRight),
       is_main_group: index === 0,
       request_status: faker.helpers.arrayElement([RequestStatus.ACCEPTED, RequestStatus.PENDING_USER, RequestStatus.PENDING_GROUP]),
-      joined_at: faker.datatype.datetime(),
-      role: faker.name.jobTitle(),
+      joined_at: faker.date.between({ from: '2018-01-01T00:00:00.000Z', to: '2021-01-01T00:00:00.000Z' }),
+      role: faker.person.jobTitle(),
       group_id: index + 1
     }
   });
