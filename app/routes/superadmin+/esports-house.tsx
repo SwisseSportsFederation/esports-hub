@@ -17,6 +17,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
   await checkSuperAdmin(user.db.id);
   const locations = await db.location.findMany({
+    orderBy: [
+      {
+        name: 'asc'
+      },
+    ],
     include: {
       prices: true
     }
@@ -96,7 +101,13 @@ export default function () {
 
   const locationForm = (location?: any) => {
     return <div>
-      <fetcher.Form method={location ? 'PUT' : 'POST'} action={`/superadmin/api/location`} className="grid grid-cols-2 gap-6 mb-8">
+      <fetcher.Form method={location ? 'PUT' : 'POST'} action={`/superadmin/api/location`} className="grid grid-cols-2 gap-6 mb-8" onSubmit={() => {
+        if (location) {
+          setShowEdit(showEdit.filter((id) => id !== location.id));
+        } else {
+          setShowCreate(false);
+        }
+      }}>
         {location && <input type="hidden" name="locationId" value={location?.id ?? ""} />}
         <div className="col-span-2 flex justify-end">
           <IconButton icon='remove' type='button' action={() => { location ? toggleEdit(location.id) : setShowCreate(!showCreate) }} className="mt-4" />
@@ -149,7 +160,7 @@ export default function () {
 
 
   return <div className="">
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl">
       <div className="w-full flex justify-between items-center mb-4">
         <H1 className="text-3xl">Locations</H1>
         <IconButton icon='add' type='button' action={() => setShowCreate(!showCreate)} className="mt-4" />
@@ -160,9 +171,9 @@ export default function () {
           {locationForm()}
         </div>
       }
-      <div className="flex flex-col space-y-4 mb-8">
+      <div className="flex flex-col space-y-6 mb-8">
         {locations.map((location) => {
-          return <div key={location.id} className="mb-8 p-4 bg-white dark:bg-gray-2 rounded-lg shadow-md">
+          return <div key={location.id} className="p-4 bg-white dark:bg-gray-2 rounded-lg shadow-md">
             {showEdit.includes(location.id) &&
               locationForm(location)}
             {!showEdit.includes(location.id) &&
