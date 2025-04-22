@@ -1,12 +1,20 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData } from '@remix-run/react';
 import { isLoggedIn } from "~/utils/auth.server";
+import { db } from "~/services/db.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const loggedIn = await isLoggedIn(request);
 
+	const locations = await db.location.findMany({
+		include: {
+			prices: true
+		}
+	})
+
 	return json({
-		loggedIn
+		loggedIn,
+		locations
 	});
 }
 
@@ -27,9 +35,7 @@ function LocationTeaser({ name, address, price, image, showBook, link }: { name:
 }
 
 export default function () {
-	const { loggedIn } = useLoaderData<typeof loader>();
-
-	// TODO load locations from database
+	const { loggedIn, locations } = useLoaderData<typeof loader>();
 
 	return <div className="mx-3 py-7">
 		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
@@ -37,30 +43,19 @@ export default function () {
 			<p className="text-lg">The Esports House project is a project by the Swiss Esports Federation to help esports teams in Switzerland find affordable bootcamp locations. We have partnered with various locations in Switzerland to make this project possible. <b className="font-bold">SESF members gain an additional discount to the packages. <a className="underline text-red-500" href="https://sesf.ch/become-a-member/">Become a SESF member</a></b></p>
 			<h2 className="mt-8 mb-4 font-bold text-4xl">Locations</h2>
 			<div className="grid grid-cols-3 gap-y-4 lg:gap-12">
-				<LocationTeaser
-					name="ManaBar"
-					address="Güterstrasse 99, 4053 Basel"
-					price="CHF 200/day"
-					image="https://directus.manabar.ch/assets/854a06a3-a2b8-4c6a-b910-15ee969a867e"
-					showBook={loggedIn}
-					link="/house/manabar"
-				/>
-				<LocationTeaser
-					name="ERUPT"
-					address="Bern"
-					price="CHF 250/day"
-					image="https://directus.manabar.ch/assets/854a06a3-a2b8-4c6a-b910-15ee969a867e"
-					showBook={loggedIn}
-					link="/house/erupt"
-				/>
-				<LocationTeaser
-					name="BDS Esports"
-					address="Geneva"
-					price="CHF 300/day"
-					image="https://directus.manabar.ch/assets/854a06a3-a2b8-4c6a-b910-15ee969a867e"
-					showBook={loggedIn}
-					link="/house/bds"
-				/>
+				{locations.map((location) => {
+					const price = location.prices && location.prices.length > 0 ? `CHF ${location.prices[0].price}/day` : 'on request'
+					return <LocationTeaser
+						key={location.id}
+						name={location.name}
+						address={location.address}
+						price={price}
+						image={location.image}
+						showBook={loggedIn}
+						link={`/house/${location.slug}`}
+					/>
+				}
+				)}
 			</div>
 		</div>
 	</div>;

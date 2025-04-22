@@ -23,9 +23,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const action = async ({ request }: ActionFunctionArgs) => {
 	const user = await checkUserAuth(request);
 	try {
-		const locationName = 'ManaBar'; // TODO get correct name from db
-		const locationEmail = 'info@manabar.ch'; // TODO get correct email from db
-
 		const { success, data: formData, error: zodError } = await zx.parseFormSafe(request, {
 			locationId: z.string(),
 			from: z.string().date(),
@@ -41,52 +38,64 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 			return json({}, headers);
 		}
 
-		const { data, error } = await resend.emails.send({
-			from: 'Esports Hub <noreply@hub.sesf.ch>',
-			to: locationEmail,
-			subject: `Esports House - Booking request`,
-			replyTo: formData.email,
-			html: `<h1>Booking request from Esports House</h1>
-			<p>Dear ${locationName} team,</p>
-			<p>We got a new booking request from the EsportsHub platform for the Esports House project. They would like to book a bootcamp with the following information.</p>
-			<p>Booking details:</p>
-			<ul>
-				<li>User: ${user.db.name} ${user.db.surname}</li>
-				<li>Email: ${formData.email}</li>
-				<li>Location: ${locationName}</li>
-				<li>From: ${new Date(formData.from).toLocaleDateString('de-CH')}</li>
-				<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
-				<li>People: ${formData.people}</li>
-				<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
-			</ul>
-			<p>Please get back to them as soon as possible.</p>
-			<p>Best regards,</p>
-			<p>SESF Team</p>
-			`
-		});
-		const { data: data2, error: error2 } = await resend.emails.send({
-			from: 'Esports Hub <noreply@hub.sesf.ch>',
-			to: formData.email,
-			subject: `Booking request for ${locationName}`,
-			html: `<h1>Booking request for ${locationName}</h1>
-			<p>Dear ${user.db.name},</p>
-			<p>Thank you for your booking request for ${locationName}. The location will get back to you as soon as possible.</p>
-			<p>Booking details:</p>
-			<ul>
-				<li>Location: ${locationName}</li>
-				<li>From: ${new Date(formData.from).toLocaleDateString('de-CH')}</li>
-				<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
-				<li>People: ${formData.people}</li>
-				<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
-			</ul>
-			<p>Best regards,</p>
-			<p>SESF Team</p>
-			`
-		});
-		if (error || error2) {
-			console.log(error);
-			const headers = await createFlashMessage(request, 'Error while sending email');
+		const location = await db.location.findFirst({
+			where: {
+				id: BigInt(formData.locationId)
+			}
+		})
+		if (!location) {
+			const headers = await createFlashMessage(request, 'Location not found');
 			return json({}, headers);
+		}
+		if (location.email && location.name) {
+			const { data, error } = await resend.emails.send({
+				from: 'Esports Hub <noreply@hub.sesf.ch>',
+				to: location.email,
+				subject: `Esports House - Booking request`,
+				replyTo: formData.email,
+				html: `<h1>Booking request from Esports House</h1>
+				<p>Dear ${location.name} team,</p>
+				<p>We got a new booking request from the EsportsHub platform for the Esports House project. They would like to book a bootcamp with the following information.</p>
+				<p>Booking details:</p>
+				<ul>
+					<li>User: ${user.db.name} ${user.db.surname}</li>
+					<li>Email: ${formData.email}</li>
+					<li>Location: ${location.name}</li>
+					<li>From: ${new Date(formData.from).toLocaleDateString('de-CH')}</li>
+					<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
+					<li>People: ${formData.people}</li>
+					<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
+				</ul>
+				<p>Please get back to them as soon as possible.</p>
+				<p>Best regards,</p>
+				<p>SESF Team</p>
+				`
+			});
+			const { data: data2, error: error2 } = await resend.emails.send({
+				from: 'Esports Hub <noreply@hub.sesf.ch>',
+				to: formData.email,
+				subject: `Booking request for ${location.name}`,
+				html: `<h1>Booking request for ${location.name}</h1>
+				<p>Dear ${user.db.name},</p>
+				<p>Thank you for your booking request for ${location.name}. The location will get back to you as soon as possible.</p>
+				<p>Booking details:</p>
+				<ul>
+					<li>Location: ${location.name}</li>
+					<li>Address: ${location.address}</li>
+					<li>From: ${new Date(formData.from).toLocaleDateString('de-CH')}</li>
+					<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
+					<li>People: ${formData.people}</li>
+					<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
+				</ul>
+				<p>Best regards,</p>
+				<p>SESF Team</p>
+				`
+			});
+			if (error || error2) {
+				console.log(error);
+				const headers = await createFlashMessage(request, 'Error while sending email');
+				return json({}, headers);
+			}
 		}
 	} catch (error) {
 		console.log(error);

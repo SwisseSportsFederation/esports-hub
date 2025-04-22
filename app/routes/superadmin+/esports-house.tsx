@@ -1,15 +1,17 @@
-import { FetcherWithComponents, json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
+import { json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
-import ImageCropBlock from "~/components/Blocks/ImageBlock/ImageCropBlock";
+import ImageBasicUploadBlock from "~/components/Blocks/ImageBlock/ImageBasicUploadBlock";
+import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
+import TextareaInput from "~/components/Forms/TextareaInput";
 import TextInput from "~/components/Forms/TextInput";
+import AskModalBody from "~/components/Notifications/AskModalBody";
+import Modal from "~/components/Notifications/Modal";
 import H1 from "~/components/Titles/H1";
 import type { loader as superadminLoader } from "~/routes/superadmin+/_layout";
-import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 import { db } from "~/services/db.server";
-import TextareaInput from "~/components/Forms/TextareaInput";
-import ActionButton from "~/components/Button/ActionButton";
+import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -31,8 +33,10 @@ export default function () {
   const [showCreatePrice, setShowCreatePrice] = useState(false);
   const [showEdit, setShowEdit] = useState<BigInt[]>([]);
   const [showEditPrice, setShowEditPrice] = useState<BigInt[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState<string>("");
+  const [showConfirmModalPrice, setShowConfirmModalPrice] = useState<string>("");
   const fetcher = useFetcher();
-  const [profilePicReady, setProfilePicReady] = useState(true);
+  const [imageReady, setImageReady] = useState(true);
 
   const toggleEdit = (locationId: BigInt) => {
     if (showEdit.includes(locationId)) {
@@ -51,7 +55,6 @@ export default function () {
   }
 
   const deleteLocation = (locationId: string) => {
-    // TODO first show modal to confirm delete
     fetcher.submit({
       locationId,
     }, {
@@ -61,7 +64,6 @@ export default function () {
   }
 
   const deleteLocationPrice = (priceId: string) => {
-    // TODO first show modal to confirm delete
     fetcher.submit({
       priceId,
     }, {
@@ -70,10 +72,14 @@ export default function () {
     });
   }
 
-  // TODO fix location price form submission loading api page.
-
   const priceForm = (locationId: string, price?: any) => {
-    return <fetcher.Form key={price?.id ?? 'new'} method={price ? 'PUT' : 'POST'} action={`/superadmin/api/location-price`} className="grid grid-cols-5 gap-2">
+    return <fetcher.Form key={price?.id ?? 'new'} method={price ? 'PUT' : 'POST'} action={`/superadmin/api/location-price`} className="grid grid-cols-5 gap-2" onSubmit={() => {
+      if (price) {
+        setShowEditPrice(showEditPrice.filter((id) => id !== price.id));
+      } else {
+        setShowCreatePrice(false);
+      }
+    }}>
       {price && <input type="hidden" name="priceId" value={price?.id ?? ""} />}
       <input type="hidden" name="locationId" value={locationId ?? ""} />
       <TextInput id={`name`} label="Name" defaultValue={price?.name ?? ''} className="col-span-1" disabled={!showEditPrice.includes(price?.id) && price} />
@@ -83,61 +89,62 @@ export default function () {
       <div className="col-span-1 flex items-center gap-4 pl-2 pt-2">
         {price && <IconButton icon='edit' type='button' action={() => toggleEditPrice(price?.id)} />}
         {(showEditPrice.includes(price?.id) || !price) && <IconButton icon='add' type='submit' name='action' value={price ? 'PUT' : 'POST'} />}
-        {(showEditPrice.includes(price?.id) && price) && <IconButton icon='decline' type='button' action={() => deleteLocationPrice(price?.id)} />}
+        {(showEditPrice.includes(price?.id) && price) && <IconButton icon='decline' type='button' action={() => setShowConfirmModalPrice(price?.id)} />}
       </div>
     </fetcher.Form>
   }
 
   const locationForm = (location?: any) => {
-    return <fetcher.Form method={location ? 'PUT' : 'POST'} action={`/superadmin/api/location`} className="grid grid-cols-2 gap-6">
-      {location && <input type="hidden" name="locationId" value={location?.id ?? ""} />}
-      <div className="col-span-2 flex justify-end">
-        <IconButton icon='remove' type='button' action={() => { location ? toggleEdit(location.id) : setShowCreate(!showCreate) }} className="mt-4" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="name" label="Name" defaultValue={location?.name ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="slug" label="Slug" defaultValue={location?.slug ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="address" label="Address" defaultValue={location?.address ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="email" inputType="email" label="Email" defaultValue={location?.email ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="phone" label="Phone" defaultValue={location?.phone ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="website" label="Website" defaultValue={location?.website ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2 lg:col-span-1">
-        <TextInput id="max_capacity" inputType="number" label="Max Capacity" defaultValue={location?.max_capacity ?? ""} className="!mt-0" />
-      </div>
-      <div className="col-span-2">
-        <TextareaInput id="description" label="Description" value={location?.description ?? ""} />
-      </div>
-      <div className="col-span-2">
-        <div className="flex justify-between mb-4">
-          <h2 className="text-2xl font-bold">Prices</h2>
-          <IconButton icon='add' type='button' action={() => setShowCreatePrice(true)} className="mt-4" />
+    return <div>
+      <fetcher.Form method={location ? 'PUT' : 'POST'} action={`/superadmin/api/location`} className="grid grid-cols-2 gap-6 mb-8">
+        {location && <input type="hidden" name="locationId" value={location?.id ?? ""} />}
+        <div className="col-span-2 flex justify-end">
+          <IconButton icon='remove' type='button' action={() => { location ? toggleEdit(location.id) : setShowCreate(!showCreate) }} className="mt-4" />
         </div>
-        <div className="flex flex-col space-y-4">
-          {showCreatePrice &&
-            priceForm(location?.id)}
-          {location?.prices.map((price: any) => {
-            return priceForm(location?.id, price);
-          })}
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="name" label="Name" defaultValue={location?.name ?? ""} className="!mt-0" />
         </div>
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="slug" label="Slug" defaultValue={location?.slug ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="address" label="Address" defaultValue={location?.address ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="email" inputType="email" label="Email" defaultValue={location?.email ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="phone" label="Phone" defaultValue={location?.phone ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="website" label="Website" defaultValue={location?.website ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2 lg:col-span-1">
+          <TextInput id="max_capacity" inputType="number" label="Max Capacity" defaultValue={location?.max_capacity ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2">
+          <TextareaInput id="description" label="Description" value={location?.description ?? ""} />
+        </div>
+        <div className="col-span-2">
+          <ImageBasicUploadBlock imageReady={imageReady}
+            setImageReady={setImageReady} defaultImage={location?.image ?? ''} />
+        </div>
+        <div className="col-span-2">
+          <ActionButton content="Save" type='submit' name='action' value={location ? 'PUT' : 'POST'} />
+        </div>
+      </fetcher.Form>
+      <div className="flex justify-between mb-4">
+        <h2 className="text-2xl font-bold">Prices</h2>
+        <IconButton icon='add' type='button' action={() => setShowCreatePrice(true)} className="mt-4" />
       </div>
-      {/** TODO make correct image upload styling */}
-      <ImageCropBlock profilePicReady={profilePicReady}
-        setProfilePicReady={setProfilePicReady} />
-      <div className="col-span-2">
-        <ActionButton content="Save" type='submit' name='action' value={location ? 'PUT' : 'POST'} />
+      <div className="flex flex-col space-y-4">
+        {showCreatePrice &&
+          priceForm(location?.id)}
+        {location?.prices.map((price: any) => {
+          return priceForm(location?.id, price);
+        })}
       </div>
-    </fetcher.Form>;
+    </div>;
   }
 
 
@@ -172,12 +179,22 @@ export default function () {
                 </div>
                 <div className="col-span-1 flex space-y-4 lg:space-y-0 lg:space-x-4 mt-4">
                   <IconButton icon='edit' type='button' action={() => { toggleEdit(location.id) }} />
-                  <IconButton icon='decline' type='button' action={() => deleteLocation(location.id.toString())} />
+                  <IconButton icon='decline' type='button' action={() => setShowConfirmModal(location.id.toString())} />
                 </div>
               </div>}
           </div>;
         })}
       </div>
     </div>
+    <Modal isOpen={!!showConfirmModal} handleClose={() => setShowConfirmModal("")}>
+      <AskModalBody message={`Do you really want to delete this location?`}
+        primaryButton={{ text: 'Yes', onClick: () => deleteLocation(showConfirmModal) }}
+        secondaryButton={{ text: 'No', onClick: () => setShowConfirmModal("") }} />
+    </Modal>
+    <Modal isOpen={!!showConfirmModalPrice} handleClose={() => setShowConfirmModalPrice("")}>
+      <AskModalBody message={`Do you really want to delete this location?`}
+        primaryButton={{ text: 'Yes', onClick: () => deleteLocationPrice(showConfirmModalPrice) }}
+        secondaryButton={{ text: 'No', onClick: () => setShowConfirmModalPrice("") }} />
+    </Modal>
   </div>;
 }
