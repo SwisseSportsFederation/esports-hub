@@ -7,6 +7,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 	const loggedIn = await isLoggedIn(request);
 
 	const locations = await db.location.findMany({
+		orderBy: [
+			{
+				name: 'asc'
+			},
+		],
 		include: {
 			prices: true
 		}
