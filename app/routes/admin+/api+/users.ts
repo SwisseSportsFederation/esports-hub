@@ -3,6 +3,7 @@ import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix
 import { z } from "zod";
 import { zx } from 'zodix';
 import { db } from "~/services/db.server";
+import { excludeFromList } from "~/utils/objectExclusion";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -31,8 +32,10 @@ export const action: ActionFunction = async ({ request }) => {
               group_id: notInTeam
             }
           }
-        })
-
+        }),
+        NOT: {
+          is_searchable: false
+        }
       },
       include: { games: true }
     });
@@ -43,16 +46,4 @@ export const action: ActionFunction = async ({ request }) => {
     console.log(error);
     return json({ users: [] })
   }
-}
-
-// Exclude keys from objects in a list
-// TODO replace with Prisma omit https://github.com/prisma/prisma/issues/5042 when it's implemented
-// More info on prisma omit currently in preview: https://www.prisma.io/docs/orm/reference/prisma-client-reference#omit-preview
-export function excludeFromList<T, K extends keyof T>(objects: T[], keysToDelete: K[]): Omit<T, K>[] {
-  return objects.map((obj) => excludeFromObject(obj, keysToDelete)) as Omit<T, K>[]
-}
-
-// Exclude keys from an object
-export function excludeFromObject<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
-  return Object.fromEntries(Object.entries(obj).filter(([key]) => !keys.includes(key as K))) as Omit<T, K>
 }
