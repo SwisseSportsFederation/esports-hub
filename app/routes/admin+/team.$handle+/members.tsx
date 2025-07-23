@@ -21,6 +21,7 @@ import { db } from '~/services/db.server';
 import { checkUserAuth } from '~/utils/auth.server';
 import { getTeamMemberTeasers } from '~/utils/teaserHelper';
 import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
+import { getVerificationLevelPriority } from '~/utils/entityFilters';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -55,7 +56,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       },
     },
   });
-  const members = allMembers.filter(mem => mem.request_status === RequestStatusValue.ACCEPTED);
+  const members = allMembers.filter(mem => mem.request_status === RequestStatusValue.ACCEPTED)
+    .sort((mem1, mem2) => getVerificationLevelPriority(mem1) - getVerificationLevelPriority(mem2));
   const invited = allMembers.filter(mem => mem.request_status === RequestStatusValue.PENDING_GROUP);
   const pending = allMembers.filter(mem => mem.request_status === RequestStatusValue.PENDING_USER);
 
