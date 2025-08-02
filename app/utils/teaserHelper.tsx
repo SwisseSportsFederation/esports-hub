@@ -1,5 +1,5 @@
 import type { Game, Group, User, GroupMember, GroupToGroup } from "@prisma/client";
-import { getOrganisationGames } from "./entityFilters";
+import { getOrganisationGames, getVerificationLevelPriority } from "./entityFilters";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import { EntityTypeValue } from '~/models/database.model';
 
@@ -37,18 +37,19 @@ type GroupMemberWithUser =
   GroupMember
   & { user: User & { games: Game[] } };
 export const getTeamMemberTeasers = (teamName: string, members: GroupMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {
-  return members.map((member) => {
-    return {
-      id: String(member.user.id),
-      handle: member.user.handle,
-      type: EntityTypeValue.USER,
-      name: member.user.handle,
-      description: member.role,
-      team: teamName,
-      games: member.user.games || [],
-      avatarPath: member.user.image
-    };
-  });
+  return members.sort((mem1: GroupMember, mem2: GroupMember) => getVerificationLevelPriority(mem1) - getVerificationLevelPriority(mem2))
+    .map((member) => {
+      return {
+        id: String(member.user.id),
+        handle: member.user.handle,
+        type: EntityTypeValue.USER,
+        name: member.user.handle,
+        description: member.role,
+        team: teamName,
+        games: member.user.games || [],
+        avatarPath: member.user.image
+      };
+    });
 };
 
 export const getOrganisationMemberTeasers = (members: GroupMemberWithUser[]): Omit<ITeaserProps, 'icons'>[] => {

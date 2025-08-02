@@ -31,7 +31,7 @@ export default function _layout() {
 
 
   return <>
-    <Navbar />
+    {userValid && <Navbar />}
     <div className="mt-5 flex flex-col ml-0 lg:ml-72 px-4 lg:px-8">
       <Outlet context={{ user, memberships }} />
     </div>
