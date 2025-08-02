@@ -33,6 +33,7 @@
     "react-transition-group": "^4.4.5",
     "remix-auth": "^3.7.0",
     "remix-auth-auth0": "^1.10.0",
+    "resend": "^4.3.0",
     "sharp": "^0.33.4",
     "zod": "^3.23.8",
     "zodix": "^0.4.4"
