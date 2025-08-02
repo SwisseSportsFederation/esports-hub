@@ -15,7 +15,7 @@ import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
 import { createFlashMessage } from "~/services/toast.server";
 import dateInputStyles from "~/styles/date-input.css?url";
-import { checkUserAuth, logout } from "~/utils/auth.server";
+import { checkUserAuth, checkUserValid, logout } from "~/utils/auth.server";
 
 export function links() {
   return [
@@ -103,6 +103,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       games: true
     }
   });
+  const userValid = await checkUserValid(user.db.id, request.url);
 
   if (!userData) {
     throw json({}, 404);
@@ -110,12 +111,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     user: userData,
+    userValid,
     searchParams: await getSearchParams()
   });
 }
 
 export default function () {
-  const { user, searchParams } = useLoaderData<typeof loader>();
+  const { user, userValid, searchParams } = useLoaderData<typeof loader>();
   const [modalOpen, setModalOpen] = useState(false);
   const fetcher = useFetcher();
   const handleDelete = () => {
@@ -129,20 +131,27 @@ export default function () {
     });
   };
   return <>
+    {!userValid &&
+      <div className="w-full mx-auto max-w-prose lg:mx-0 mb-4">
+        <div className="p-2 rounded-xl bg-red-1 text-white text-center">Please fill out all the info about you.</div>
+      </div>
+    }
     <EntityDetailBlock {...user} entityId={user.id} entityType='USER' entityBirthday={user.birth_date}
       imageId={user.image} searchParams={searchParams} />
-    <div className="bg-red-600/25 py-8 lg:pb-12 my-8 px-4 lg:px-8 -mx-4 lg:-mx-8">
-      <div className="w-full mx-auto lg:mx-0">
-        <H1>Danger Zone</H1>
-        <div className="flex flex-col items-center max-w-prose mx-auto lg:items-start lg:mx-0 mt-8 gap-4">
-          <ActionButton content="Change Password" action={() => fetcher.submit({}, {
-            action: '/admin/api/password',
-            method: 'post',
-          })} />
-          <ActionButton content="Delete" action={() => setModalOpen(true)} />
+    {userValid &&
+      <div className="bg-red-600/25 py-8 lg:pb-12 my-8 px-4 lg:px-8 -mx-4 lg:-mx-8">
+        <div className="w-full mx-auto lg:mx-0">
+          <H1>Danger Zone</H1>
+          <div className="flex flex-col items-center max-w-prose mx-auto lg:items-start lg:mx-0 mt-8 gap-4">
+            <ActionButton content="Change Password" action={() => fetcher.submit({}, {
+              action: '/admin/api/password',
+              method: 'post',
+            })} />
+            <ActionButton content="Delete" action={() => setModalOpen(true)} />
+          </div>
         </div>
       </div>
-    </div>
+    }
     <Modal isOpen={modalOpen} handleClose={() => setModalOpen(false)}>
       <AskModalBody message={`Do you really want to delete your account?`}
         primaryButton={{ text: 'Yes', onClick: handleDelete }}
