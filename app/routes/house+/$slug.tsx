@@ -3,7 +3,7 @@ import { z } from "zod";
 import { zx } from "zodix";
 import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
-import { Form, json, useLoaderData } from '@remix-run/react';
+import { Form, json, Link, useLoaderData } from '@remix-run/react';
 import LinkButton from "~/components/Button/LinkButton";
 import TextInput from "~/components/Forms/TextInput";
 import DateInput from "~/components/Forms/DateInput";
@@ -29,7 +29,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 			to: z.string().date(),
 			email: z.string(),
 			people: z.string(),
-			hotel: z.string().optional()
+			hotel: z.string().optional(),
+			member: z.string().optional()
 		});
 
 		if (!success) {
@@ -48,9 +49,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 			return json({}, headers);
 		}
 		if (location.email && location.name) {
+			const locationInfoMails = [location.email];
+			if (formData.member === 'on') {
+				locationInfoMails.push('membership@sesf.ch');
+			}
+
 			const { data, error } = await resend.emails.send({
 				from: 'Esports Hub <noreply@hub.sesf.ch>',
-				to: location.email,
+				to: locationInfoMails,
 				subject: `Esports House - Booking request`,
 				replyTo: formData.email,
 				html: `<h1>Booking request from Esports House</h1>
@@ -65,8 +71,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 					<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
 					<li>People: ${formData.people}</li>
 					<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
+					<li>SESF Member: ${formData.member === 'on' ? 'Yes' : 'No'}</li>
 				</ul>
 				<p>Please get back to them as soon as possible.</p>
+				${formData.member === 'on' && '<p>Please contact <a href="mailto:membership@sesf.ch">membership@sesf.ch</a> to check if they are really a SESF member. (Only needed if you have a discounted price for SESF members)</p>'}
 				<p>Best regards,</p>
 				<p>SESF Team</p>
 				`
@@ -86,11 +94,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 					<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
 					<li>People: ${formData.people}</li>
 					<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
+					<li>SESF Member: ${formData.member === 'on' ? 'Yes' : 'No'}</li>
 				</ul>
 				<p>Best regards,</p>
 				<p>SESF Team</p>
 				`
 			});
+
 			if (error || error2) {
 				console.log(error);
 				const headers = await createFlashMessage(request, 'Error while sending email');
@@ -175,7 +185,9 @@ export default function () {
 				</table>
 			</div>
 			{!loggedIn &&
-				<h2 className="mt-8 mb-4 font-bold text-3xl">Login to Book</h2>
+				<Form action={"/auth/login"} method="post" className="mt-8 mb-4 font-bold flex justify-center">
+					<ActionButton content="Login to Book" type="submit" />
+				</Form>
 			}
 			{loggedIn &&
 				<div>
@@ -204,7 +216,13 @@ export default function () {
 								<div className="mr-2">
 									<input type="checkbox" name="hotel" id="hotel" className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />
 								</div>
-								<label htmlFor="hotel" className="inline-block text-black dark:text-white">Include Hotel</label>
+								<label htmlFor="hotel" className="inline-block text-black dark:text-white">optional: Include Hotel</label>
+							</div>
+							<div className="col-span-2 flex items-center">
+								<div className="mr-2">
+									<input type="checkbox" name="member" id="member" className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />
+								</div>
+								<label htmlFor="member" className="inline-block text-black dark:text-white">optional: I am an ordinary SESF member. (<Link to="https://sesf.ch/become-a-member/" className="text-red-1">Register here</Link>)</label>
 							</div>
 						</div>
 						<ActionButton content="Book" type="submit" disabled={false} />
