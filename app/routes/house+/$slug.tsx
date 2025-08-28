@@ -161,29 +161,31 @@ export default function () {
 					{location.website && <LinkButton path={location.website} target="_blank" title="Website"></LinkButton>}
 				</div>
 			</div>
-			<div>
-				<h2 className="text-3xl font-bold mb-4">Prices</h2>
-				<table className="w-full">
-					<thead>
-						<tr>
-							<th className="text-left">Name</th>
-							<th className="text-left">People</th>
-							<th className="text-left">Price</th>
-							<th className="text-left">Duration</th>
-						</tr>
-					</thead>
-					<tbody>
-						{location.prices.map((price) => {
-							return <tr key={price.id} className="hover:bg-gray-6 dark:hover:bg-gray-3">
-								<td>{price.name}</td>
-								<td>{price.people_count}</td>
-								<td>CHF {price.price.toFixed(2)}</td>
-								<td>{price.duration}</td>
-							</tr>;
-						})}
-					</tbody>
-				</table>
-			</div>
+			{location.prices && location.prices.length > 0 &&
+				<div>
+					<h2 className="text-3xl font-bold mb-4">Prices</h2>
+					<table className="w-full">
+						<thead>
+							<tr>
+								<th className="text-left">Name</th>
+								<th className="text-left">People</th>
+								<th className="text-left">Price</th>
+								<th className="text-left">Duration</th>
+							</tr>
+						</thead>
+						<tbody>
+							{location.prices.map((price) => {
+								return <tr key={price.id} className="hover:bg-gray-6 dark:hover:bg-gray-3">
+									<td>{price.name}</td>
+									<td>{price.people_count}</td>
+									<td>CHF {price.price.toFixed(2)}</td>
+									<td>{price.duration}</td>
+								</tr>;
+							})}
+						</tbody>
+					</table>
+				</div>
+			}
 			{!loggedIn &&
 				<Form action={"/auth/login"} method="post" className="mt-8 mb-4 font-bold flex justify-center">
 					<ActionButton content="Login to Book" type="submit" />
