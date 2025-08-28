@@ -48,7 +48,7 @@ export default function () {
 			<h1 className="text-4xl font-bold mb-2">Esports House</h1>
 			<p className="text-lg">The Esports House project is a project by the Swiss Esports Federation to help esports teams in Switzerland find affordable bootcamp locations. We have partnered with various locations in Switzerland to make this project possible. </p>
 			<div className="bg-gray-6 dark:bg-gray-2 p-6 rounded-lg my-8">
-				<h3 className="text-2xl dark:text-white font-bold mb-1">Become an SESF member</h3>
+				<h3 className="text-2xl dark:text-white font-bold mb-1">Become a SESF member</h3>
 				<p className="dark:text-white mb-4">Join the Swiss Esports Federation to get access to exclusive benefits and up to CHF 400.- in discounts per year.</p>
 				<LinkButton path="https://sesf.ch/become-a-member/" title="Become a member" />
 			</div>
