@@ -11,6 +11,7 @@ node_modules
 /api/index.js
 /api/index.js.map
 /app/styles/app.css
+/db_backups/
 
 
 # Sentry Config File
