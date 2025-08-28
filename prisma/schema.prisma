@@ -183,3 +183,32 @@ model Social {
 
   @@map("social")
 }
+
+model Location {
+  id           BigInt          @id @default(autoincrement())
+  name         String
+  slug         String
+  address      String
+  email        String
+  phone        String?
+  website      String
+  description  String
+  image        String
+  max_capacity Int
+  prices       LocationPrice[]
+
+  @@map("location")
+}
+
+model LocationPrice {
+  id           BigInt   @id @default(autoincrement())
+  name         String
+  people_count Int
+  price        Float
+  duration     String
+  location_id  BigInt
+  location     Location @relation(fields: [location_id], references: [id], onDelete: Cascade)
+  highlighted  Boolean  @default(false)
+
+  @@map("location_price")
+}

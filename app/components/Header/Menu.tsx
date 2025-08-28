@@ -14,8 +14,9 @@ const MenuEntry = ({ path, title, textColor }: IMenuEntry) => {
 
 const Menu = (props: { textColor: string }) => {
   return <>
-    <MenuEntry path='/wiki/about-us' title='About us' textColor={props.textColor}/>
-    <MenuEntry path='/contact' title='Contact' textColor={props.textColor}/>
+    <MenuEntry path='/house' title='Esports House' textColor={props.textColor} />
+    <MenuEntry path='/wiki/about-us' title='About us' textColor={props.textColor} />
+    <MenuEntry path='/contact' title='Contact' textColor={props.textColor} />
   </>;
 };
 

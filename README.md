@@ -4,6 +4,15 @@ The Swiss Esports Hub is a platform for all Entities envolved in Swiss Esports. 
 
 On the web application you can find all entities and their relations. Information for this is provided by the entities themselves by creating accounts and updating their data. With this they can promote themselves, their team and organisation.
 
+## Stack
+- Remix
+- Prisma
+- PNPM (Version management)
+- Zod
+
+- Resend (Mailing)
+- Auth0 (Authentication)
+- Minio (asset pool)
 
 ## Switch to right node version
 
@@ -65,4 +74,11 @@ Then run the app in production mode:
 pnpm start
 ```
 
-Now you'll need to pick a host to deploy it to.
+Currently all deployments need to be pulled from Coolify instead of pipelines triggering deployments.
+
+### Database Deployment
+Change database url in .env file to correct server.
+```sh
+pnpm prisma migrate status # check status of remote database
+pnpm prisma migrate deploy # deploy all new migrations without deleting data
+```
