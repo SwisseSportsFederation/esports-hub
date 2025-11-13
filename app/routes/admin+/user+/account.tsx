@@ -43,6 +43,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const headers = await createFlashMessage(request, `Nickname cannot be email`);
       return json({}, { status: 400, ...headers });
     }
+    if (!handle.match(/^[a-zA-Z0-9äöü_-]+$/)) {
+      const headers = await createFlashMessage(request, `Nickname cannot contain special characters`);
+      return json({}, { status: 400, ...headers });
+    }
 
     const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
     const user_id = Number(user.db.id);
