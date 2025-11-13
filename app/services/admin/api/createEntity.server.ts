@@ -142,7 +142,6 @@ export const createEntity = async (request: Request) => {
     return redirect(`/admin/${entityType}/${handle}/details`, headers);
 
   } catch (error: any) {
-    const headers = await createFlashMessage(request, `Error creating team: ${error.statusText}`);
-    return json({}, headers);
+    return json({ toast: `Error creating team: ${error.statusText}` });
   }
 };

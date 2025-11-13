@@ -1,10 +1,9 @@
+import { AccessRight, EntityType, RequestStatus } from "@prisma/client";
 import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
-import { db } from "~/services/db.server";
-import { zx } from 'zodix';
 import { z } from "zod";
+import { zx } from 'zodix';
+import { db } from "~/services/db.server";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
-import { RequestStatus, AccessRight, EntityType } from "@prisma/client";
-import { createFlashMessage } from "~/services/toast.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -78,8 +77,7 @@ const leaveGroup = async (request: Request, userId: number, groupId: number) => 
 			});
 		}
 	}
-	const headers = await createFlashMessage(request, 'group left');
-	return json({}, headers);
+	return json({ toast: 'group left' });
 }
 
 const updateGroup = async (request: Request, userId: number, groupId: number, joinedAt: string) => {
@@ -95,8 +93,7 @@ const updateGroup = async (request: Request, userId: number, groupId: number, jo
 			joined_at: new Date(joinedAt)
 		}
 	});
-	const headers = await createFlashMessage(request, 'group updated');
-	return json({}, headers);
+	return json({ toast: 'group updated' });
 }
 
 const changeMainGroup = async (request: Request, userId: number, groupId: number) => {
@@ -121,8 +118,7 @@ const changeMainGroup = async (request: Request, userId: number, groupId: number
 			is_main_group: true
 		}
 	});
-	const headers = await createFlashMessage(request, 'main group changed');
-	return json({}, headers);
+	return json({ toast: 'main group changed' });
 }
 
 const updateFormerTeam = async (request: Request, userId: number, name: string, from: string, to: string, formerTeamName: string) => {
@@ -139,8 +135,7 @@ const updateFormerTeam = async (request: Request, userId: number, name: string, 
 			to: new Date(to)
 		}
 	});
-	const headers = await createFlashMessage(request, 'updated former team');
-	return json({}, headers);
+	return json({ toast: 'updated former team' });
 }
 
 const createFormerTeam = async (request: Request, userId: number, name: string, from: string, to: string) => {
@@ -152,8 +147,7 @@ const createFormerTeam = async (request: Request, userId: number, name: string, 
 			to: new Date(to)
 		}
 	});
-	const headers = await createFlashMessage(request, 'create former team');
-	return json({}, headers);
+	return json({ toast: 'created former team' });
 }
 
 
@@ -166,8 +160,7 @@ const leaveFormerTeam = async (request: Request, userId: number, formerTeamName:
 			}
 		}
 	});
-	const headers = await createFlashMessage(request, 'left former team');
-	return json({}, headers);
+	return json({ toast: 'left former team' });
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -220,8 +213,7 @@ export const action: ActionFunction = async ({ request }) => {
 		case "PROMOTE_USER": {
 			const { newAdminUserId, groupId } = data;
 			promoteUser(userId, newAdminUserId, groupId);
-			headers = await createFlashMessage(request, 'Member promoted');
-			// purpose fallthrough
+			return json({ toast: 'Member promoted' });
 		}
 		case "LEAVE_GROUP": {
 			const { groupId } = data;
@@ -252,5 +244,4 @@ export const action: ActionFunction = async ({ request }) => {
 			return leaveFormerTeam(request, userId, formerTeamName);
 		}
 	}
-	return json({}, headers);
 }

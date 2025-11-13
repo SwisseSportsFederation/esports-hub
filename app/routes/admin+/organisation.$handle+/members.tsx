@@ -1,7 +1,7 @@
 import type { FetcherWithComponents } from "@remix-run/react";
 import { json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zx } from "zodix";
 import ActionButton from "~/components/Button/ActionButton";
@@ -22,6 +22,7 @@ import { checkUserAuth } from "~/utils/auth.server";
 import { getOrganisationMemberTeasers } from "~/utils/teaserHelper";
 import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 import { getVerificationLevelPriority } from "~/utils/entityFilters";
+import { useToast } from "~/hooks/useToast";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -83,6 +84,7 @@ export default function () {
   const { groupUser, members, invited, pending } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher();
+  const { add: addToast } = useToast();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>()
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState<string | null>(null);
@@ -90,6 +92,12 @@ export default function () {
   const types = Object.keys(AccessRightValue);
 
   const allowedTypes = types.slice(0, types.indexOf(groupUser.access_rights) + 1);
+
+  useEffect(() => {
+    if (fetcher.data && typeof fetcher.data === "object" && "toast" in fetcher.data && fetcher.data.toast) {
+      addToast(fetcher.data.toast);
+    }
+  }, [fetcher.data, addToast]);
 
   return <>
     <div className="w-full max-w-prose mx-auto lg:mx-0 space-y-4 flex flex-col">

@@ -1,7 +1,6 @@
 import { json, redirect, type ActionFunction, type LoaderFunction } from '@remix-run/node';
 import { AuthenticationClient } from 'auth0';
 import * as process from 'process';
-import { createFlashMessage } from '~/services/toast.server';
 import { checkUserAuth } from '~/utils/auth.server';
 
 export let loader: LoaderFunction = () => redirect('/admin');
@@ -29,11 +28,9 @@ export const action: ActionFunction = async ({ request }) => {
       connection: process.env.AUTH0_CONNECTION,
     });
 
-    const headers = await createFlashMessage(request, 'A Password reset email was sent!');
-
-    return json({}, { status: 200, ...headers });
+    return json({ toast: 'A Password reset email was sent!' }, { status: 200 });
   } catch (error) {
     console.log(error);
-    throw json({}, 500);
+    throw json({ toast: `Error sending password reset email: ${error.message ?? ''}` }, 500);
   }
 };

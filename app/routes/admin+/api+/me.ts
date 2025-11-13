@@ -1,6 +1,5 @@
 import { json, type ActionFunction, type LoaderFunction } from '@remix-run/node';
 import { db } from "~/services/db.server";
-import { createFlashMessage } from '~/services/toast.server';
 import { checkUserAuth } from '~/utils/auth.server';
 
 /* This endpoint is for external in SSO cases. So the external provider can get basic information. */
@@ -33,8 +32,7 @@ export let loader: LoaderFunction = async ({ request }) => {
     return json({ user: userData });
   } catch (error: any) {
     console.log(error);
-    const headers = await createFlashMessage(request, `Error getting user: ${error.message ?? ''}`);
-    return json({}, { status: 500, ...headers });
+    return json({ toast: `Error getting user: ${error.message ?? ''}` }, { status: 500 });
   }
 };
 

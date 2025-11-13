@@ -10,7 +10,6 @@ import TeaserList from "~/components/Teaser/TeaserList";
 import { entityToPathSegment } from "~/helpers/entityType";
 import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { isTeamMember } from "~/utils/entityFilters";
 import { getTeamMemberTeasers } from "~/utils/teaserHelper";
@@ -48,16 +47,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       console.log(`user ${user.db.id} applied for team ${group.id}`)
     } else {
       console.log(`user ${user.db.id} already has membership in ${group.id}`)
-      const headers = await createFlashMessage(request, 'You already applied for this team.');
-      return json({}, headers);
+      return json({ toast: 'You already applied for this team.' });
     }
   } catch (error) {
     console.log(error);
-    const headers = await createFlashMessage(request, 'Error while applying for team');
-    return json({}, headers);
+    return json({ toast: 'Error while applying for team' });
   }
-  const headers = await createFlashMessage(request, 'Applied for team');
-  return json({}, headers);
+  return json({ toast: 'Applied for team' });
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

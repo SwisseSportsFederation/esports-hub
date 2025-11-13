@@ -5,7 +5,6 @@ import { z } from "zod";
 import { zx } from 'zodix';
 import { AuthUser } from "~/services/auth.server";
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export const action: ActionFunction = async ({ request }) => {
@@ -51,8 +50,7 @@ const kickUser = async (request: Request, user: AuthUser) => {
       }
     }
   });
-  const headers = await createFlashMessage(request, 'Member kicked');
-  return json({ searchResult: [] }, headers);
+  return json({ toast: 'Member kicked', searchResult: [] });
 }
 
 const inviteUser = async (request: Request, user: AuthUser) => {
@@ -80,8 +78,7 @@ const inviteUser = async (request: Request, user: AuthUser) => {
     throw json({});
   }
 
-  const headers = await createFlashMessage(request, 'Member invited');
-  return json({ searchResult: [] }, headers);
+  return json({ toast: 'Member invited', searchResult: [] });
 }
 
 const updateUser = async (request: Request, user: AuthUser) => {
@@ -109,8 +106,7 @@ const updateUser = async (request: Request, user: AuthUser) => {
       access_rights: userRights,
     }
   });
-  const headers = await createFlashMessage(request, 'Member updated');
-  return json({ searchResult: [] }, headers);
+  return json({ toast: 'Member updated', searchResult: [] });
 }
 
 const search = async (request: Request) => {

@@ -1,11 +1,10 @@
-import { redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
-import { db } from "~/services/db.server";
-import { zx } from 'zodix';
-import { z } from "zod";
-import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { RequestStatus } from "@prisma/client";
+import { redirect, type ActionFunction, type LoaderFunction } from "@remix-run/node";
 import { json } from '@remix-run/server-runtime';
-import { createFlashMessage } from "~/services/toast.server";
+import { z } from "zod";
+import { zx } from 'zodix';
+import { db } from "~/services/db.server";
+import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
 
@@ -29,8 +28,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (user_id === Number(user.db.id) && action === 'DECLINE') {
     // Bypass Authorization for user to decline his own request
     declineInvitation(user_id, group_id)
-    const headers = await createFlashMessage(request, 'Deleted application for group');
-    return json({}, headers);
+    return json({ toast: 'Deleted application for group' });
   }
   if (currentRequestStatus?.request_status !== RequestStatus.PENDING_USER) {
     await checkIdAccessForEntity(user.db.id, group_id, 'MODERATOR');

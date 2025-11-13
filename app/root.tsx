@@ -16,16 +16,16 @@ import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import Footer from "~/components/Footer";
 import Header from "~/components/Header/Header";
 import Icon from "~/components/Icons";
-import Toast from "~/components/Notifications/Toast";
 import { ThemeBody, ThemeHead, ThemeProvider, useTheme } from "~/context/theme-provider";
 import { authenticator } from "~/services/auth.server";
 import { commitSession, getSession } from "~/services/session.server";
 import { getThemeSession } from "~/services/theme.server";
 import LinkButton from "./components/Button/LinkButton";
+import { ToastMessageListener } from "./components/Notifications/ToastMessageListener";
 import { ImageProvider } from "./context/image-provider";
+import { ToastProvider } from "./context/toast-provider";
 import { getImageRoot } from "./services/admin/api/imageStore.server";
 import styles from "./styles/tailwind.css?url";
-import { ToastProvider } from "./context/toast-provider";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -113,7 +113,7 @@ BigInt.prototype.toJSON = function () {
 }
 
 function App() {
-  const { message, theme: loaderTheme } = useLoaderData<typeof loader>();
+  const { theme: loaderTheme } = useLoaderData<typeof loader>();
   const [theme] = useTheme();
   const location = useLocation();
   const forceWhiteText = location.pathname == "/";
@@ -127,7 +127,7 @@ function App() {
       </head>
       <body>
         <ToastProvider>
-          {message ? <Toast text={message} /> : null}
+          <ToastMessageListener />
           <div id="modal-root" />
           <div className='min-h-dvh dark:bg-gray-1 text-color bg-gray-7 flex flex-col'>
             <Header forceWhiteText={forceWhiteText} />
@@ -136,10 +136,10 @@ function App() {
             </main>
             <Footer forceWhiteText={forceWhiteText} />
           </div>
-          <ScrollRestoration />
-          <Scripts />
-          <ThemeBody ssrTheme={Boolean(loaderTheme)} />
         </ToastProvider>
+        <ScrollRestoration />
+        <Scripts />
+        <ThemeBody ssrTheme={Boolean(loaderTheme)} />
       </body>
     </html>
   );

@@ -1,9 +1,8 @@
 import { json, redirect, type ActionFunction, type LoaderFunction } from '@remix-run/node';
 import { z } from 'zod';
 import { zx } from 'zodix';
-import { createFlashMessage } from '~/services/toast.server';
-import { checkSuperAdmin, checkUserAuth } from '~/utils/auth.server';
 import { db } from '~/services/db.server';
+import { checkSuperAdmin, checkUserAuth } from '~/utils/auth.server';
 
 export let loader: LoaderFunction = () => redirect('/admin');
 
@@ -34,12 +33,10 @@ const deleteLocationPrice = async (request: Request) => {
 				id: BigInt(priceId)
 			}
 		})
-		const headers = await createFlashMessage(request, 'Location Price deleted successfully');
-		return json({}, { status: 200, ...headers });
+		return json({ toast: 'Location Price deleted successfully' }, { status: 200 });
 	} catch (error: any) {
 		console.log(error);
-		const headers = await createFlashMessage(request, `Error deleting location: ${error.message ?? ''}`);
-		return json({}, { status: 500, ...headers });
+		return json({ toast: `Error deleting location: ${error.message ?? ''}` }, { status: 500 });
 	}
 }
 
@@ -53,8 +50,7 @@ const createLocationPrice = async (request: Request) => {
 	});
 	if (!success) {
 		console.log(error);
-		const headers = await createFlashMessage(request, 'Error while reading form data');
-		return json({}, { status: 400, ...headers });
+		return json({ toast: 'Error while reading form data' }, { status: 400 });
 	}
 	console.log("form data", data);
 	const { price, people_count, locationId, ...rest } = data;
@@ -71,12 +67,10 @@ const createLocationPrice = async (request: Request) => {
 				}
 			}
 		})
-		const headers = await createFlashMessage(request, 'Location Price created successfully');
-		return json({}, { status: 200, ...headers });
+		return json({ toast: 'Location Price created successfully' }, { status: 200 });
 	} catch (error: any) {
 		console.log(error);
-		const headers = await createFlashMessage(request, `Error creating location: ${error.message ?? ''}`);
-		return json({}, { status: 500, ...headers });
+		return json({ toast: `Error creating location: ${error.message ?? ''}` }, { status: 500 });
 	}
 }
 
@@ -91,8 +85,7 @@ const updateLocationPrice = async (request: Request) => {
 	});
 	if (!success) {
 		console.log(error);
-		const headers = await createFlashMessage(request, 'Error while reading form data');
-		return json({}, { status: 400, ...headers });
+		return json({ toast: 'Error while reading form data' }, { status: 400 });
 	}
 	const { price, people_count, locationId, priceId, ...rest } = data;
 	try {
@@ -111,11 +104,9 @@ const updateLocationPrice = async (request: Request) => {
 				}
 			}
 		})
-		const headers = await createFlashMessage(request, 'Location Price updated successfully');
-		return json({}, { status: 200, ...headers });
+		return json({ toast: 'Location Price updated successfully' }, { status: 200 });
 	} catch (error: any) {
 		console.log(error);
-		const headers = await createFlashMessage(request, `Error updating location: ${error.message ?? ''}`);
-		return json({}, { status: 500, ...headers });
+		return json({ toast: `Error updating location: ${error.message ?? ''}` }, { status: 500 });
 	}
 }

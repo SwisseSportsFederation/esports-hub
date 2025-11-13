@@ -12,6 +12,8 @@ import classNames from "classnames";
 import type { SerializeFrom } from "@remix-run/server-runtime";
 import type { loader as adminLoader } from "~/routes/admin+/_layout";
 import { RequestStatusValue } from '~/models/database.model';
+import { useEffect } from "react";
+import { useToast } from "~/hooks/useToast";
 
 const getTeaser = (memberships: SerializeFrom<Membership>[], entity: EntityType): ITeaserProps[] => {
   return memberships.filter(mem => mem.group_type === entity).map((mem: SerializeFrom<Membership>) => {
@@ -58,6 +60,7 @@ const getInvitationTeaser = (invitations: SerializeFrom<Membership>[], entity: E
 export default function () {
   const { memberships, user } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const fetcher = useFetcher();
+  const { add: addToast } = useToast();
   const teamsTeaser = getTeaser(memberships.groups, 'TEAM');
   const orgTeaser = getTeaser(memberships.groups, 'ORGANISATION');
 
@@ -69,6 +72,11 @@ export default function () {
     'mb-0': invitationsLength === 0
   })
 
+  useEffect(() => {
+    if (fetcher.data && typeof fetcher.data === "object" && "toast" in fetcher.data && fetcher.data.toast) {
+      addToast(fetcher.data.toast);
+    }
+  }, [fetcher.data, addToast]);
   return <div className="">
     <div className="lg:hidden">
       <H1 className="px-2">Personal</H1>

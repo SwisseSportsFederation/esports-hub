@@ -2,7 +2,6 @@ import { json, redirect, type ActionFunction, type LoaderFunction } from '@remix
 import { z } from 'zod';
 import { zx } from 'zodix';
 import { deleteUser } from '~/services/admin/api/user.server';
-import { createFlashMessage } from '~/services/toast.server';
 import { checkUserAuth, logout } from '~/utils/auth.server';
 
 export let loader: LoaderFunction = () => redirect('/admin');
@@ -33,7 +32,6 @@ export const action: ActionFunction = async ({ request }) => {
 
   } catch (error: any) {
     console.log(error);
-    const headers = await createFlashMessage(request, `Error updating user: ${error.message ?? ''}`);
-    return json({}, { status: 500, ...headers });
+    return json({ toast: `Error updating user: ${error.message ?? ''}` }, { status: 500 });
   }
 };

@@ -6,6 +6,8 @@ import { SocialPlatformValue } from "~/models/database.model";
 import SelectList from "~/components/SelectList";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "@remix-run/react";
+import { ToastMessageListener } from "./Notifications/ToastMessageListener";
+import { useToast } from "~/hooks/useToast";
 
 
 interface ISocialSelectProps {
@@ -63,16 +65,20 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
   const [socials, setSocials] = useState<SelectableSocial[]>(rawSocials);
   const fetcher = useFetcher();
   const form = useRef<HTMLFormElement | null>(null);
+  const { add: addToast } = useToast();
 
   useEffect(() => {
     if (!(fetcher.state === 'idle' && fetcher.data != null)) {
       return;
     }
-    if (Object.keys(fetcher.data).length === 0) {
+    if (Object.keys(fetcher.data).length <= 1) {
       setEdit(false);
       setSocials(rawSocials);
     }
-  }, [rawSocials, fetcher.state, fetcher.data]);
+    if (fetcher.data && typeof fetcher.data === "object" && "toast" in fetcher.data && fetcher.data.toast) {
+      addToast(fetcher.data.toast);
+    }
+  }, [rawSocials, fetcher.state, fetcher.data, addToast]);
 
   const selectables = getSelectableSocials(socials);
   const addLocalSocial = (platform: SocialPlatform) => {
@@ -128,7 +134,6 @@ const SocialSelect = ({ entityType, id, socials: rawSocials }: ISocialSelectProp
         <ActionButton content='Save' type='submit' />
       </div>}
     </fetcher.Form>
-
   </div>;
 };
 

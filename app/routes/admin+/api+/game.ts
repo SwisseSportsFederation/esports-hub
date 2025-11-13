@@ -2,7 +2,6 @@ import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix
 import { z } from "zod";
 import { zx } from 'zodix';
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
@@ -55,9 +54,8 @@ const postAction = async (request: Request) => {
 
   let headers;
   if (isSuperAdmin) {
-    headers = await createFlashMessage(request, 'Game added');
+    return json({ toast: 'Game added' });
   } else {
-    headers = await createFlashMessage(request, 'Game Request sent');
+    return json({ toast: 'Game Request sent' });
   }
-  return json({}, headers);
 }

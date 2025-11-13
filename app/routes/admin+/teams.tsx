@@ -16,6 +16,7 @@ import H1 from "~/components/Titles/H1";
 import H1Nav from "~/components/Titles/H1Nav";
 import { Theme, useTheme } from '~/context/theme-provider';
 import type { StringOrNull } from "~/db/queries.server";
+import { useToast } from "~/hooks/useToast";
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
 import type { loader as adminLoader } from "~/routes/admin+/_layout";
 import type { Membership } from "~/services/admin/index.server";
@@ -111,6 +112,7 @@ export default function () {
   const { formerTeams } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const [theme] = useTheme();
+  const { add: addToast } = useToast();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>()
   const teams = memberships.groups.filter(group => group.group_type === EntityTypeValue.TEAM);
 
@@ -127,7 +129,11 @@ export default function () {
     if (fetcher.data?.selectAdminGroupId) {
       setSelectAdminOpen(true)
     }
-  }, [fetcher.data]);
+
+    if (fetcher.data && typeof fetcher.data === "object" && "toast" in fetcher.data && fetcher.data.toast) {
+      addToast(fetcher.data.toast);
+    }
+  }, [fetcher.data, addToast]);
   return <>
     <div>
       <div className="w-full max-w-lg mx-auto flex flex-col items-center lg:mx-0">
