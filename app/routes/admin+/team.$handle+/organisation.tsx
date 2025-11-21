@@ -1,4 +1,5 @@
 import type { AccessRight, GroupToGroup } from "@prisma/client";
+import type { ActionFunctionArgs } from '@remix-run/node';
 import { Form, json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
 import { useState } from "react";
@@ -8,18 +9,17 @@ import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
 import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import Teaser from "~/components/Teaser/Teaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import H1 from "~/components/Titles/H1";
 import H1Nav from "~/components/Titles/H1Nav";
+import { RequestStatusValue } from '~/models/database.model';
 import type { loader as handleLoader } from "~/routes/admin+/team/$handle";
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkHandleAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 import { getOrganisationTeamTeasers } from "~/utils/teaserHelper";
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { RequestStatusValue } from '~/models/database.model';
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const user = await checkUserAuth(request);
@@ -37,8 +37,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
     }
   });
-  const headers = await createFlashMessage(request, 'Organisation left');
-  return json({}, headers);
+  return json({ toast: 'Organisation left' });
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -131,5 +130,6 @@ export default function () {
         <ActionButton className='bg-gray-3' content='No' action={() => setDeleteModalOpen(null)} />
       </Form>
     </Modal>
+    <ToastMessageListener />
   </>;
 }

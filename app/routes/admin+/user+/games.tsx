@@ -1,16 +1,16 @@
-import H1Nav from "~/components/Titles/H1Nav";
-import { useLoaderData, Form, useFetcher } from "@remix-run/react";
-import { checkUserAuth } from "~/utils/auth.server";
-import { db } from "~/services/db.server";
-import { getActiveGames } from "~/services/search.server";
-import { zx } from 'zodix';
-import { z } from "zod";
-import ActionButton from "~/components/Button/ActionButton";
-import { createFlashMessage } from "~/services/toast.server";
 import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
-import ComboboxAdder from "~/components/Forms/ComboboxAdder";
-import type { IdValue } from "~/services/search.server";
+import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
+import { z } from "zod";
+import { zx } from 'zodix';
+import ActionButton from "~/components/Button/ActionButton";
+import ComboboxAdder from "~/components/Forms/ComboboxAdder";
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
+import H1Nav from "~/components/Titles/H1Nav";
+import { db } from "~/services/db.server";
+import type { IdValue } from "~/services/search.server";
+import { getActiveGames } from "~/services/search.server";
+import { checkUserAuth } from "~/utils/auth.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { games } = await zx.parseForm(request, {
@@ -33,8 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log(error);
     return json({}, 500);
   }
-  const headers = await createFlashMessage(request, 'Account update is done');
-  return json({}, headers);
+  return json({ toast: 'Account update is done' });
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -94,5 +93,6 @@ export default function () {
         <ActionButton content='Save' name='save-button' value='Save' type='submit' />
       </Form>
     </div>
+    <ToastMessageListener />
   </div>;
 };

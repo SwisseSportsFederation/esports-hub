@@ -11,6 +11,7 @@ import EntityDetailBlock from '~/components/Blocks/EntityDetailBlock';
 import type { SerializeFrom } from '@remix-run/server-runtime';
 import dateInputStyles from '~/styles/date-input.css?url';
 import { createFlashMessage } from '~/services/toast.server';
+import { ToastMessageListener } from '~/components/Notifications/ToastMessageListener';
 
 export function links() {
   return [
@@ -92,6 +93,9 @@ export default function () {
   const { searchParams } = useLoaderData<typeof loader>();
   const { team } = useOutletContext<SerializeFrom<typeof handleLoader>>();
 
-  return <EntityDetailBlock {...team} entityId={team.id} entityType="TEAM" entityBirthday={team.founded}
-    imageId={team.image} searchParams={searchParams} />;
+  return <>
+    <EntityDetailBlock {...team} entityId={team.id} entityType="TEAM" entityBirthday={team.founded}
+      imageId={team.image} searchParams={searchParams} />
+    <ToastMessageListener />
+  </>;
 }

@@ -8,12 +8,12 @@ import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
 import ActionButton from '~/components/Button/ActionButton';
 import AskModalBody from '~/components/Notifications/AskModalBody';
 import Modal from '~/components/Notifications/Modal';
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
 import H1 from '~/components/Titles/H1';
 import { entityToPathSegment } from '~/helpers/entityType';
 import { updateEmail } from "~/services/admin/api/user.server";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
-import { createFlashMessage } from "~/services/toast.server";
 import dateInputStyles from "~/styles/date-input.css?url";
 import { checkUserAuth, checkUserValid, logout } from "~/utils/auth.server";
 
@@ -40,8 +40,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const user = await checkUserAuth(request);
   try {
     if (handle === email) {
-      const headers = await createFlashMessage(request, `Nickname cannot be email`);
-      return json({}, { status: 400, ...headers });
+      return json({ toast: 'Nickname cannot be email' }, { status: 400 });
+    }
+    if (!handle.match(/^[a-zA-Z0-9äöü_-]+$/)) {
+      return json({ toast: `Nickname cannot contain special characters` }, { status: 400 });
     }
 
     const languageIds = (JSON.parse(languages) as string[]).map(langId => ({ id: Number(langId) }));
@@ -84,11 +86,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   } catch (error: any) {
     console.log(error);
-    const headers = await createFlashMessage(request, `Error updating user: ${error.message ?? ''}`);
-    return json({}, { status: 500, ...headers });
+    return json({ toast: `Error updating user: ${error.message ?? ''}` }, { status: 500 });
   }
-  const headers = await createFlashMessage(request, 'Account update is done');
-  return json({}, headers);
+  return json({ toast: 'Account update is done' });
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -157,5 +157,6 @@ export default function () {
         primaryButton={{ text: 'Yes', onClick: handleDelete }}
         secondaryButton={{ text: 'No', onClick: () => setModalOpen(false) }} />
     </Modal>
+    <ToastMessageListener />
   </>
 }

@@ -1,5 +1,5 @@
-import type { Group} from '@prisma/client';
-import type { ActionFunctionArgs} from '@remix-run/node';
+import type { Group } from '@prisma/client';
+import type { ActionFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import styles from 'react-image-crop/dist/ReactCrop.css?url';
@@ -8,11 +8,12 @@ import { action as apiAction } from '~/routes/admin+/api+/organisation';
 import { getSearchParams } from '~/services/search.server';
 import dateInputStyles from '~/styles/date-input.css?url';
 import { AccessRightValue, EntityTypeValue, VerificationLevelValue } from '~/models/database.model';
+import { ToastMessageListener } from '~/components/Notifications/ToastMessageListener';
 
 export function links() {
   return [
-    {rel: 'stylesheet', href: styles},
-    {rel: 'stylesheet', href: dateInputStyles},
+    { rel: 'stylesheet', href: styles },
+    { rel: 'stylesheet', href: dateInputStyles },
   ];
 }
 
@@ -45,9 +46,12 @@ export async function loader() {
 }
 
 export default function () {
-  const {searchParams, organisation} = useLoaderData<typeof loader>();
-  return <EntityDetailBlock {...organisation} canton={null} languages={[]} create={true} entityId={organisation.id}
-                            entityType="ORGANISATION"
-                            entityBirthday={organisation.founded} imageId={organisation.image}
-                            searchParams={searchParams}/>;
+  const { searchParams, organisation } = useLoaderData<typeof loader>();
+  return <>
+    <EntityDetailBlock {...organisation} canton={null} languages={[]} create={true} entityId={organisation.id}
+      entityType="ORGANISATION"
+      entityBirthday={organisation.founded} imageId={organisation.image}
+      searchParams={searchParams} />
+    <ToastMessageListener />
+  </>;
 }

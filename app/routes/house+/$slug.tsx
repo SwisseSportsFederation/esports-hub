@@ -1,16 +1,15 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Form, json, Link, useLoaderData } from '@remix-run/react';
+import { Resend } from "resend";
 import { z } from "zod";
 import { zx } from "zodix";
-import { createFlashMessage } from "~/services/toast.server";
-import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
-import { Form, json, Link, useLoaderData } from '@remix-run/react';
-import LinkButton from "~/components/Button/LinkButton";
-import TextInput from "~/components/Forms/TextInput";
-import DateInput from "~/components/Forms/DateInput";
 import ActionButton from "~/components/Button/ActionButton";
-import dateInputStyles from '~/styles/date-input.css?url';
-import { Resend } from "resend";
+import LinkButton from "~/components/Button/LinkButton";
+import DateInput from "~/components/Forms/DateInput";
+import TextInput from "~/components/Forms/TextInput";
 import { db } from "~/services/db.server";
+import dateInputStyles from '~/styles/date-input.css?url';
+import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 
 export function links() {
 	return [
@@ -35,8 +34,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 		if (!success) {
 			console.log('Form zod error:', zodError);
-			const headers = await createFlashMessage(request, 'Error while reading form data');
-			return json({}, headers);
+			return json({ toast: 'Error while reading form data' });
 		}
 
 		const location = await db.location.findFirst({
@@ -45,8 +43,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 			}
 		})
 		if (!location) {
-			const headers = await createFlashMessage(request, 'Location not found');
-			return json({}, headers);
+			return json({ toast: 'Location not found' });
 		}
 		if (location.email && location.name) {
 			const locationInfoMails = [location.email];
@@ -103,17 +100,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 			if (error || error2) {
 				console.log(error);
-				const headers = await createFlashMessage(request, 'Error while sending email');
-				return json({}, headers);
+				return json({ toast: 'Error while sending email' });
 			}
 		}
 	} catch (error) {
 		console.log(error);
-		const headers = await createFlashMessage(request, 'Error while sending email');
-		return json({}, headers);
+		return json({ toast: 'Error while sending email' });
 	}
-	const headers = await createFlashMessage(request, 'Booking request sent');
-	return json({}, headers);
+	return json({ toast: 'Booking request sent' });
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

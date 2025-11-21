@@ -10,16 +10,16 @@ import IconButton from "~/components/Button/IconButton";
 import TextInput from "~/components/Forms/TextInput";
 import Icons from "~/components/Icons";
 import Modal from "~/components/Notifications/Modal";
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
 import type { ITeaserProps } from "~/components/Teaser/LinkTeaser";
 import TeaserList from "~/components/Teaser/TeaserList";
 import H1 from "~/components/Titles/H1";
 import H1Nav from "~/components/Titles/H1Nav";
+import { RequestStatusValue } from '~/models/database.model';
+import type { loader as handleLoader } from '~/routes/admin+/organisation.$handle+/admin.organisation.$handle';
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth } from "~/utils/auth.server";
 import { getTeamTeasers } from "~/utils/teaserHelper";
-import type { loader as handleLoader } from '~/routes/admin+/organisation.$handle+/admin.organisation.$handle';
-import { RequestStatusValue } from '~/models/database.model';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { handle } = zx.parseParams(params, {
@@ -116,13 +116,11 @@ export async function action({ request }: ActionFunctionArgs) {
             parent_id
           }
         });
-        const headers = await createFlashMessage(request, 'Team invited');
-        return json({ searchResult: [] }, headers);
+        return json({ toast: 'Team invited', searchResult: [] });
       } catch (error: any) {
         console.log(error);
         if (error?.message.includes('constraint')) {
-          const headers = await createFlashMessage(request, 'Error: Team already has Organisation.');
-          return json({}, headers);
+          return json({ toast: 'Error: Team already has Organisation.' });
         }
         throw json({}, 500);
       }
@@ -134,8 +132,7 @@ export async function action({ request }: ActionFunctionArgs) {
             child_id: teamIdToRemove
           }
         });
-        const headers = await createFlashMessage(request, 'Team removed');
-        return json({ searchResult: [] }, headers);
+        return json({ toast: 'Team removed', searchResult: [] });
       } catch (error) {
         console.log(error);
         throw json({}, 500);
@@ -216,5 +213,6 @@ export default function () {
         </div>
       }
     </Modal>
+    <ToastMessageListener />
   </>
 }

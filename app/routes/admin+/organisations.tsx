@@ -19,6 +19,7 @@ import type { Membership } from '~/services/admin/index.server';
 import dateInputStyles from '~/styles/date-input.css?url';
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
 import { useTheme, Theme } from '~/context/theme-provider';
+import { useToast } from '~/hooks/useToast';
 
 export function links() {
   return [
@@ -78,6 +79,7 @@ const mainOrgIcon = (groupId: string, isMainOrg: boolean | null, theme: string, 
 export default function () {
   const fetcher = useFetcher();
   const [theme] = useTheme();
+  const { add: addToast } = useToast();
   const { user, memberships } = useOutletContext<SerializeFrom<typeof adminLoader>>();
   const organisations = memberships.groups.filter(group => group.group_type === EntityTypeValue.ORGANISATION);
 
@@ -92,7 +94,11 @@ export default function () {
     if (fetcher.data?.selectAdminGroupId) {
       setSelectAdminOpen(true);
     }
-  }, [fetcher.data]);
+
+    if (fetcher.data && typeof fetcher.data === "object" && "toast" in fetcher.data && fetcher.data.toast) {
+      addToast(fetcher.data.toast);
+    }
+  }, [fetcher.data, addToast]);
   return <>
     <div>
       <div className="w-full max-w-lg mx-auto flex flex-col items-center lg:mx-0">

@@ -8,11 +8,12 @@ import { action as apiAction } from '~/routes/admin+/api+/team';
 import { getSearchParams } from '~/services/search.server';
 import dateInputStyles from '~/styles/date-input.css?url';
 import { AccessRightValue, EntityTypeValue, VerificationLevelValue } from '~/models/database.model';
+import { ToastMessageListener } from '~/components/Notifications/ToastMessageListener';
 
 export function links() {
   return [
-    {rel: 'stylesheet', href: styles},
-    {rel: 'stylesheet', href: dateInputStyles},
+    { rel: 'stylesheet', href: styles },
+    { rel: 'stylesheet', href: dateInputStyles },
   ];
 }
 
@@ -45,8 +46,11 @@ export async function loader() {
 }
 
 export default function () {
-  const {searchParams, team} = useLoaderData<typeof loader>();
-  return <EntityDetailBlock {...team} canton={null} languages={[]} create={true} entityId={team.id} entityType="TEAM"
-                            entityBirthday={team.founded}
-                            imageId={team.image} searchParams={searchParams}/>;
+  const { searchParams, team } = useLoaderData<typeof loader>();
+  return <>
+    <EntityDetailBlock {...team} canton={null} languages={[]} create={true} entityId={team.id} entityType="TEAM"
+      entityBirthday={team.founded}
+      imageId={team.image} searchParams={searchParams} />
+    <ToastMessageListener />
+  </>;
 }

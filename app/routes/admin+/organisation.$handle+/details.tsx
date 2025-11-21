@@ -5,6 +5,7 @@ import styles from 'react-image-crop/dist/ReactCrop.css?url';
 import { z } from "zod";
 import { zx } from "zodix";
 import EntityDetailBlock from "~/components/Blocks/EntityDetailBlock";
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
 import type { loader as handleLoader } from "~/routes/admin+/organisation/$handle";
 import { db } from "~/services/db.server";
 import { getSearchParams } from "~/services/search.server";
@@ -102,7 +103,10 @@ export async function loader() {
 export default function () {
   const { searchParams } = useLoaderData<typeof loader>();
   const { organisation } = useOutletContext<SerializeFrom<typeof handleLoader>>();
-  return <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORGANISATION'
-    entityBirthday={organisation.founded} imageId={organisation.image}
-    searchParams={searchParams} />;
+  return <>
+    <EntityDetailBlock {...organisation} entityId={organisation.id} entityType='ORGANISATION'
+      entityBirthday={organisation.founded} imageId={organisation.image}
+      searchParams={searchParams} />;
+    <ToastMessageListener />
+  </>
 }

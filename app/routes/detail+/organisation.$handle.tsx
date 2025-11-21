@@ -1,18 +1,18 @@
 import { Prisma } from "@prisma/client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, useFetcher, useLoaderData } from '@remix-run/react';
 import { z } from "zod";
 import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import ActionButton from "~/components/Button/ActionButton";
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
 import TeaserList from "~/components/Teaser/TeaserList";
+import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import { getOrganisationGames, isOrganisationMember } from "~/utils/entityFilters";
 import { getOrganisationMemberTeasers, getTeamTeasers } from "~/utils/teaserHelper";
-import { AccessRightValue, RequestStatusValue } from '~/models/database.model';
-import { json, useFetcher, useLoaderData } from '@remix-run/react';
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   /* Apply for Organisation */
@@ -47,16 +47,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       console.log(`user ${user.db.id} applied for group ${group.id}`)
     } else {
       console.log(`user ${user.db.id} already has membership in ${group.id}`)
-      const headers = await createFlashMessage(request, 'You already applied for this organisation.');
-      return json({}, headers);
+      return json({ toast: 'You already applied for this organisation.' });
     }
   } catch (error) {
     console.log(error);
-    const headers = await createFlashMessage(request, 'Error while applying for group');
-    return json({}, headers);
+    return json({ toast: 'Error while applying for group' });
   }
-  const headers = await createFlashMessage(request, 'Applied for group');
-  return json({}, headers);
+  return json({ toast: 'Applied for group' });
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -166,5 +163,6 @@ export default function () {
         </div>
       </div>
     </div>
+    <ToastMessageListener />
   </div>;
 };

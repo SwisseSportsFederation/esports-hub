@@ -6,6 +6,7 @@ import { zx } from "zodix";
 import DetailContentBlock from "~/components/Blocks/DetailContentBlock";
 import DetailHeader from "~/components/Blocks/DetailHeader";
 import TeamHistory from "~/components/Blocks/TeamHistory";
+import { ToastMessageListener } from "~/components/Notifications/ToastMessageListener";
 import TeaserList from "~/components/Teaser/TeaserList";
 import { EntityTypeValue, RequestStatusValue } from '~/models/database.model';
 import { db } from "~/services/db.server";
@@ -93,5 +94,6 @@ export default function () {
         </div>
       </div>
     </div>
+    <ToastMessageListener />
   </div>;
 }

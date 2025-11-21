@@ -1,6 +1,6 @@
 import { json, useFetcher, useLoaderData, useOutletContext } from "@remix-run/react";
 import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/server-runtime";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageBasicUploadBlock from "~/components/Blocks/ImageBlock/ImageBasicUploadBlock";
 import ActionButton from "~/components/Button/ActionButton";
 import IconButton from "~/components/Button/IconButton";
@@ -9,6 +9,7 @@ import TextInput from "~/components/Forms/TextInput";
 import AskModalBody from "~/components/Notifications/AskModalBody";
 import Modal from "~/components/Notifications/Modal";
 import H1 from "~/components/Titles/H1";
+import { useToast } from "~/hooks/useToast";
 import type { loader as superadminLoader } from "~/routes/superadmin+/_layout";
 import { db } from "~/services/db.server";
 import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
@@ -42,6 +43,13 @@ export default function () {
   const [showConfirmModalPrice, setShowConfirmModalPrice] = useState<string>("");
   const fetcher = useFetcher();
   const [imageReady, setImageReady] = useState(true);
+  const { add: addToast } = useToast();
+
+  useEffect(() => {
+    if (fetcher.data && typeof fetcher.data === "object" && "toast" in fetcher.data && fetcher.data.toast) {
+      addToast(fetcher.data.toast);
+    }
+  }, [fetcher.data, addToast]);
 
   const toggleEdit = (locationId: BigInt) => {
     if (showEdit.includes(locationId)) {

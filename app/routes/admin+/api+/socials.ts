@@ -3,7 +3,6 @@ import { json, redirect, type ActionFunction, type LoaderFunction } from "@remix
 import { z } from "zod";
 import { zx } from 'zodix';
 import { db } from "~/services/db.server";
-import { createFlashMessage } from "~/services/toast.server";
 import { checkIdAccessForEntity, checkUserAuth } from "~/utils/auth.server";
 
 export let loader: LoaderFunction = () => redirect("/admin");
@@ -58,6 +57,5 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ error }, 500);
   }
 
-  const headers = await createFlashMessage(request, 'Socials updated successfully');
-  return json({}, headers);
+  return json({ toast: 'Socials updated successfully' });
 };
