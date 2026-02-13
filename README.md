@@ -84,7 +84,9 @@ pnpm prisma migrate dev # update local database model to current prisma sheet.
 ```
 
 ### Database Deployment
-Change database url in .env file to correct server.
+Change database url in .env file to correct server. 
+
+Warning: On Coolify Databases that only have a local link you will need to go into coolify and go to the project -> environment -> esports-hub app -> terminal tab. There you can execute it after doing a redeploy. This should be done automatically in the future with Github Actions, that are currently broken.
 ```sh
 pnpm prisma migrate status # check status of remote database
 pnpm prisma migrate deploy # deploy all new migrations without deleting data
