@@ -195,6 +195,7 @@ model Location {
   description  String
   image        String
   max_capacity Int
+  is_hotel     Boolean         @default(false)
   prices       LocationPrice[]
 
   @@map("location")

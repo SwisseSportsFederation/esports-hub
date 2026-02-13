@@ -10,7 +10,6 @@ import AskModalBody from "~/components/Notifications/AskModalBody";
 import Modal from "~/components/Notifications/Modal";
 import H1 from "~/components/Titles/H1";
 import { useToast } from "~/hooks/useToast";
-import type { loader as superadminLoader } from "~/routes/superadmin+/_layout";
 import { db } from "~/services/db.server";
 import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 
@@ -34,7 +33,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function () {
   const { locations } = useLoaderData<typeof loader>();
-  const { user } = useOutletContext<SerializeFrom<typeof superadminLoader>>();
   const [showCreate, setShowCreate] = useState(false);
   const [showCreatePrice, setShowCreatePrice] = useState(false);
   const [showEdit, setShowEdit] = useState<BigInt[]>([]);
@@ -140,6 +138,12 @@ export default function () {
         </div>
         <div className="col-span-2 lg:col-span-1">
           <TextInput id="max_capacity" inputType="number" label="Max Capacity" defaultValue={location?.max_capacity ?? ""} className="!mt-0" />
+        </div>
+        <div className="col-span-2 lg:col-span-1 flex items-center">
+          <div className="mr-2">
+            <input type="checkbox" name="is_hotel" id="is_hotel" defaultChecked={location?.is_hotel ?? false} className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />
+          </div>
+          <label htmlFor="is_hotel" className="inline-block text-black dark:text-white">Is Hotel always included</label>
         </div>
         <div className="col-span-2">
           <TextareaInput id="description" label="Description" value={location?.description ?? ""} />

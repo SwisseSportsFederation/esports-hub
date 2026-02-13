@@ -50,19 +50,21 @@ const createLocation = async (request: Request) => {
 		website: z.string(),
 		description: z.string(),
 		image: z.string(),
-		max_capacity: z.string()
+		max_capacity: z.string(),
+		is_hotel: z.string()
 	});
 	if (!success) {
 		console.log(error);
 		return json({ toast: 'Error while reading form data' }, { status: 400 });
 	}
 	console.log("form data", data);
-	const { max_capacity, ...rest } = data;
+	const { max_capacity, is_hotel, ...rest } = data;
 	try {
 		await db.location.create({
 			data: {
 				...rest,
-				max_capacity: Number(max_capacity)
+				max_capacity: Number(max_capacity),
+				is_hotel: Boolean(is_hotel)
 			}
 		})
 		return json({ toast: 'Location created successfully' }, { status: 200 });
@@ -83,13 +85,14 @@ const updateLocation = async (request: Request) => {
 		website: z.string(),
 		description: z.string(),
 		image: z.string(),
-		max_capacity: z.string()
+		max_capacity: z.string(),
+		is_hotel: z.string()
 	});
 	if (!success) {
 		console.log(error);
 		return json({ toast: 'Error while reading form data' }, { status: 400 });
 	}
-	const { max_capacity, locationId, ...rest } = data;
+	const { max_capacity, locationId, is_hotel, ...rest } = data;
 	try {
 		await db.location.update({
 			where: {
@@ -97,7 +100,8 @@ const updateLocation = async (request: Request) => {
 			},
 			data: {
 				...rest,
-				max_capacity: Number(max_capacity)
+				max_capacity: Number(max_capacity),
+				is_hotel: Boolean(is_hotel)
 			}
 		})
 		return json({ toast: 'Location updated successfully' }, { status: 200 });
