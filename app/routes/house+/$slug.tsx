@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, json, Link, useLoaderData } from '@remix-run/react';
+import { Form, json, Link, useActionData, useLoaderData, useNavigation } from '@remix-run/react';
+import { useState } from "react";
 import { Resend } from "resend";
 import { z } from "zod";
 import { zx } from "zodix";
@@ -133,6 +134,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function () {
 	const { location, loggedIn } = useLoaderData<typeof loader>();
+	const actionData = useActionData<typeof action>();
+	const submitted = actionData?.toast === "Booking request sent";
+	const navigation = useNavigation();
+	const isSubmitting = navigation.state === "submitting";
 
 	if (!location) {
 		return <div className="mx-3 py-7">
@@ -186,6 +191,12 @@ export default function () {
 				</Form>
 			}
 			{loggedIn &&
+				submitted &&
+				<div className="mt-8 mb-4 font-bold text-red-1 text-center">
+					Your booking request has been sent! The location will get back to you as soon as possible.
+				</div>
+			}
+			{loggedIn && !submitted &&
 				<div>
 					<h2 className="mt-8 mb-4 font-bold text-3xl">Book</h2>
 					<Form method="post"
@@ -223,7 +234,10 @@ export default function () {
 								<label htmlFor="member" className="inline-block text-black dark:text-white">optional: I am an ordinary SESF member. (<Link to="https://sesf.ch/become-a-member/" className="text-red-1">Register here</Link>)</label>
 							</div>
 						</div>
-						<ActionButton content="Book" type="submit" disabled={false} />
+						<ActionButton
+							content={isSubmitting ? "Sending..." : "Book"}
+							type="submit"
+							disabled={isSubmitting} />
 					</Form>
 				</div>
 			}
