@@ -10,7 +10,6 @@ import AskModalBody from "~/components/Notifications/AskModalBody";
 import Modal from "~/components/Notifications/Modal";
 import H1 from "~/components/Titles/H1";
 import { useToast } from "~/hooks/useToast";
-import type { loader as superadminLoader } from "~/routes/superadmin+/_layout";
 import { db } from "~/services/db.server";
 import { checkSuperAdmin, checkUserAuth } from "~/utils/auth.server";
 
@@ -34,7 +33,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function () {
   const { locations } = useLoaderData<typeof loader>();
-  const { user } = useOutletContext<SerializeFrom<typeof superadminLoader>>();
   const [showCreate, setShowCreate] = useState(false);
   const [showCreatePrice, setShowCreatePrice] = useState(false);
   const [showEdit, setShowEdit] = useState<BigInt[]>([]);

@@ -67,7 +67,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 					<li>From: ${new Date(formData.from).toLocaleDateString('de-CH')}</li>
 					<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
 					<li>People: ${formData.people}</li>
-					<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
+					${!!formData.hotel && `<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>`}
 					<li>SESF Member: ${formData.member === 'on' ? 'Yes' : 'No'}</li>
 				</ul>
 				<p>Please get back to them as soon as possible.</p>
@@ -90,7 +90,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 					<li>From: ${new Date(formData.from).toLocaleDateString('de-CH')}</li>
 					<li>To: ${new Date(formData.to).toLocaleDateString('de-CH')}</li>
 					<li>People: ${formData.people}</li>
-					<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>
+					${!!formData.hotel && `<li>Hotel: ${formData.hotel === 'on' ? 'Yes' : 'No'}</li>`}
 					<li>SESF Member: ${formData.member === 'on' ? 'Yes' : 'No'}</li>
 				</ul>
 				<p>Best regards,</p>
@@ -149,7 +149,7 @@ export default function () {
 				</div>
 				<div className="col-span-2 lg:col-span-1">
 					<h1 className="text-4xl font-bold mb-2">{location.name}</h1>
-					<p className="mb-2">{location.description}</p>
+					<p className="mb-2 whitespace-pre-line">{location.description}</p>
 					<p className="mb-2"><b className="font-bold">Address: </b>{location.address}</p>
 					<p className="mb-4"><b className="font-bold">Space: </b>{location.max_capacity} players</p>
 					{location.website && <LinkButton path={location.website} target="_blank" title="Website"></LinkButton>}

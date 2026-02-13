@@ -1,12 +1,13 @@
 node_modules
 
+.DS_Store
 .idea
 .cache
 .env
 .vscode
 .vercel
 .output
-.dump
+*.dump
 /build/
 /public/build
 /api/index.js
