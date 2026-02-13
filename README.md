@@ -50,14 +50,12 @@ From your terminal (for now locally only in dev mode):
 ```sh
 pnpm dev
 ```
-
 This starts your app in development mode, rebuilding assets on file changes.
 
-If the database layout was changed be sure to use:
 
+To start the database locally you can run it using docker compose:
 ```sh
-pnpm prisma migrate reset --force
-pnpm prisma db seed
+docker compose up
 ```
 
 ## Deployment
@@ -90,4 +88,11 @@ Warning: On Coolify Databases that only have a local link you will need to go in
 ```sh
 pnpm prisma migrate status # check status of remote database
 pnpm prisma migrate deploy # deploy all new migrations without deleting data
+```
+
+### Database local issues
+If you can't make it run and have problems with prisma migrations try to clean the database migrations with following commands (this will probably delete the whole local db and reseed it):
+```sh
+pnpm prisma migrate reset --force
+pnpm prisma db seed
 ```
