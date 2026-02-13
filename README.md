@@ -76,6 +76,13 @@ pnpm start
 
 Currently all deployments need to be pulled from Coolify instead of pipelines triggering deployments.
 
+### Database Model Update
+Change database url in .env file to local server.
+```sh
+pnpm prisma migrate status # check status of remote database
+pnpm prisma migrate dev # update local database model to current prisma sheet.
+```
+
 ### Database Deployment
 Change database url in .env file to correct server.
 ```sh

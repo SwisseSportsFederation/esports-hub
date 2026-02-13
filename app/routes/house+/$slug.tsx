@@ -208,12 +208,14 @@ export default function () {
 							<div className="col-span-2 lg:col-span-1">
 								<TextInput id="people" label="People" defaultValue='6' />
 							</div>
-							<div className="col-span-2 flex items-center">
-								<div className="mr-2">
-									<input type="checkbox" name="hotel" id="hotel" className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />
+							{!location.is_hotel &&
+								<div className="col-span-2 flex items-center">
+									<div className="mr-2">
+										<input type="checkbox" name="hotel" id="hotel" className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />
+									</div>
+									<label htmlFor="hotel" className="inline-block text-black dark:text-white">optional: Include Hotel</label>
 								</div>
-								<label htmlFor="hotel" className="inline-block text-black dark:text-white">optional: Include Hotel</label>
-							</div>
+							}
 							<div className="col-span-2 flex items-center">
 								<div className="mr-2">
 									<input type="checkbox" name="member" id="member" className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />

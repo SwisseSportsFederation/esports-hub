@@ -6,6 +6,7 @@ node_modules
 .vscode
 .vercel
 .output
+.dump
 /build/
 /public/build
 /api/index.js

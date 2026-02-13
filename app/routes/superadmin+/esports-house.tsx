@@ -141,6 +141,12 @@ export default function () {
         <div className="col-span-2 lg:col-span-1">
           <TextInput id="max_capacity" inputType="number" label="Max Capacity" defaultValue={location?.max_capacity ?? ""} className="!mt-0" />
         </div>
+        <div className="col-span-2 lg:col-span-1 flex items-center">
+          <div className="mr-2">
+            <input type="checkbox" name="is_hotel" id="is_hotel" checked={location?.is_hotel ?? false} className="mt-1 inline-block w-5 h-5 border-gray-300 rounded shadow-sm focus:border-red-500 focus:ring-red-500" />
+          </div>
+          <label htmlFor="is_hotel" className="inline-block text-black dark:text-white">Is Hotel always included</label>
+        </div>
         <div className="col-span-2">
           <TextareaInput id="description" label="Description" value={location?.description ?? ""} />
         </div>
