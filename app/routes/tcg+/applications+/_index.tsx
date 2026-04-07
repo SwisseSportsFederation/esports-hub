@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			image: true,
 			created_at: true,
 			checked_main_team: true,
-			has_data_policy: true,
+			is_accepted: true,
 			user: {
 				select: {
 					id: true,
@@ -55,7 +55,7 @@ export default function TcgApplicationsOverview() {
 							<th className="px-3 py-3">User</th>
 							<th className="px-3 py-3">Email</th>
 							<th className="px-3 py-3">Main Team</th>
-							<th className="px-3 py-3">Policy</th>
+							<th className="px-3 py-3">Accepted</th>
 							<th className="px-3 py-3">Details</th>
 						</tr>
 					</thead>
@@ -67,7 +67,7 @@ export default function TcgApplicationsOverview() {
 								<td className="px-3 py-3 align-top">{application.user.name || application.user.handle}</td>
 								<td className="px-3 py-3 align-top">{application.user.email}</td>
 								<td className="px-3 py-3 align-top">{application.checked_main_team ? "Yes" : "No"}</td>
-								<td className="px-3 py-3 align-top">{application.has_data_policy ? "Accepted" : "Missing"}</td>
+								<td className="px-3 py-3 align-top">{application.is_accepted ? "Accepted" : "Pending"}</td>
 								<td className="px-3 py-3 align-top">
 									<Link to={`/tcg/applications/${application.id.toString()}`} className="text-red-1 hover:underline">
 										Open

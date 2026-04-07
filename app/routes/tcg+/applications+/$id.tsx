@@ -1,6 +1,8 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { z } from "zod";
+import { zx } from "zodix";
 import { useImage } from "~/context/image-provider";
 import { db } from "~/services/db.server";
 import { checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
@@ -26,6 +28,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 			comments: true,
 			checked_main_team: true,
 			has_data_policy: true,
+			is_accepted: true,
 			created_at: true,
 			user: {
 				select: {
@@ -42,6 +45,33 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 	return json({ application });
 }
 
+export async function action({ request, params }: ActionFunctionArgs) {
+	const user = await checkUserAuth(request);
+	await checkTcgAdmin(user.db.id);
+
+	if (!params.id) {
+		throw new Response("Application ID missing", { status: 400 });
+	}
+
+	const { is_accepted } = await zx.parseForm(request, {
+		is_accepted: z.enum(["true", "false"])
+	});
+
+	const updated = await db.tCGApplication.update({
+		where: {
+			id: Number(params.id)
+		},
+		data: {
+			is_accepted: is_accepted === "true"
+		},
+		select: {
+			is_accepted: true
+		}
+	});
+
+	return json({ success: true, is_accepted: updated.is_accepted });
+}
+
 const DetailField = ({ label, value }: { label: string, value: string }) => {
 	return <div className="rounded-xl bg-white p-4 dark:bg-gray-2">
 		<div className="mb-2 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-5">{label}</div>
@@ -52,6 +82,14 @@ const DetailField = ({ label, value }: { label: string, value: string }) => {
 export default function TcgApplicationDetail() {
 	const { application } = useLoaderData<typeof loader>();
 	const imageRoot = useImage();
+	const fetcher = useFetcher<typeof action>();
+	const isSaving = fetcher.state !== "idle";
+	const currentAccepted =
+		fetcher.formData?.get("is_accepted") === "true"
+			? true
+			: fetcher.formData?.get("is_accepted") === "false"
+				? false
+				: Boolean(application.is_accepted);
 
 	return <div className="mx-3 py-7">
 		<div className="max-w-5xl w-full mx-auto">
@@ -73,7 +111,23 @@ export default function TcgApplicationDetail() {
 						<div><span className="font-bold">Handle:</span> {application.user.handle}</div>
 						<div><span className="font-bold">Email:</span> {application.user.email}</div>
 						<div><span className="font-bold">Main team confirmed:</span> {application.checked_main_team ? "Yes" : "No"}</div>
-						<div><span className="font-bold">Policy accepted:</span> {application.has_data_policy ? "Yes" : "No"}</div>
+						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
+							<label htmlFor="is_accepted"><span className="font-bold">Accepted</span></label>
+							<input
+								type="checkbox"
+								id="is_accepted"
+								name="is_accepted"
+								value="true"
+								checked={currentAccepted}
+								disabled={isSaving}
+								onChange={(event) => {
+									const formData = new FormData();
+									formData.set("is_accepted", String(event.currentTarget.checked));
+									fetcher.submit(formData, { method: "post" });
+								}}
+							/>
+						</fetcher.Form>
+						{isSaving && <div className="text-sm text-gray-500">Saving...</div>}
 					</div>
 				</div>
 

@@ -228,6 +228,7 @@ model TCGApplication {
   checked_main_team Boolean
   has_data_policy   Boolean
   created_at        DateTime @default(now()) @db.Timestamptz(6)
+  is_accepted       Boolean? @default(false)
 
   @@map("tcg_application")
 }
