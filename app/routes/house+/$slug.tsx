@@ -1,6 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, json, Link, useActionData, useLoaderData, useNavigation } from '@remix-run/react';
-import { useState } from "react";
 import { Resend } from "resend";
 import { z } from "zod";
 import { zx } from "zodix";
