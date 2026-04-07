@@ -1,22 +1,29 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, useLoaderData } from '@remix-run/react';
-import { isLoggedIn } from "~/utils/auth.server";
+import { checkTcgAdmin, checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import LinkButton from "~/components/Button/LinkButton";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const loggedIn = await isLoggedIn(request);
+	let isTcgAdmin = false;
+	if (loggedIn) {
+		const user = await checkUserAuth(request);
+		isTcgAdmin = await checkTcgAdmin(user.db.id, false);
+	}
 
 	return json({
-		loggedIn
+		loggedIn,
+		isTcgAdmin
 	});
 }
 
 export default function () {
-	const { loggedIn } = useLoaderData<typeof loader>();
+	const { loggedIn, isTcgAdmin } = useLoaderData<typeof loader>();
 
 	return <div className="mx-3 py-7">
 		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
 			<h1 className="text-4xl font-bold mb-2">Swiss Gaming TCG</h1>
+			{isTcgAdmin && <div className="my-8 bg-gray-3 p-4 rounded-lg"><div className="mb-2 font-bold">Admin only</div><LinkButton path="/tcg/applications" title="View submitted applications" /></div>}
 			<div className="grid grid-cols-2 gap-y-4 lg:gap-12">
 				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">What is Swiss Gaming TCG?</h2>

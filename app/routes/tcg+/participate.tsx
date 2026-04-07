@@ -83,7 +83,7 @@ export default function () {
 				<Form method="post" className="grid grid-cols-1 gap-y-6 lg:gap-6"
 					encType="multipart/form-data">
 					<input name="user_id" type="hidden" value={String(user.db.id)} />
-					<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} className="w-80" />
+					<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} className="w-64" />
 					<TextareaInput id="inspiration" label="Inspiration" value={inspiration} required={true} />
 					<div className="lg:mx-0 mb-6">
 						<div className="mb-2 font-bold">Inspiration Image or image of yourself. (Please less than 2MB)</div>

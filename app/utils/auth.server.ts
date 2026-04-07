@@ -80,6 +80,24 @@ export const checkSuperAdmin = async (userId: bigint, redirect_user?: boolean) =
   return false;
 }
 
+export const checkTcgAdmin = async (userId: bigint, redirect_user?: boolean) => {
+  redirect_user = redirect_user == undefined ? true : redirect_user;
+  const user = await db.user.findFirstOrThrow({
+    where: {
+      id: Number(userId)
+    },
+    select: {
+      is_tcg_admin: true
+    }
+  });
+  if (user.is_tcg_admin) {
+    return true;
+  } else if (redirect_user) {
+    throw redirect('/tcg');
+  }
+  return false;
+}
+
 export const checkHandleAccessForEntity = async (userId: string | bigint, handle: string | undefined, minAccess: AccessRight): Promise<AccessRight> => {
   if (!handle) {
     throw redirect('/admin');

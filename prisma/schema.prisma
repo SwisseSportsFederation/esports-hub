@@ -137,6 +137,7 @@ model User {
   has_data_policy    Boolean           @default(false)
   is_searchable      Boolean           @default(false)
   is_superadmin      Boolean?          @default(false)
+  is_tcg_admin       Boolean           @default(false)
   tcgapplications    TCGApplication[]
 
   @@map("user")
