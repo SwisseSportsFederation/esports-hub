@@ -1,10 +1,9 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
-import { Form, json, useLoaderData } from '@remix-run/react';
+import { Form, json, useActionData, useLoaderData } from '@remix-run/react';
 import { z } from "zod";
 import { zx } from 'zodix';
 import ImageUploadBlock from "~/components/Blocks/ImageUploadBlock";
 import ActionButton from "~/components/Button/ActionButton";
-import DropdownInput from "~/components/Forms/DropdownInput";
 import TextareaInput from "~/components/Forms/TextareaInput";
 import TextInput from "~/components/Forms/TextInput";
 import { checkUserAuth } from "~/utils/auth.server";
@@ -65,6 +64,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function () {
 	const { user } = useLoaderData<typeof loader>();
+	const actionData = useActionData<typeof action>();
+	const hasSubmittedSuccessfully = !!actionData && 'success' in actionData && actionData.success === true;
 	let imageId = "";
 	let inspiration = "";
 	let special_traits = "";
@@ -73,38 +74,37 @@ export default function () {
 	return <div className="mx-3 py-7">
 		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
 			<h1 className="text-4xl font-bold mb-2">Be a part of Swiss Gaming TCG</h1>
-			<Form method="post" className="grid grid-cols-1 gap-y-6 lg:gap-6"
-				encType="multipart/form-data">
-				<input name="user_id" type="hidden" value={String(user.db.id)} />
-				<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} className="w-80" />
-				<TextareaInput id="inspiration" label="Inspiration" value={inspiration} required={true} />
-				<div className="lg:mx-0 mb-6">
-					<div className="mb-2 font-bold">Inspiration Image or image of yourself. (Please less than 2MB)</div>
-					<ImageUploadBlock path={'images/tcg/'} imageId={imageId} />
+			{hasSubmittedSuccessfully ? (
+				<div className="mt-6 rounded-xl border border-green-600/40 bg-green-100 p-5 text-green-900">
+					<div className="text-xl font-bold">Application submitted successfully</div>
+					<p className="mt-2">Thanks for participating in Swiss Gaming TCG. We received your application and will review it. You will not be informed of the outcome immediately and might only see the results once the cards are printed. We cannot guarantee that everyone will have a card, since we have a limited number of cards available.</p>
 				</div>
-				<TextareaInput id="special_traits" label="Your Special Traits. Tell us about yourself." value={special_traits} required={true} />
-				<TextareaInput id="comments" label="Any other comments or information you'd like to share?" value={comments} />
-				{/* <div className="relative w-full max-w-sm lg:max-w-full">
-					<label>
-						<span className={`absolute left-4 text-xs -top-4 text-color`}>Canton *</span>
-					</label>
-					<DropdownInput name="canton" selected={canton ?? null} inputs={searchParams.cantons}
-						sendDefaultOption={false} isBig={true} className="mt-1 block"
-						defaultOption={{ id: '', name: '' }} required={true} />
-				</div> */}
-				<div className="flex my-2 relative flex-row-reverse gap-4 justify-end">
-					<label htmlFor="checked_main_team">I have checked that my main team/organisation represents the organisation I want to have in the TCG. *</label>
-					<input type="checkbox" name="checked_main_team" id="checked_main_team" required />
-				</div>
-				<div className="flex my-2 relative flex-row-reverse gap-4 justify-end">
-					<label htmlFor="data-policy">TODO: I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">Swiss Gaming TCG policy</a>. *</label>
-					<input type="checkbox" name="has_data_policy" id="data-policy" required />
-				</div>
+			) : (
+				<Form method="post" className="grid grid-cols-1 gap-y-6 lg:gap-6"
+					encType="multipart/form-data">
+					<input name="user_id" type="hidden" value={String(user.db.id)} />
+					<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} className="w-80" />
+					<TextareaInput id="inspiration" label="Inspiration" value={inspiration} required={true} />
+					<div className="lg:mx-0 mb-6">
+						<div className="mb-2 font-bold">Inspiration Image or image of yourself. (Please less than 2MB)</div>
+						<ImageUploadBlock path={'images/tcg/'} imageId={imageId} />
+					</div>
+					<TextareaInput id="special_traits" label="Your Special Traits. Tell us about yourself." value={special_traits} required={true} />
+					<TextareaInput id="comments" label="Any other comments or information you'd like to share?" value={comments} />
+					<div className="flex my-2 relative flex-row-reverse gap-4 justify-end">
+						<label htmlFor="checked_main_team">I have checked that my main team/organisation represents the organisation I want to have in the TCG. *</label>
+						<input type="checkbox" name="checked_main_team" id="checked_main_team" required />
+					</div>
+					<div className="flex my-2 relative flex-row-reverse gap-4 justify-end">
+						<label htmlFor="data-policy">TODO: I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">Swiss Gaming TCG policy</a>. *</label>
+						<input type="checkbox" name="has_data_policy" id="data-policy" required />
+					</div>
 
-				<div className="flex w-full justify-center lg:justify-start">
-					<ActionButton content="Submit TCG Application" type="submit" />
-				</div>
-			</Form>
+					<div className="flex w-full justify-center lg:justify-start">
+						<ActionButton content="Submit TCG Application" type="submit" />
+					</div>
+				</Form>
+			)}
 		</div>
 	</div >;
 };

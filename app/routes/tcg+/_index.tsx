@@ -20,7 +20,7 @@ export default function () {
 			<div className="grid grid-cols-2 gap-y-4 lg:gap-12">
 				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">What is Swiss Gaming TCG?</h2>
-					<p className="dark:text-white mb-4">Swiss Gaming Trading Card Game is a TCG which includes cards of various Swiss gaming teams, players and tournaments. With this game you can collect cards, trade with other players and compete in offline tournaments. We plan to release it at the SwitzerLAN 2026.</p>
+					<p className="dark:text-white mb-4">Swiss Gaming Trading Card Game is a TCG which includes cards of various Swiss gaming teams, players and tournaments. With this game you can collect cards, trade with other players and compete in offline tournaments. We plan to release it at the SwitzerLAN 2026 if the production goes as planned.</p>
 				</div>
 				<div className="col-span-2 lg:col-span-1">
 					<img src="/assets/tcg/swiss-esports-tcg-4.jpg" alt="Swiss Gaming TCG Promo" className="rounded-lg" />
