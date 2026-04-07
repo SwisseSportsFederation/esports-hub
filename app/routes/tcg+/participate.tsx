@@ -72,7 +72,7 @@ export default function () {
 	let comments = "";
 
 	return <div className="mx-3 py-7">
-		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
+		<div className="max-w-prose lg:max-w-4xl w-full mx-auto">
 			<h1 className="text-4xl font-bold mb-2">Be a part of Swiss Gaming TCG</h1>
 			{hasSubmittedSuccessfully ? (
 				<div className="mt-6 rounded-xl border border-green-600/40 bg-green-100 p-5 text-green-900">
@@ -83,7 +83,7 @@ export default function () {
 				<Form method="post" className="grid grid-cols-1 gap-y-6 lg:gap-6"
 					encType="multipart/form-data">
 					<input name="user_id" type="hidden" value={String(user.db.id)} />
-					<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} className="w-64" />
+					<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} />
 					<TextareaInput id="inspiration" label="Inspiration" value={inspiration} required={true} />
 					<div className="lg:mx-0 mb-6">
 						<div className="mb-2 font-bold">Inspiration Image or image of yourself. (Please less than 2MB)</div>
@@ -91,12 +91,12 @@ export default function () {
 					</div>
 					<TextareaInput id="special_traits" label="Your Special Traits. Tell us about yourself." value={special_traits} required={true} />
 					<TextareaInput id="comments" label="Any other comments or information you'd like to share?" value={comments} />
-					<div className="flex my-2 relative flex-row-reverse gap-4 justify-end">
+					<div className="flex relative flex-row-reverse gap-4 justify-end">
 						<label htmlFor="checked_main_team">I have checked that my main team/organisation represents the organisation I want to have in the TCG. *</label>
 						<input type="checkbox" name="checked_main_team" id="checked_main_team" required />
 					</div>
-					<div className="flex my-2 relative flex-row-reverse gap-4 justify-end">
-						<label htmlFor="data-policy">TODO: I have read and agree to the <a href='https://sesf.ch/privacy-policy/' target="_blank" className="text-red-1 hover:underline">Swiss Gaming TCG policy</a>. *</label>
+					<div className="flex relative flex-row-reverse gap-4 justify-end">
+						<label htmlFor="data-policy">I have read and agree to the <a href='/tcg/policy' target="_blank" className="text-red-1 hover:underline">Swiss Gaming TCG Participation Agreement</a>. *</label>
 						<input type="checkbox" name="has_data_policy" id="data-policy" required />
 					</div>
 
