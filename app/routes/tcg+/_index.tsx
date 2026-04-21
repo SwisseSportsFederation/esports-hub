@@ -1,7 +1,8 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json, useLoaderData } from '@remix-run/react';
+import { Form, json, useLoaderData } from '@remix-run/react';
 import { checkTcgAdmin, checkUserAuth, isLoggedIn } from "~/utils/auth.server";
 import LinkButton from "~/components/Button/LinkButton";
+import ActionButton from "~/components/Button/ActionButton";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const loggedIn = await isLoggedIn(request);
@@ -38,7 +39,7 @@ export default function () {
 				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">How can I get a card of me in the TCG?</h2>
 					<p className="dark:text-white mb-4">You can be a part of the Swiss Gaming TCG by signing up for an account and filling out the <a href="/tcg/participate">sign-up form</a>. With this you will be added to a pool of players who are eligible to be featured in the TCG. Depending on the amount of players in the pool, we will select a number of players to be featured in the TCG. Please fill it out and fill out your esports hub profile as good as you can, so we can create great cards.</p>
-					{loggedIn ? <LinkButton path="/tcg/participate" title="Sign up for Swiss Gaming TCG" /> : <LinkButton path="/auth/login" title="Login to sign up for the TCG" />}
+					{loggedIn ? <LinkButton path="/tcg/participate" title="Sign up for Swiss Gaming TCG" /> : <Form action={"/auth/login"} method="post"><ActionButton type="submit" content="Login to sign up for the TCG" /></Form>}
 				</div>
 				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">Who is behind the project?</h2>
@@ -63,7 +64,7 @@ export default function () {
 					<p className="dark:text-white mb-4">We have chosen a German producer to manufacture the cards and boosters as local as possible. This comes at a greater cost, but we will keep the selling price of boosters to standard prices of traditional TCGs.</p>
 				</div>
 			</div>
-			{loggedIn ? <LinkButton path="/tcg/participate" title="Sign up for Swiss Gaming TCG" /> : <LinkButton path="/auth/login" title="Login to sign up for the TCG" />}
+			{loggedIn ? <LinkButton path="/tcg/participate" title="Sign up for Swiss Gaming TCG" /> : <Form action={"/auth/login"} method="post"><ActionButton type="submit" content="Login to sign up for the TCG" /></Form>}
 		</div>
 	</div >;
 };

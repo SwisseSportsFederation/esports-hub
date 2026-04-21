@@ -30,13 +30,14 @@ export async function action({ request }: ActionFunctionArgs) {
 	}
 
 	try {
-		const { user_id, name, inspiration, imageId, special_traits, comments, checked_main_team, has_data_policy } = await zx.parseForm(request, {
+		const { user_id, name, inspiration, imageId, special_traits, comments, discord_handle, checked_main_team, has_data_policy } = await zx.parseForm(request, {
 			user_id: zx.NumAsString,
 			name: z.string().min(1, 'Name is required'),
 			inspiration: z.string().min(1, 'Inspiration is required'),
 			imageId: z.string(),
 			special_traits: z.string().min(1, 'Special traits are required'),
 			comments: z.string().optional().default(''),
+			discord_handle: z.string().min(1, 'Discord handle is required'),
 			checked_main_team: z.enum(['on']),
 			has_data_policy: z.enum(['on'])
 		});
@@ -50,6 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 				image: imageId,
 				special_traits,
 				comments,
+				discord_handle,
 				checked_main_team: true,
 				has_data_policy: true,
 			}
@@ -91,6 +93,7 @@ export default function () {
 					</div>
 					<TextareaInput id="special_traits" label="Your Special Traits. Tell us about yourself." value={special_traits} required={true} />
 					<TextareaInput id="comments" label="Any other comments or information you'd like to share?" value={comments} />
+					<TextInput id="discord_handle" label="Discord Handle" defaultValue={""} required={true} />
 					<div className="flex relative flex-row-reverse gap-4 justify-end">
 						<label htmlFor="checked_main_team">I have checked that my main team/organisation represents the organisation I want to have in the TCG. *</label>
 						<input type="checkbox" name="checked_main_team" id="checked_main_team" required />
