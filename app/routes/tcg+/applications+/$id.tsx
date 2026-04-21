@@ -29,6 +29,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 			checked_main_team: true,
 			has_data_policy: true,
 			is_accepted: true,
+			is_finished: true,
+			drawer: true,
+			discord_handle: true,
 			created_at: true,
 			user: {
 				select: {
@@ -42,7 +45,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 		}
 	});
 
-	return json({ application });
+	return json({ userHandle: user.db.handle, application });
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -53,23 +56,52 @@ export async function action({ request, params }: ActionFunctionArgs) {
 		throw new Response("Application ID missing", { status: 400 });
 	}
 
-	const { is_accepted } = await zx.parseForm(request, {
-		is_accepted: z.enum(["true", "false"])
+	const { is_accepted, is_finished, drawer } = await zx.parseForm(request, {
+		is_accepted: z.enum(["true", "false"]).optional(),
+		is_finished: z.enum(["true", "false"]).optional(),
+		drawer: z.string().optional()
 	});
 
-	const updated = await db.tCGApplication.update({
-		where: {
-			id: Number(params.id)
-		},
-		data: {
-			is_accepted: is_accepted === "true"
-		},
-		select: {
-			is_accepted: true
-		}
-	});
-
-	return json({ success: true, is_accepted: updated.is_accepted });
+	if (is_accepted) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				is_accepted: is_accepted === "true",
+			},
+			select: {
+				is_accepted: true,
+			}
+		});
+		return json({ success: true, is_accepted: updated.is_accepted });
+	} else if (is_finished) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				is_finished: is_finished === "true",
+			},
+			select: {
+				is_finished: true,
+			}
+		});
+		return json({ success: true, is_finished: updated.is_finished });
+	} else if (drawer) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				drawer: drawer
+			},
+			select: {
+				drawer: true
+			}
+		});
+		return json({ success: true, drawer: updated.drawer });
+	}
 }
 
 const DetailField = ({ label, value }: { label: string, value: string }) => {
@@ -80,7 +112,7 @@ const DetailField = ({ label, value }: { label: string, value: string }) => {
 };
 
 export default function TcgApplicationDetail() {
-	const { application } = useLoaderData<typeof loader>();
+	const { userHandle, application } = useLoaderData<typeof loader>();
 	const imageRoot = useImage();
 	const fetcher = useFetcher<typeof action>();
 	const isSaving = fetcher.state !== "idle";
@@ -90,6 +122,12 @@ export default function TcgApplicationDetail() {
 			: fetcher.formData?.get("is_accepted") === "false"
 				? false
 				: Boolean(application.is_accepted);
+	const currentFinished =
+		fetcher.formData?.get("is_finished") === "true"
+			? true
+			: fetcher.formData?.get("is_finished") === "false"
+				? false
+				: Boolean(application.is_finished);
 
 	return <div className="mx-3 py-7">
 		<div className="max-w-5xl w-full mx-auto">
@@ -110,6 +148,7 @@ export default function TcgApplicationDetail() {
 						<div><span className="font-bold">User:</span> <Link to={`/detail/user/${application.user.handle}`} className="text-red-1">{application.user.name || application.user.handle}</Link></div>
 						<div><span className="font-bold">Handle:</span> {application.user.handle}</div>
 						<div><span className="font-bold">Email:</span> {application.user.email}</div>
+						<div><span className="font-bold">Discord:</span> {application.discord_handle}</div>
 						<div><span className="font-bold">Main team confirmed:</span> {application.checked_main_team ? "Yes" : "No"}</div>
 						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
 							<label htmlFor="is_accepted"><span className="font-bold">Accepted</span></label>
@@ -125,6 +164,39 @@ export default function TcgApplicationDetail() {
 									formData.set("is_accepted", String(event.currentTarget.checked));
 									fetcher.submit(formData, { method: "post" });
 								}}
+							/></fetcher.Form>
+
+						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
+							<label htmlFor="drawer"><span className="font-bold">Drawer {application.drawer ? `(-> ${application.drawer})` : ""}</span></label>
+							<input
+								type="checkbox"
+								id="drawer"
+								name="drawer"
+								value="true"
+								checked={application.drawer !== null}
+								disabled={isSaving || application.drawer !== null}
+								onChange={(event) => {
+									const formData = new FormData();
+									formData.set("drawer", userHandle);
+									fetcher.submit(formData, { method: "post" });
+								}}
+							/>
+						</fetcher.Form>
+
+						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
+							<label htmlFor="is_finished"><span className="font-bold">Finished</span></label>
+							<input
+								type="checkbox"
+								id="is_finished"
+								name="is_finished"
+								value="true"
+								checked={currentFinished}
+								disabled={isSaving}
+								onChange={(event) => {
+									const formData = new FormData();
+									formData.set("is_finished", String(event.currentTarget.checked));
+									fetcher.submit(formData, { method: "post" });
+								}}
 							/>
 						</fetcher.Form>
 						{isSaving && <div className="text-sm text-gray-500">Saving...</div>}
@@ -138,5 +210,5 @@ export default function TcgApplicationDetail() {
 				</div>
 			</div>
 		</div>
-	</div>;
+	</div >;
 }

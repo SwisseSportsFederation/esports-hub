@@ -225,10 +225,13 @@ model TCGApplication {
   image             String
   special_traits    String
   comments          String?
+  discord_handle    String   @default("")
   checked_main_team Boolean
   has_data_policy   Boolean
   created_at        DateTime @default(now()) @db.Timestamptz(6)
   is_accepted       Boolean? @default(false)
+  drawer            String?
+  is_finished       Boolean? @default(false)
 
   @@map("tcg_application")
 }
