@@ -25,7 +25,7 @@ export default function () {
 		<div className="max-w-prose lg:max-w-6xl w-full mx-auto">
 			<h1 className="text-4xl font-bold mb-2">Swiss Gaming TCG</h1>
 			{isTcgAdmin && <div className="my-8 bg-gray-3 p-4 rounded-lg"><div className="mb-2 font-bold">Admin only</div><LinkButton path="/tcg/applications" title="View submitted applications" /></div>}
-			<div className="grid grid-cols-2 gap-y-4 lg:gap-12">
+			<div className="grid grid-cols-2 gap-y-4 lg:gap-12 mb-12">
 				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">What is Swiss Gaming TCG?</h2>
 					<p className="dark:text-white mb-4">Swiss Gaming Trading Card Game is a TCG which includes cards of various Swiss gaming teams, players and tournaments. With this game you can collect cards, trade with other players and compete in offline tournaments. We plan to release it at the SwitzerLAN 2026 if the production goes as planned.</p>
@@ -43,7 +43,7 @@ export default function () {
 				</div>
 				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">Who is behind the project?</h2>
-					<p className="dark:text-white mb-4">The Swiss Gaming TCG is a community led project by Lonya and zischler. With the help of various members of the Swiss gaming community, we aim to create a unique and fun trading card game that celebrates Swiss gaming culture. The Swiss Esports Federation, ERUPT, MYI AG and the SwitzerLAN team are also supporting this project.</p>
+					<p className="dark:text-white mb-4">The Swiss Gaming TCG is a community led project by Lonya and zischler and managed by ERUPT. With the help of various members of the Swiss gaming community, we aim to create a unique and fun trading card game that celebrates Swiss gaming culture. The Swiss Esports Federation, ERUPT, MYI AG and the SwitzerLAN team are also supporting this project.</p>
 				</div>
 				<div className="col-span-2 lg:col-span-1">
 					<img src="/assets/tcg/swiss-esports-tcg-2.jpg" alt="Swiss Gaming TCG Promo" className="rounded-lg" />
@@ -59,12 +59,25 @@ export default function () {
 					<h2 className="text-2xl dark:text-white font-bold mb-1">How are the cards designed?</h2>
 					<p className="dark:text-white mb-4">The art on the cards are hand drawn and made with love by our art team. All the further designs are done by our team with image editing programs.</p>
 				</div>
-				<div className="col-span-2">
+				<div className="col-span-2 lg:col-span-1">
+					<img src="/assets/tcg/swiss-esports-tcg-forest.jpg" alt="German Forest" className="rounded-lg" />
+				</div>
+				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">Where are the cards manufactured?</h2>
 					<p className="dark:text-white mb-4">We have chosen a German producer to manufacture the cards and boosters as local as possible. This comes at a greater cost, but we will keep the selling price of boosters to standard prices of traditional TCGs.</p>
 				</div>
 			</div>
-			{loggedIn ? <LinkButton path="/tcg/participate" title="Sign up for Swiss Gaming TCG" /> : <Form action={"/auth/login"} method="post"><ActionButton type="submit" content="Login to sign up for the TCG" /></Form>}
+			<div className="flex flex-wrap gap-12 justify-center mb-16">
+				<img src="/assets/sesf-logo-white-text.svg" alt="SESF Logo" className="h-16 mb-2" />
+				<img src="/assets/tcg/erupt.svg" alt="ERUPT Logo" className="h-10 mb-2" />
+				<img src="/assets/tcg/myi-logo.svg" alt="MYI Logo" className="h-12 mb-2" />
+				<img src="/assets/tcg/switzerlan-logo.png" alt="SwitzerLAN Logo" className="h-14 mb-2" />
+			</div>
+			<div className="flex justify-center">
+				<div className="min-w-60">
+					{loggedIn ? <LinkButton path="/tcg/participate" title="Sign up for Swiss Gaming TCG" /> : <Form action={"/auth/login"} method="post"><ActionButton type="submit" content="Login to sign up for the TCG" /></Form>}
+				</div>
+			</div>
 		</div>
 	</div >;
 };
