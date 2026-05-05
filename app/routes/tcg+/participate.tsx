@@ -95,7 +95,7 @@ export default function () {
 					<TextareaInput id="comments" label="Any other comments or information you'd like to share?" value={comments} />
 					<TextInput id="discord_handle" label="Discord Handle" defaultValue={""} required={true} />
 					<div className="flex relative flex-row-reverse gap-4 justify-end">
-						<label htmlFor="checked_main_team">I have checked that my main team/organisation represents the organisation I want to have in the TCG. *</label>
+						<label htmlFor="checked_main_team">I have checked that my main team/organisation represents the organisation I want to have in the TCG and that all of the games I want to have associated with me are correct. *</label>
 						<input type="checkbox" name="checked_main_team" id="checked_main_team" required />
 					</div>
 					<div className="flex relative flex-row-reverse gap-4 justify-end">
