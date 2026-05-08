@@ -3,7 +3,7 @@ import { Form } from '@remix-run/react';
 import type { SerializeFrom } from '@remix-run/server-runtime';
 import { useState } from 'react';
 import ImageCropBlock from '~/components/Blocks/ImageBlock/ImageCropBlock';
-import ImageUploadBlock from '~/components/Blocks/ImageUploadBlock';
+import AvatarUploadBlock from '~/components/Blocks/AvatarUploadBlock';
 import ActionButton from '~/components/Button/ActionButton';
 import DateInput from '~/components/Forms/DateInput';
 import DropDownAdder from '~/components/Forms/DropDownAdder';
@@ -76,7 +76,7 @@ const EntityDetailBlock = (props: EntityDetailBlockProps) => {
       {create && <H1>Create {entityType.toLocaleLowerCase()}</H1>}
       {!create &&
         <div className="max-w-prose mx-auto lg:mx-0 mb-6">
-          <ImageUploadBlock entityId={entityId} entity={entityType} imageId={imageId} />
+          <AvatarUploadBlock entityId={entityId} entity={entityType} imageId={imageId} />
         </div>
       }
       <Form method="post" className="space-y-6 flex flex-col items-start max-w-prose mx-auto lg:mx-0"

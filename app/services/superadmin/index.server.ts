@@ -41,3 +41,16 @@ export async function getSuperAdmins(user: AuthUser) {
 
   return await Promise.resolve(userQuery);
 }
+
+export async function getTcgAdmins(user: AuthUser) {
+  await checkSuperAdmin(user.db.id);
+  return db.user.findMany({
+    where: {
+      is_tcg_admin: true
+    },
+    orderBy: {
+      name: 'desc'
+    },
+    include: { games: true }
+  });
+}
