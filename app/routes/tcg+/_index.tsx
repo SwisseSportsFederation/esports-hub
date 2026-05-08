@@ -55,9 +55,12 @@ export default function () {
 					<h2 className="text-2xl dark:text-white font-bold mb-1">Where can I get cards?</h2>
 					<p className="dark:text-white mb-4">We plan to give out and sell cards at the SwitzerLAN 2026 if we don't run into production issues. Cards will be available in booster packs of 10 cards each. Presale is currently not planned but please let us know if you are interested via <a href="mailto:tobias.zischler@erupt.ch">email</a></p>
 				</div>
-				<div className="col-span-2">
+				<div className="col-span-2 lg:col-span-1">
 					<h2 className="text-2xl dark:text-white font-bold mb-1">How are the cards designed?</h2>
-					<p className="dark:text-white mb-4">The art on the cards are hand drawn and made with love by our art team. All the further designs are done by our team with image editing programs.</p>
+					<p className="dark:text-white mb-4">The art on the cards are hand drawn and made with love by our art team. All the further designs are done by our team with image editing programs. The following image is a work in progress prototype and the design of the cards will look different in the final version.</p>
+				</div>
+				<div className="col-span-2 lg:col-span-1">
+					<img src="/assets/tcg/tcg-render.jpg" alt="Swiss Gaming TCG Promo" className="rounded-lg" />
 				</div>
 				<div className="col-span-2 lg:col-span-1">
 					<img src="/assets/tcg/swiss-esports-tcg-forest.jpg" alt="German Forest" className="rounded-lg" />
