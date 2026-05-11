@@ -62,9 +62,11 @@ const ImageUploadBlock = ({ path, imageId }: ImageUploadBlockPropTypes) => {
         <div className="flex flex-col space-y-5 sm:flex-row sm:space-x-5 sm:space-y-0">
           <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-600 transition-colors`}
             onClick={() => setUploadOpen(true)}
+            type="button"
             aria-label="Replace Image">{!currentImageId ? 'New Image' : 'Change Image'}</button>
           {currentImageId && <button className={`px-4 py-2 cursor-pointer rounded-md bg-red-1 text-white hover:bg-red-600 transition-colors`}
             onClick={() => setDeleteImageOpen(true)}
+            type="button"
             aria-label="Delete Image">Delete Image</button>}
         </div>
       </div>

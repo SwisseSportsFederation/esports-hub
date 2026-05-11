@@ -1,13 +1,15 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Link, useLoaderData } from "@remix-run/react";
+import IconButton from "~/components/Button/IconButton";
 import { db } from "~/services/db.server";
-import { checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
+import { checkSuperAdmin, checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const user = await checkUserAuth(request);
 	await checkTcgAdmin(user.db.id);
+	const isSuperAdmin = await checkSuperAdmin(user.db.id, false);
 
 	const applications = await db.tCGApplication.findMany({
 		orderBy: {
@@ -32,11 +34,32 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		}
 	});
 
-	return json({ applications });
+	return json({ applications, isSuperAdmin });
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+	const user = await checkUserAuth(request);
+	await checkSuperAdmin(user.db.id);
+
+	const formData = await request.formData();
+	const id = formData.get("id");
+	const task = formData.get("task");
+	if (!id) {
+		throw new Response("Application ID missing", { status: 400 });
+	}
+
+	if (task === "delete") {
+		await db.tCGApplication.delete({
+			where: { id: Number(id) }
+		});
+	}
+
+	return json({ success: true });
 }
 
 export default function TcgApplicationsOverview() {
-	const { applications } = useLoaderData<typeof loader>();
+	const { applications, isSuperAdmin } = useLoaderData<typeof loader>();
+	const fetcher = useFetcher();
 
 	const [filters, setFilters] = useState({
 		submitted: "",
@@ -130,9 +153,23 @@ export default function TcgApplicationsOverview() {
 								<td className={"px-3 py-3 align-top" + (application.is_accepted ? " text-green-500" : " text-yellow-500")}>{application.is_accepted ? "Accepted" : "Pending"}</td>
 								<td className="px-3 py-3 align-top">{application.drawer}</td>
 								<td className="px-3 py-3 align-top">
-									<Link to={`/tcg/applications/${application.id.toString()}`} className="text-red-1 hover:underline">
-										Open
-									</Link>
+									<div className="flex gap-2 justify-end">
+										<IconButton path={`/tcg/applications/${application.id.toString()}`} icon="edit" type="link" />
+										{isSuperAdmin && (
+											<IconButton
+												action={() => {
+													if (confirm(`Delete application "${application.name}"?`)) {
+														const formData = new FormData();
+														formData.set("id", application.id.toString());
+														formData.set("task", "delete");
+														fetcher.submit(formData, { method: "post" });
+													}
+												}}
+												icon="remove"
+												type="button"
+											/>
+										)}
+									</div>
 								</td>
 							</tr>;
 						})}

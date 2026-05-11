@@ -90,6 +90,11 @@ pnpm prisma migrate status # check status of remote database
 pnpm prisma migrate deploy # deploy all new migrations without deleting data
 ```
 
+Warning: First Backup production before deployment. This has to be done in the database terminal on coolify.
+```sh
+pg_dump -h localhost -p 5432 -U *USER* -d *DB_NAME* -Fc -f [DATE]-esports-hub.dump
+```
+
 ### Database local issues
 If you can't make it run and have problems with prisma migrations try to clean the database migrations with following commands (this will probably delete the whole local db and reseed it):
 ```sh

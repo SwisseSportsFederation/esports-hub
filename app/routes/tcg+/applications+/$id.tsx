@@ -56,13 +56,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
 		throw new Response("Application ID missing", { status: 400 });
 	}
 
-	const { is_accepted, is_finished, drawer } = await zx.parseForm(request, {
+	const { is_accepted, is_finished, drawer, comments } = await zx.parseForm(request, {
 		is_accepted: z.enum(["true", "false"]).optional(),
 		is_finished: z.enum(["true", "false"]).optional(),
-		drawer: z.string().optional()
+		drawer: z.string().optional(),
+		comments: z.string().optional()
 	});
 
-	if (is_accepted) {
+	if (comments !== undefined) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				comments: comments
+			},
+			select: {
+				comments: true
+			}
+		});
+		return json({ success: true, comments: updated.comments });
+	} else if (is_accepted) {
 		const updated = await db.tCGApplication.update({
 			where: {
 				id: Number(params.id)
@@ -206,7 +220,25 @@ export default function TcgApplicationDetail() {
 				<div className="lg:col-span-2 space-y-4">
 					<DetailField label="Inspiration" value={application.inspiration} />
 					<DetailField label="Special Traits" value={application.special_traits} />
-					<DetailField label="Comments" value={application.comments || "No additional comments provided."} />
+					<div className="rounded-xl bg-white p-4 dark:bg-gray-2">
+						<div className="mb-2 text-sm font-bold uppercase tracking-wide text-gray-500 dark:text-gray-5">Comments</div>
+						<fetcher.Form method="post">
+							<textarea
+								name="comments"
+								defaultValue={application.comments ?? ""}
+								rows={5}
+								className="w-full rounded-lg bg-gray-3 p-3 text-color dark:bg-gray-3 resize-y"
+								placeholder="No additional comments provided."
+							/>
+							<button
+								type="submit"
+								disabled={isSaving}
+								className="mt-2 rounded-lg bg-red-1 px-4 py-2 text-white disabled:opacity-50"
+							>
+								{isSaving ? "Saving..." : "Save"}
+							</button>
+						</fetcher.Form>
+					</div>
 				</div>
 			</div>
 		</div>

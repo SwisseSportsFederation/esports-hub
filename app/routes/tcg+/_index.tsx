@@ -70,11 +70,11 @@ export default function () {
 					<p className="dark:text-white mb-4">We have chosen a German producer to manufacture the cards and boosters as local as possible. This comes at a greater cost, but we will keep the selling price of boosters to standard prices of traditional TCGs.</p>
 				</div>
 			</div>
-			<div className="flex flex-wrap gap-12 justify-center mb-16">
-				<img src="/assets/sesf-logo-white-text.svg" alt="SESF Logo" className="h-16 mb-2" />
-				<img src="/assets/tcg/erupt.svg" alt="ERUPT Logo" className="h-10 mb-2" />
-				<img src="/assets/tcg/myi-logo.svg" alt="MYI Logo" className="h-12 mb-2" />
-				<img src="/assets/tcg/switzerlan-logo.png" alt="SwitzerLAN Logo" className="h-14 mb-2" />
+			<div className="flex flex-wrap gap-12 justify-center items-center py-8 mb-8 rounded-lg bg-gray-1">
+				<img src="/assets/sesf-logo-white-text.svg" alt="SESF Logo" className="h-16" />
+				<img src="/assets/tcg/erupt.svg" alt="ERUPT Logo" className="h-10" />
+				<img src="/assets/tcg/myi-logo.svg" alt="MYI Logo" className="h-12" />
+				<img src="/assets/tcg/switzerlan-logo.png" alt="SwitzerLAN Logo" className="h-14" />
 			</div>
 			<div className="flex justify-center">
 				<div className="min-w-60">
