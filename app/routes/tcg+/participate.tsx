@@ -86,7 +86,10 @@ export default function () {
 					encType="multipart/form-data">
 					<input name="user_id" type="hidden" value={String(user.db.id)} />
 					<TextInput id="name" label={'Name on Card'} defaultValue={""} required={true} />
-					<TextareaInput id="inspiration" label="Inspiration" value={inspiration} required={true} />
+					<div>
+						<p className="mb-4">Tell us what you would like to look like in the card so our artists can try to create a design that matches your vision. For example if you want to have a hat on, or any other specific details.</p>
+						<TextareaInput id="inspiration" label="Inspiration Details" value={inspiration} required={true} />
+					</div>
 					<div className="lg:mx-0 mb-6">
 						<div className="mb-2 font-bold">Inspiration Image or image of yourself. (Please less than 2MB)</div>
 						<ImageUploadBlock path={'images/tcg/'} imageId={imageId} />
