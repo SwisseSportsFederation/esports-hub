@@ -230,7 +230,10 @@ model TCGApplication {
   has_data_policy   Boolean
   created_at        DateTime @default(now()) @db.Timestamptz(6)
   is_accepted       Boolean? @default(false)
-  drawer            String?
+  drawer_sketch     String?
+  drawer            String? //lineart
+  drawer_color      String?
+  drawer_background String?
   is_finished       Boolean? @default(false)
 
   @@map("tcg_application")
