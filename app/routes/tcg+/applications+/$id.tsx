@@ -5,11 +5,12 @@ import { z } from "zod";
 import { zx } from "zodix";
 import { useImage } from "~/context/image-provider";
 import { db } from "~/services/db.server";
-import { checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
+import { checkSuperAdmin, checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
 	const user = await checkUserAuth(request);
 	await checkTcgAdmin(user.db.id);
+	const isSuperAdmin = await checkSuperAdmin(user.db.id, false);
 
 	if (!params.id) {
 		throw new Response("Application ID missing", { status: 400 });
@@ -30,7 +31,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 			has_data_policy: true,
 			is_accepted: true,
 			is_finished: true,
+			drawer_sketch: true,
 			drawer: true,
+			drawer_color: true,
+			drawer_background: true,
 			discord_handle: true,
 			created_at: true,
 			user: {
@@ -45,7 +49,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 		}
 	});
 
-	return json({ userHandle: user.db.handle, application });
+	return json({ userHandle: user.db.handle, application, isSuperAdmin });
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -56,10 +60,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 		throw new Response("Application ID missing", { status: 400 });
 	}
 
-	const { is_accepted, is_finished, drawer, comments } = await zx.parseForm(request, {
+	const { is_accepted, is_finished, drawer_sketch, drawer, drawer_color, drawer_background, comments } = await zx.parseForm(request, {
 		is_accepted: z.enum(["true", "false"]).optional(),
 		is_finished: z.enum(["true", "false"]).optional(),
+		drawer_sketch: z.string().optional(),
 		drawer: z.string().optional(),
+		drawer_color: z.string().optional(),
+		drawer_background: z.string().optional(),
 		comments: z.string().optional()
 	});
 
@@ -102,19 +109,58 @@ export async function action({ request, params }: ActionFunctionArgs) {
 			}
 		});
 		return json({ success: true, is_finished: updated.is_finished });
-	} else if (drawer) {
+	} else if (drawer_sketch !== undefined) {
 		const updated = await db.tCGApplication.update({
 			where: {
 				id: Number(params.id)
 			},
 			data: {
-				drawer: drawer
+				drawer_sketch: drawer_sketch === "null" ? null : drawer_sketch
+			},
+			select: {
+				drawer_sketch: true
+			}
+		});
+		return json({ success: true, drawer_sketch: updated.drawer_sketch });
+	} else if (drawer !== undefined) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				drawer: drawer === "null" ? null : drawer
 			},
 			select: {
 				drawer: true
 			}
 		});
 		return json({ success: true, drawer: updated.drawer });
+	} else if (drawer_color !== undefined) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				drawer_color: drawer_color === "null" ? null : drawer_color
+			},
+			select: {
+				drawer_color: true
+			}
+		});
+		return json({ success: true, drawer_color: updated.drawer_color });
+	} else if (drawer_background !== undefined) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				drawer_background: drawer_background === "null" ? null : drawer_background
+			},
+			select: {
+				drawer_background: true
+			}
+		});
+		return json({ success: true, drawer_background: updated.drawer_background });
 	}
 }
 
@@ -126,7 +172,7 @@ const DetailField = ({ label, value }: { label: string, value: string }) => {
 };
 
 export default function TcgApplicationDetail() {
-	const { userHandle, application } = useLoaderData<typeof loader>();
+	const { userHandle, application, isSuperAdmin } = useLoaderData<typeof loader>();
 	const imageRoot = useImage();
 	const fetcher = useFetcher<typeof action>();
 	const isSaving = fetcher.state !== "idle";
@@ -172,7 +218,7 @@ export default function TcgApplicationDetail() {
 								name="is_accepted"
 								value="true"
 								checked={currentAccepted}
-								disabled={isSaving}
+								disabled={isSaving && !isSuperAdmin}
 								onChange={(event) => {
 									const formData = new FormData();
 									formData.set("is_accepted", String(event.currentTarget.checked));
@@ -181,17 +227,72 @@ export default function TcgApplicationDetail() {
 							/></fetcher.Form>
 
 						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
-							<label htmlFor="drawer"><span className="font-bold">Drawer {application.drawer ? `(-> ${application.drawer})` : ""}</span></label>
+							<label htmlFor="drawer_sketch"><span className="font-bold">Sketch by {application.drawer_sketch ? `(-> ${application.drawer_sketch})` : ""}</span></label>
+							<input
+								type="checkbox"
+								id="drawer_sketch"
+								name="drawer_sketch"
+								value="true"
+								checked={application.drawer_sketch !== null}
+								disabled={(isSaving || application.drawer_sketch !== null) && !isSuperAdmin}
+								onChange={(event) => {
+									const formData = new FormData();
+									const newValue = application.drawer_sketch !== null ? "null" : userHandle;
+									formData.set("drawer_sketch", newValue);
+									fetcher.submit(formData, { method: "post" });
+								}}
+							/>
+						</fetcher.Form>
+
+						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
+							<label htmlFor="drawer"><span className="font-bold">Lineart by {application.drawer ? `(-> ${application.drawer})` : ""}</span></label>
 							<input
 								type="checkbox"
 								id="drawer"
 								name="drawer"
 								value="true"
 								checked={application.drawer !== null}
-								disabled={isSaving || application.drawer !== null}
+								disabled={(isSaving || application.drawer !== null) && !isSuperAdmin}
 								onChange={(event) => {
 									const formData = new FormData();
-									formData.set("drawer", userHandle);
+									const newValue = application.drawer !== null ? "null" : userHandle;
+									formData.set("drawer", newValue);
+									fetcher.submit(formData, { method: "post" });
+								}}
+							/>
+						</fetcher.Form>
+
+						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
+							<label htmlFor="drawer_color"><span className="font-bold">Color by {application.drawer_color ? `(-> ${application.drawer_color})` : ""}</span></label>
+							<input
+								type="checkbox"
+								id="drawer_color"
+								name="drawer_color"
+								value="true"
+								checked={application.drawer_color !== null}
+								disabled={(isSaving || application.drawer_color !== null) && !isSuperAdmin}
+								onChange={(event) => {
+									const formData = new FormData();
+									const newValue = application.drawer_color !== null ? "null" : userHandle;
+									formData.set("drawer_color", newValue);
+									fetcher.submit(formData, { method: "post" });
+								}}
+							/>
+						</fetcher.Form>
+
+						<fetcher.Form method="post" className="flex flex-row-reverse justify-end gap-2 relative">
+							<label htmlFor="drawer_background"><span className="font-bold">Background by {application.drawer_background ? `(-> ${application.drawer_background})` : ""}</span></label>
+							<input
+								type="checkbox"
+								id="drawer_background"
+								name="drawer_background"
+								value="true"
+								checked={application.drawer_background !== null}
+								disabled={(isSaving || application.drawer_background !== null) && !isSuperAdmin}
+								onChange={(event) => {
+									const formData = new FormData();
+									const newValue = application.drawer_background !== null ? "null" : userHandle;
+									formData.set("drawer_background", newValue);
 									fetcher.submit(formData, { method: "post" });
 								}}
 							/>
