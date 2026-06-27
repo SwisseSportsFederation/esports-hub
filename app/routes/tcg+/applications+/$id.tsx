@@ -1,8 +1,10 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zx } from "zodix";
+import IconButton from "~/components/Button/IconButton";
 import { useImage } from "~/context/image-provider";
 import { db } from "~/services/db.server";
 import { checkSuperAdmin, checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
@@ -60,7 +62,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 		throw new Response("Application ID missing", { status: 400 });
 	}
 
-	const { is_accepted, is_finished, drawer_sketch, drawer, drawer_color, drawer_background, comments } = await zx.parseForm(request, {
+	const { name, is_accepted, is_finished, drawer_sketch, drawer, drawer_color, drawer_background, comments } = await zx.parseForm(request, {
+		name: z.string().optional(),
 		is_accepted: z.enum(["true", "false"]).optional(),
 		is_finished: z.enum(["true", "false"]).optional(),
 		drawer_sketch: z.string().optional(),
@@ -70,7 +73,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
 		comments: z.string().optional()
 	});
 
-	if (comments !== undefined) {
+	if (name !== undefined) {
+		const updated = await db.tCGApplication.update({
+			where: {
+				id: Number(params.id)
+			},
+			data: {
+				name: name.trim()
+			},
+			select: {
+				name: true
+			}
+		});
+		return json({ success: true, name: updated.name });
+	} else if (comments !== undefined) {
 		const updated = await db.tCGApplication.update({
 			where: {
 				id: Number(params.id)
@@ -176,6 +192,8 @@ export default function TcgApplicationDetail() {
 	const imageRoot = useImage();
 	const fetcher = useFetcher<typeof action>();
 	const isSaving = fetcher.state !== "idle";
+	const [isEditingName, setIsEditingName] = useState(false);
+	const [nameValue, setNameValue] = useState(application.name);
 	const currentAccepted =
 		fetcher.formData?.get("is_accepted") === "true"
 			? true
@@ -189,11 +207,51 @@ export default function TcgApplicationDetail() {
 				? false
 				: Boolean(application.is_finished);
 
+	useEffect(() => {
+		setNameValue(application.name);
+	}, [application.name]);
+
+	useEffect(() => {
+		if (fetcher.data && "name" in fetcher.data && typeof fetcher.data.name === "string") {
+			setNameValue(fetcher.data.name);
+			setIsEditingName(false);
+		}
+	}, [fetcher.data]);
+
 	return <div className="mx-3 py-7">
 		<div className="max-w-5xl w-full mx-auto">
 			<div className="flex items-center justify-between gap-4 mb-6">
 				<div>
-					<h1 className="text-4xl font-bold mb-2">{application.name}</h1>
+					<div className="mb-2 flex items-center gap-2">
+						{isEditingName ? (
+							<fetcher.Form method="post" className="flex items-center gap-2">
+								<input
+									name="name"
+									value={nameValue}
+									onChange={(event) => setNameValue(event.currentTarget.value)}
+									className="rounded-lg border border-gray-4 bg-white px-3 py-2 text-xl font-bold text-color dark:bg-gray-2"
+									autoFocus
+								/>
+								<button type="submit" disabled={isSaving} className="rounded-lg bg-red-1 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
+									{isSaving ? "Saving..." : "Save"}
+								</button>
+								<button type="button" onClick={() => { setNameValue(application.name); setIsEditingName(false); }} className="rounded-lg bg-gray-3 px-3 py-2 text-sm text-color">
+									Cancel
+								</button>
+							</fetcher.Form>
+						) : (
+							<>
+								<h1 className="text-4xl font-bold">{nameValue}</h1>
+								<IconButton
+									icon="edit"
+									type="button"
+									action={() => setIsEditingName(true)}
+									size="medium"
+									className="ml-1"
+								/>
+							</>
+						)}
+					</div>
 					<p className="text-color">Submitted by <Link to={`/detail/user/${application.user.handle}`} className="text-red-1">{application.user.name || application.user.handle}</Link> on {new Date(application.created_at).toLocaleString()}</p>
 				</div>
 				<Link to="/tcg/applications" className="rounded-xl bg-gray-3 px-4 py-2 text-color">Back to overview</Link>
