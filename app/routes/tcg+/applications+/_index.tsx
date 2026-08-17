@@ -39,7 +39,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		}
 	});
 
-	return json({ applications, isSuperAdmin });
+	const drawerNames = Array.from(new Set(
+		applications.flatMap(app => [app.drawer_sketch, app.drawer, app.drawer_color, app.drawer_background])
+			.filter((value): value is string => Boolean(value))
+	)).sort((a, b) => a.localeCompare(b));
+
+	return json({ applications, isSuperAdmin, drawerNames });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -88,7 +93,7 @@ function ApplicationTimeline({ application }: { application: { is_accepted: bool
 }
 
 export default function TcgApplicationsOverview() {
-	const { applications, isSuperAdmin } = useLoaderData<typeof loader>();
+	const { applications, isSuperAdmin, drawerNames } = useLoaderData<typeof loader>();
 	const fetcher = useFetcher();
 
 	const [filters, setFilters] = useState({
@@ -99,6 +104,7 @@ export default function TcgApplicationsOverview() {
 		mainTeam: "",
 		accepted: "",
 	});
+	const [drawerName, setDrawerName] = useState("");
 
 	function setFilter(key: keyof typeof filters, value: string) {
 		setFilters(prev => ({ ...prev, [key]: value }));
@@ -119,6 +125,7 @@ export default function TcgApplicationsOverview() {
 			const expected = filters.accepted === "accepted";
 			if (app.is_accepted !== expected) return false;
 		}
+		if (drawerName && ![app.drawer_sketch, app.drawer, app.drawer_color, app.drawer_background].includes(drawerName)) return false;
 		return true;
 	});
 
@@ -133,6 +140,17 @@ export default function TcgApplicationsOverview() {
 					<p className="text-color">Overview of all submitted Swiss Gaming TCG applications.</p>
 				</div>
 				<Link to="/tcg" className="rounded-xl bg-gray-3 px-4 py-2 text-color">Back to TCG</Link>
+			</div>
+
+			<div className="mb-6 rounded-xl bg-white p-4 dark:bg-gray-2">
+				<h2 className="text-lg font-bold mb-2">My work / Drawer dashboard</h2>
+				<p className="text-color mb-3">Filter cards by who is working on the sketch, line art, coloring, or background.</p>
+				<div className="max-w-xs">
+					<select className={selectClass} value={drawerName} onChange={e => setDrawerName(e.target.value)}>
+						<option value="">All drawers</option>
+						{drawerNames.map(name => <option key={name} value={name}>{name}</option>)}
+					</select>
+				</div>
 			</div>
 
 			<div className="overflow-x-auto rounded-xl bg-white p-4 dark:bg-gray-2">
