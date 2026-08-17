@@ -3,6 +3,7 @@ import { json } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import IconButton from "~/components/Button/IconButton";
+import Icon from "~/components/Icons";
 import { db } from "~/services/db.server";
 import { checkSuperAdmin, checkTcgAdmin, checkUserAuth } from "~/utils/auth.server";
 
@@ -23,7 +24,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			discord_handle: true,
 			checked_main_team: true,
 			is_accepted: true,
+			drawer_sketch: true,
 			drawer: true,
+			drawer_color: true,
+			drawer_background: true,
+			is_finished: true,
 			user: {
 				select: {
 					id: true,
@@ -34,7 +39,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		}
 	});
 
-	return json({ applications, isSuperAdmin });
+	const drawerNames = Array.from(new Set(
+		applications.flatMap(app => [app.drawer_sketch, app.drawer, app.drawer_color, app.drawer_background])
+			.filter((value): value is string => Boolean(value))
+	)).sort((a, b) => a.localeCompare(b));
+
+	return json({ applications, isSuperAdmin, drawerNames });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -57,8 +67,33 @@ export async function action({ request }: ActionFunctionArgs) {
 	return json({ success: true });
 }
 
+const TIMELINE_STAGES = [
+	{ key: "is_accepted", label: "Accepted" },
+	{ key: "drawer_sketch", label: "Sketch" },
+	{ key: "drawer", label: "Drawer" },
+	{ key: "drawer_color", label: "Colored" },
+	{ key: "drawer_background", label: "Background" },
+	{ key: "is_finished", label: "Finished" },
+] as const;
+
+function ApplicationTimeline({ application }: { application: { is_accepted: boolean | null; drawer_sketch: string | null; drawer: string | null; drawer_color: string | null; drawer_background: string | null; is_finished: boolean | null } }) {
+	return <div className="flex items-center">
+		{TIMELINE_STAGES.map((stage, index) => {
+			const done = Boolean(application[stage.key]);
+			return <div key={stage.key} className="flex items-center" title={stage.label}>
+				{done
+					? <Icon iconName="accept" className="h-3.5 w-3.5" />
+					: <div className="h-3.5 w-3.5 rounded-full bg-gray-300 dark:bg-gray-5" />}
+				{index < TIMELINE_STAGES.length - 1 && (
+					<div className={"h-0.5 w-2" + (done ? " bg-green-500" : " bg-gray-300 dark:bg-gray-5")} />
+				)}
+			</div>;
+		})}
+	</div>;
+}
+
 export default function TcgApplicationsOverview() {
-	const { applications, isSuperAdmin } = useLoaderData<typeof loader>();
+	const { applications, isSuperAdmin, drawerNames } = useLoaderData<typeof loader>();
 	const fetcher = useFetcher();
 
 	const [filters, setFilters] = useState({
@@ -68,8 +103,8 @@ export default function TcgApplicationsOverview() {
 		discord: "",
 		mainTeam: "",
 		accepted: "",
-		drawer: "",
 	});
+	const [drawerName, setDrawerName] = useState("");
 
 	function setFilter(key: keyof typeof filters, value: string) {
 		setFilters(prev => ({ ...prev, [key]: value }));
@@ -90,7 +125,7 @@ export default function TcgApplicationsOverview() {
 			const expected = filters.accepted === "accepted";
 			if (app.is_accepted !== expected) return false;
 		}
-		if (filters.drawer && !(app.drawer ?? "").toLowerCase().includes(filters.drawer.toLowerCase())) return false;
+		if (drawerName && ![app.drawer_sketch, app.drawer, app.drawer_color, app.drawer_background].includes(drawerName)) return false;
 		return true;
 	});
 
@@ -107,9 +142,20 @@ export default function TcgApplicationsOverview() {
 				<Link to="/tcg" className="rounded-xl bg-gray-3 px-4 py-2 text-color">Back to TCG</Link>
 			</div>
 
+			<div className="mb-6 rounded-xl bg-white p-4 dark:bg-gray-2">
+				<h2 className="text-lg font-bold mb-2">My work / Drawer dashboard</h2>
+				<p className="text-color mb-3">Filter cards by who is working on the sketch, line art, coloring, or background.</p>
+				<div className="max-w-xs">
+					<select className={selectClass} value={drawerName} onChange={e => setDrawerName(e.target.value)}>
+						<option value="">All drawers</option>
+						{drawerNames.map(name => <option key={name} value={name}>{name}</option>)}
+					</select>
+				</div>
+			</div>
+
 			<div className="overflow-x-auto rounded-xl bg-white p-4 dark:bg-gray-2">
 				<div className="mb-3">Showing {filtered.length} of {applications.length} applications. (Accepted cards: {applications.filter(app => app.is_accepted).length})</div>
-				<table className="w-full min-w-[720px] text-left">
+				<table className="w-full min-w-[900px] text-left">
 					<thead>
 						<tr className="border-b border-gray-300 dark:border-gray-4">
 							<th className="px-3 py-3">
@@ -136,10 +182,7 @@ export default function TcgApplicationsOverview() {
 									<option value="pending">Pending</option>
 								</select>
 							</th>
-							<th className="px-3 py-3">
-								Drawer
-								<input className={inputClass} placeholder="Filter..." value={filters.drawer} onChange={e => setFilter("drawer", e.target.value)} />
-							</th>
+							<th className="px-3 py-3">Timeline</th>
 							<th className="px-3 py-3">Details</th>
 						</tr>
 					</thead>
@@ -151,7 +194,9 @@ export default function TcgApplicationsOverview() {
 								<td className="px-3 py-3 align-top">{application.user.name || application.user.handle}</td>
 								<td className="px-3 py-3 align-top">{application.discord_handle}</td>
 								<td className={"px-3 py-3 align-top" + (application.is_accepted ? " text-green-500" : " text-yellow-500")}>{application.is_accepted ? "Accepted" : "Pending"}</td>
-								<td className="px-3 py-3 align-top">{application.drawer}</td>
+								<td className="px-3 py-3 align-top">
+									<ApplicationTimeline application={application} />
+								</td>
 								<td className="px-3 py-3 align-top">
 									<div className="flex gap-2 justify-end">
 										<IconButton path={`/tcg/applications/${application.id.toString()}`} icon="edit" type="link" />
